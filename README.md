@@ -1,2 +1,2 @@
-# study-flow
+# studyflow
 Web Engineering 😄
