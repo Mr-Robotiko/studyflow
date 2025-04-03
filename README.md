@@ -19,6 +19,8 @@ jQuery, jQueryUI, Bootstrap
 (kein PHP/JS-Framework wie Symfony, React o.ä.)
 - Abgabe: Das System muss unter einer XAMPP Installation mit PHP 8.2.4 und MariaDB
 10.04.28 installierbar (File-Archiv und SQL-Dump) und lauffähig sein.
+
+  
 Funktionelle Vorgaben:
 Folgende Funktionalitäten sollen im Web-App Projekt implementiert werden
 - Sessionverwaltung
@@ -34,6 +36,8 @@ Folgende Funktionalitäten sollen im Web-App Projekt implementiert werden
 - Meldungsfenster und Userbestätigungen mit jQuery/jQuery UI oder Bootstrap
 - Datenexport via JSON
 - Dynamische Menüstruktur mit responsivem Webdesign
+
+  
 Dokumentation:
 Folgende Inhalte sollen in der Dokumentation enthalten sein:
 - Deckblatt mit Datum, App-Name, App-Kurzbeschreibung, Teamname und Teammitglieder
