@@ -1,11 +1,11 @@
 <html lang="de">
   <head>
     <meta charset="UTF8">
-    <title>Stucal Login</title>
+    <title>Login</title>
     <meta name="Studycal Login" content="Studycal Login">
   </head>
   <body>
-    <h1>Welcome to StudyFlow</h1>
+    <h1>Willkommen bei StudyCal</h1>
 
     <form action="#" method="post">
           <label for="username">Benutzername</label>
