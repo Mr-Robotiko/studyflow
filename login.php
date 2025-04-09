@@ -5,7 +5,7 @@
     <meta name="Studycal Login" content="Studycal Login">
   </head>
   <body>
-    <h1>Willkommen bei StudyCal</h1>
+    <h1>Willkommen zurück</h1>
 
     <form action="#" method="post">
           <label for="username">Benutzername</label>
