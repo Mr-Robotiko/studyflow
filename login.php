@@ -1,8 +1,10 @@
+
 <head>
         <meta charset="UTF8">
         <title>Stucal Login</title>
         <meta name="Studycal Login" content="Studycal Login">
 </head>
+<h1>Welcome to StudyFlow</h1>
 
 <form action="#" method="post">
         <label for="username">Benutzername:</label>
