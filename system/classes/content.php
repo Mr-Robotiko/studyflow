@@ -1,58 +1,51 @@
 <?php
-    class Content{
+class Content {
+    private $notes;
+    private $deadline;
+    private $start;
+    private $ToDo;
 
-        public function __construct($notes = NULL, $deadline = NULL, $start = NULL, $ToDo = NULL) {
-            include('todo.php');
-            setNotes($notes);
-            setDeadline($deadline);
-            setStart($start);
-            setToDo($ToDo);
-        }
+    public function __construct($notes = NULL, $deadline = NULL, $start = NULL, $ToDo = NULL) {
+        $this->setNotes($notes);
+        $this->setDeadline($deadline);
+        $this->setStart($start);
+        $this->setToDo($ToDo);
+    }
 
-        private $notes;
-        private $deadline;
-        private $start;
-        private $ToDo;
+    public function getNotes() {
+        return $this->notes;
+    }
 
-        public function getNotes()
-        {
-            return $this->notes;
-        }
+    public function getDeadline() {
+        return $this->deadline;
+    }
 
-        public function getDeadline()
-        {
-            return $this->deadline;
-        }
+    public function getStart() {
+        return $this->start;
+    }
 
-        public function getStart()
-        {
-            return $this->start;
-        }
+    public function getToDo() {
+        return $this->ToDo;
+    }
 
-        public function getToDo()
-        {
-            return $this->ToDo;
-        }
+    public function setNotes($notesValue) {
+        $this->notes = $notesValue;
+    }
 
-        public function setNotes($notesValue)
-        {
-            $this->notes = $notesValue;
-        }
+    public function setDeadline($deadlineValue) {
+        $this->deadline = $deadlineValue;
+    }
 
-        public function setDeadline($deadlineValue)
-        {
-            $this->notes = $deadlineValue;
-        }
+    public function setStart($startValue) {
+        $this->start = $startValue;
+    }
 
-        public function setStart($startValue)
-        {
-            $this->notes = $startValue;
-        }
+    public function setToDo($ToDo) {
+        $this->ToDo = $ToDo;
+    }
 
-        public function setToDo($ToDo)
-        {
-            $this->notes = $ToDo;
-        }
+    public function __toString() {
+        return "Notes: {$this->notes}\nDeadline: {$this->deadline}\nStart: {$this->start}\nToDo: " . get_class($this->ToDo);
+    }
 }
-
 ?>
