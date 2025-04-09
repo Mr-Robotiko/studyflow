@@ -1,4 +1,4 @@
-# studyflow
+# studycal
 Web Engineering: Entwicklung einer Kalender-Kollaborations-Plattform.
 
 Inhaltliche Vorgaben:
