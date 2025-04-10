@@ -1,5 +1,7 @@
 <?php
 class Content {
+    include("todo.php");
+    
     private $notes;
     private $deadline;
     private $start;

@@ -1,5 +1,7 @@
 <?php
     class Day {
+        include("task.php");
+        
         private $day;
         private $Task;
 
