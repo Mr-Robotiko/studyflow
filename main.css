@@ -1,97 +1,78 @@
-:root {
-    /* 🎨 Farben aus Figma Palette */
-    --black: #000000;
-    --blue-accent: #2D2FA2;
-    --light-blue: #4B9BF6;
-    --white: #FFFFFF;
-    --gray-light: #D9D9D9;
-    --gray-medium: #EBEBEB;
-    --gray-dark: #BEB9B9;
-    --cyan-bright: #2B2EE5;
-    --cyan-soft: #2B2EE5B8; 
-    --gray-muted: #393A39;
-    --purple-accent: #8E5AF4CC; 
-  
-    /* 🌐 Theme Farben */
-    --primary-color: var(--purple-accent);
-    --primary-hover: #7749d6;
-    --text-color: var(--black);
-    --font-family: 'Inter', sans-serif;
-    --border-radius: 20px;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.body {
+    display: grid;
+    grid-template-areas:
+      "header header"
+      "content today"
+      "footer footer";
+    grid-template-columns: 9fr 5fr;
+    gap: 2px;
+    background-color: #2196F3;
+    padding: 0px;
 }
 
-* {
+.body > div {
+    background-color: rgba(132, 173, 225, 0.8);
+    padding: 10px;
+}
+
+.body > div.head {
+    grid-area: header;
+    text-align: center;    
+}
+
+.body > div.kalender {
+    grid-area: content;
+}
+
+.body > div.today {
+    grid-area: today;
+}
+
+.body > div.footer {
+    grid-area: footer;
+    text-align: center;
+    background-color: #8e5af4;
+    padding: 0;
+    margin: 0; 
+}
+
+ul{
+    list-style-type: none;
+  }
+
+.header {
+    background-color: #333333;
+    color: white;
+}
+
+.nav {
+    color: black;
+    background-color: #2b2ee5;
+    backface-visibility: 74%;
+}
+
+h1 {
+    color: #2b2ee5;
+    background-color: lightgrey;
+    border-radius: 20px;
+    text-align: center;
+}
+
+button {
+    background-color: lightgrey;
+    color: black; 
+    text-align: center;
+    border-radius: 20px;
+}
+
+button:hover {
+    box-shadow: black;
+    text-align: center;
+    border-radius: 20px;
+}
+
+.image-circle {
+    border-radius: 50%;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background-color: var(--white);
-    font-family: var(--font-family);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.container {
-    text-align: center;
-    padding: 30px;
-}
-
-
-.title {
-    font-size: 2.8rem;
-    font-weight: 700;
-    letter-spacing: 4px;
-    color: var(--text-color);
-    margin-bottom: 40px;
-}
-
-.buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.btn {
-    background-color: var(--primary-color);
-    color: var(--text-color);
-    text-decoration: none;
-    padding: 14px 28px;
-    font-size: 1rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
-}
-
-.btn:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-}
-
-/* Responsiv für kleinere Bildschirmgrößen */
-@media (max-width: 768px) {
-    .title {
-        font-size: 2.2rem;
-    }
-    .btn {
-        font-size: 1rem;
-        padding: 12px 24px;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo img {
-        width: 120px; /* Logo wird bei sehr kleinen Geräten kleiner */
-    }
-    .title {
-        font-size: 1.8rem;
-    }
-    .btn {
-        font-size: 0.9rem;
-        padding: 10px 20px;
-    }
 }
