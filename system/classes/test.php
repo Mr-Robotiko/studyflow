@@ -1,4 +1,7 @@
 <?php
-    include("content.php");
-    echo("<h1>Hello World</h1>");
+    $file = "todo.php";
+    require_once $file;
+    $hello = "Hello";
+    //$day = new Day("Monday", "Hi");
+    echo("<h1>{$hello}</h1>");
 ?>
