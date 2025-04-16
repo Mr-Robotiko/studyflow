@@ -1,3 +1,17 @@
+<?php
+$hashedPassword = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $username = $_POST["username"] ?? '';
+    $password = $_POST["password"] ?? '';
+
+    $hashedPassword = hash("sha256", $password);
+
+    echo "Benutzer: $username<br>";
+    echo "Gehashtes Passwort: $hashedPassword";
+}
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -34,5 +48,10 @@
       </div>
     </form>
   </div>
+
+  <?php if (!empty($hashedPassword)): ?>
+        <h3>Gehashtes Passwort (SHA-256):</h3>
+        <p style="word-break: break-all; font-family: monospace;"><?= htmlspecialchars($hashedPassword) ?></p>
+    <?php endif; ?>
 </body>
 </html>
