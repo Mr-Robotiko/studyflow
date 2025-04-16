@@ -19,6 +19,7 @@
 }
 
 .body {
+    font-family: var(--font-family);
     display: grid;
     grid-template-areas:
       "header header"
@@ -106,6 +107,7 @@ button:hover {
 
 .container {
     text-align: center;
+    font-family: var(--font-family);
     padding: 30px;
 }
 .title {
@@ -124,11 +126,12 @@ button:hover {
 .btn {
     background-color: var(--primary-color);
     color: var(--text-color);
+    font-family: var(--font-family);
     text-decoration: none;
     padding: 20px 48px;
     font-size: 1.4rem;
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
+    border: none; 
     transition: all 0.3s ease;
     font-weight: bold;
     letter-spacing: 1px;
