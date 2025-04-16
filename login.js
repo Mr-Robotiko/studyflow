@@ -20,26 +20,3 @@ function input_to_var() {
     // Wenn alles gut ist, zeige die Werte
     alert("In Variable username: " + username + " || In Variable password: " + password);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

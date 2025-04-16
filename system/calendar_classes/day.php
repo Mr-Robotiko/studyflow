@@ -1,7 +1,6 @@
 <?php
-    class Day {
-        include("task.php");
-        
+    include_once "todo.php";
+    class Day {   
         private $day;
         private $Task;
 

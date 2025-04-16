@@ -1,6 +1,6 @@
 <?php
+    require_once "day.php";
     class Week {
-        include("day.php");
         
         private $Day;
         private $weekNumber;

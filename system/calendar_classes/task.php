@@ -1,6 +1,6 @@
 <?php
+    require_once "content.php";
     class Task {
-        include("content.php");
         
         private $name;
         private $start;
