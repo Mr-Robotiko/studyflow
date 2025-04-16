@@ -1,0 +1,78 @@
+.body {
+    display: grid;
+    grid-template-areas:
+      "header header"
+      "content today"
+      "footer footer";
+    grid-template-columns: 9fr 5fr;
+    gap: 2px;
+    background-color: #2196F3;
+    padding: 0px;
+}
+
+.body > div {
+    background-color: rgba(132, 173, 225, 0.8);
+    padding: 10px;
+}
+
+.body > div.head {
+    grid-area: header;
+    text-align: center;    
+}
+
+.body > div.kalender {
+    grid-area: content;
+}
+
+.body > div.today {
+    grid-area: today;
+}
+
+.body > div.footer {
+    grid-area: footer;
+    text-align: center;
+    background-color: #8e5af4;
+    padding: 0;
+    margin: 0; 
+}
+
+ul{
+    list-style-type: none;
+  }
+
+.header {
+    background-color: #333333;
+    color: white;
+}
+
+.nav {
+    color: black;
+    background-color: #2b2ee5;
+    backface-visibility: 74%;
+}
+
+h1 {
+    color: #2b2ee5;
+    background-color: lightgrey;
+    border-radius: 20px;
+    text-align: center;
+}
+
+button {
+    background-color: lightgrey;
+    color: black; 
+    text-align: center;
+    border-radius: 20px;
+}
+
+button:hover {
+    box-shadow: black;
+    text-align: center;
+    border-radius: 20px;
+}
+
+.image-circle {
+    border-radius: 50%;
+    margin: 0;
+    padding: 0;
+}
