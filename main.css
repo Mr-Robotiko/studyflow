@@ -19,7 +19,6 @@
 }
 
 .body {
-    font-family: var(--font-family);
     display: grid;
     grid-template-areas:
       "header header"
@@ -45,7 +44,7 @@
     grid-area: content;
 }
 
-.body > div.today {
+.body > div.todaytodo {
     grid-area: today;
 }
 
@@ -79,6 +78,15 @@ h1 {
     text-align: center;
 }
 
+.Mods{
+    background-color: lightgrey;
+    border-radius: 20px;
+    text-align: center;
+    margin: 5px;
+    padding: 3px;
+    justify-items: inline;
+}
+
 button {
     background-color: lightgrey;
     color: black; 
@@ -107,7 +115,6 @@ button:hover {
 
 .container {
     text-align: center;
-    font-family: var(--font-family);
     padding: 30px;
 }
 .title {
@@ -126,12 +133,11 @@ button:hover {
 .btn {
     background-color: var(--primary-color);
     color: var(--text-color);
-    font-family: var(--font-family);
     text-decoration: none;
     padding: 20px 48px;
     font-size: 1.4rem;
     border-radius: var(--border-radius);
-    border: none; 
+    box-shadow: var(--shadow);
     transition: all 0.3s ease;
     font-weight: bold;
     letter-spacing: 1px;
@@ -146,3 +152,106 @@ button:hover {
         padding: 14px 28px;
     }
 }
+
+.lernideal {
+    width: 100%; 
+  }
+  
+  /* The slider itself */
+  .slider {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 80%; /* Full-width */
+    height: 25px; /* Specified height */
+    background-image: linear-gradient(to right, rgb(255, 255, 255) , rgb(81, 26, 233));
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+    border-radius: 25px;
+  }
+  
+  /* Mouse-over effects */
+  .slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+  }
+  
+  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #ffffff; /* White background */
+    cursor: pointer; /* Cursor on hover */
+    border-radius: 25px;
+    color: white;
+    text-shadow: 2px 2px 4px #000000;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #0417aa; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+  }
+
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toggle-label {
+    font-size: 1.2em;
+    color: #333;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .s {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(to right, rgb(255, 255, 255) , rgb(81, 26, 233));
+    transition: 0.4s;
+    border-radius: 34px;
+  }
+
+  .s:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  input:checked + .s {
+    background-color: #4ade80;
+  }
+
+  input:checked + .s:before {
+    transform: translateX(26px);
+  }
+    .subtitle{
+    padding: 20%;
+    }
+
