@@ -47,3 +47,10 @@ Projektrahmen, Umsetzungsstrategie, Aufgaben und Zuständigkeiten
 - Aufbau- und Bedienbarkeit der Web-App (Frontend)
 - Beschreibung der Verzeichnisstruktur (Backend, Webserver)
 - Beschreibung der Datenstrukturen und Tabellen (Backend, SQL-Server)
+
+
+
+SQL Server Admin:
+    Admin
+    rH!>|r'h6.XXlN.=2"}A_#u[gxvhU3q;
+    
