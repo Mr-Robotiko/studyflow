@@ -1,3 +1,19 @@
+<?php
+session_start();
+
+define('SESSION_TIMEOUT', 600); // 10 min
+
+if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
+    if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
+        session_unset();
+        session_destroy();
+        header("Location: login.php?timeout=1");
+        exit;
+    }
+    $_SESSION['LAST_ACTIVITY'] = time();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -55,6 +71,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <?php
 session_start();
 
+define('SESSION_TIMEOUT', 600); // 10 Minuten
+
 $host = 'localhost';
 $db = 'studycal_db';
 $user = 'root';
@@ -64,7 +82,7 @@ $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
 $fehlermeldung = "";
 
 try {
-  $pdo = new PDO($dsn, $user, $pass);
+    $pdo = new PDO($dsn, $user, $pass);
 } catch (PDOException $e) {
     die("Verbindung fehlgeschlagen: " . $e->getMessage());
 }
@@ -80,7 +98,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($nutzer && password_verify($password, $nutzer["passwort"])) {
         $_SESSION["eingeloggt"] = true;
         $_SESSION["nutzername"] = $nutzer["username"];
-        header("Location: system/session/geschuetzt.php");
+        $_SESSION['LAST_ACTIVITY'] = time(); // Timeout-Start
+        header("Location: geschuetzt.php");
         exit;
     } else {
         $fehlermeldung = "Benutzername oder Passwort ist falsch.";
