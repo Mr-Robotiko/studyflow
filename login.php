@@ -23,13 +23,17 @@ if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
   <title>StudyCal - Login</title>
   <link rel="stylesheet" href="main.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+<a href="index.html" class="zurueck-button" title="Zurück zur Startseite">
+  <i class="fas fa-arrow-left"></i>
+</a>
   <div class="container">
     <div class="logo">
       <img src="images/Logo.png" alt="StudyCal Logo" style="width: 20%; height: 20%;" />
     </div>
-    <h1 class="title" style="height: 60px; text-align: center; line-height: 60px;">Willkommen zurück</h1>
+    <h1 class="title" style="height: 60px; text-align: center; line-height: 50px;">Willkommen zurück</h1>
     <form action="#" method="post" style="max-width: 400px; margin: 0 auto; text-align: left;">
       <div style="margin-bottom: 20px;">
         <label for="username" style="font-weight: bold; display: block; margin-bottom: 8px;">Benutzername</label>
