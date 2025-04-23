@@ -29,7 +29,7 @@
                   />
                 </a>
                 <div class="dropdown-content" id="dropdown-menu">
-                  <a href="settings.html">Einstellungen</a>
+                  <a href="start.html">Kalender</a>
                 </div>
               </li>
             </a>
@@ -43,25 +43,20 @@
           <li><button>Neuer Eintrag</button></li>
         </ul>
       </div>
-
-      <div class="kalender">
-        <h2>Kalender</h2>
-        <div class="kalender-grid">
-          <div class="termin">
-            Mathe-Vorlesung (Lieben Wir)<br /><small>08:00 - 09:30</small>
-          </div>
-          <div class="termin">
-            BWL-Seminar (Super spannend)<br /><small>10:00 - 11:30</small>
-          </div>
-          <div class="termin">
-            Lernsession<br /><small>14:00 - 15:30</small>
-          </div>
-          <div class="termin frei">Frei</div>
-          <div class="termin frei">Frei</div>
-          <div class="termin">Abgabe Projekt<br /><small>23:59</small></div>
-          <div class="termin frei">Frei</div>
+      <div class="settings">
+        <h2>Einstellungen</h2>
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" />
+          <span class="s"></span>
+        </label>
+        <span id="mode-label">☀️</span>
+        <div class="lernideal">
+          <p class="settings">Lernideal</p>
+          <input type="range" min="1" max="5" class="slider" id="myRange" />
+          <div class="subtitle">30 min 45 min 60 min 120 min 180 min</div>
         </div>
       </div>
+
       <div class="todaytodo">
         <div class="anstehend">
           <h1>Today</h1>
