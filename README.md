@@ -47,8 +47,3 @@ Projektrahmen, Umsetzungsstrategie, Aufgaben und Zuständigkeiten
 - Aufbau- und Bedienbarkeit der Web-App (Frontend)
 - Beschreibung der Verzeichnisstruktur (Backend, Webserver)
 - Beschreibung der Datenstrukturen und Tabellen (Backend, SQL-Server)
-
-
-
-Du studierst Cyber Security wenn du das hier ließt!
-    
