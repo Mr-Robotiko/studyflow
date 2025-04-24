@@ -50,7 +50,5 @@ Projektrahmen, Umsetzungsstrategie, Aufgaben und Zuständigkeiten
 
 
 
-SQL Server Admin:
-    Admin
-    rH!>|r'h6.XXlN.=2"}A_#u[gxvhU3q;
+Du studierst Cyber Security wenn du das hier ließt!
     
