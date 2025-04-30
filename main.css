@@ -43,7 +43,7 @@ body {
 }
 
 .body > div {
-  background-color: rgba(132, 173, 225, 0.8);
+  background-color: rgb(255, 255, 255);
   padding: 10px;
 }
 
@@ -207,6 +207,27 @@ h2 {
   color: #aaa;
   background-color: #f7f7f7;
   font-style: italic;
+}
+
+/* Eintragsbereich*/ 
+
+.klausur-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 Spalten */
+  gap: 10px;
+  margin-top: 15px;
+}
+
+input {
+  margin: 5%;
+  padding: 10px; 
+  background-color: var(--gray-light); 
+  border-radius: 20px;
+}
+
+.notes {
+  width: 300pxs;
+  height: 300px;
 }
 
 
