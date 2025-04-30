@@ -49,7 +49,7 @@ if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
   </div>
 
   <div class="buttons">
-    <button type="submit" class="btn">Einloggen</button>
+    <button onclick="input_to_var()" type="submit" class="btn">Einloggen</button>
   </div>
 
   <?php if (!empty($fehlermeldung)): ?>
