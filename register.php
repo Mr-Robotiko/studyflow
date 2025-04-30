@@ -55,3 +55,60 @@
   </div>
 </body>
 </html>
+
+
+
+<?php
+require_once("/system/user_classes/user.php");
+
+$alert = "";
+$host = "localhost";
+$dbname = "studycal";
+$databaseUser = "Admin";
+$pass = "rH!>|r'h6.XXlN.=2\"}A_#u[gxvhU3q;";
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $username = trim($_POST["username"] ?? '');
+        $password = $_POST["password"] ?? '';
+        $passwordrep = $_POST["passwordrep"] ?? '';
+        $securitypassphrase = trim($_POST["securitypassphrase"] ?? '');
+
+        $user = new User();
+        $user->setUserName($username);
+        $user->setPassword($password);
+        $user->setSecurityPassphrase($securitypassphrase);
+
+        if (empty($username) || empty($password) || empty($passwordrep) || empty($securitypassphrase)) {
+            $alert = "Bitte alle Felder ausfüllen.";
+        } elseif ($password !== $passwordrep) {
+            $alert = "Passwörter stimmen nicht überein.";
+        } else {
+            // Prüfen ob Benutzername bereits existiert
+            $check = $pdo->prepare("SELECT Username FROM user WHERE Username = :username");
+            $check->execute(["username" => $username]);
+
+            if ($check->fetch()) {
+                $alert = "Benutzername bereits vergeben.";
+            } else {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+
+                $stmt = $pdo->prepare("INSERT INTO user (Username, Password, Securitypassphrase) 
+                                       VALUES (:username, :password, :securitypassphrase)");
+                $stmt->execute([
+                    "username" => $username,
+                    "password" => $hash,
+                    "securitypassphrase" => $securitypassphrase
+                ]);
+
+                $alert = "Registrierung erfolgreich. <a href='login.php'>Jetzt einloggen</a>";
+            }
+        }
+    }
+} catch (PDOException $e) {
+    $alert = "Fehler bei der Datenbankverbindung: " . $e->getMessage();
+}
+?>
