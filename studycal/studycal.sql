@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 23, 2025 at 03:45 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Erstellungszeit: 30. Apr 2025 um 14:48
+-- Server-Version: 10.4.32-MariaDB
+-- PHP-Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `studycal`
+-- Datenbank: `studycal`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `settings`
+-- Tabellenstruktur für Tabelle `settings`
 --
 
 CREATE TABLE `settings` (
@@ -39,7 +39,7 @@ CREATE TABLE `settings` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Tabellenstruktur für Tabelle `user`
 --
 
 CREATE TABLE `user` (
@@ -53,27 +53,27 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables
+-- Indizes der exportierten Tabellen
 --
 
 --
--- Indexes for table `settings`
+-- Indizes für die Tabelle `settings`
 --
 ALTER TABLE `settings`
   ADD PRIMARY KEY (`Username`);
 
 --
--- Indexes for table `user`
+-- Indizes für die Tabelle `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`Username`);
 
 --
--- Constraints for dumped tables
+-- Constraints der exportierten Tabellen
 --
 
 --
--- Constraints for table `settings`
+-- Constraints der Tabelle `settings`
 --
 ALTER TABLE `settings`
   ADD CONSTRAINT `User_Settings_Relation` FOREIGN KEY (`Username`) REFERENCES `user` (`Username`);
