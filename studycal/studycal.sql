@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 30. Apr 2025 um 14:48
+-- Erstellungszeit: 30. Apr 2025 um 15:06
 -- Server-Version: 10.4.32-MariaDB
 -- PHP-Version: 8.2.12
 
@@ -48,7 +48,7 @@ CREATE TABLE `user` (
   `Surname` varchar(100) DEFAULT NULL,
   `Institution` varchar(100) DEFAULT NULL,
   `Securitypassphrase` varchar(100) DEFAULT NULL,
-  `Calendarfile` varchar(100) DEFAULT NULL,
+  `Calendarfile` blob DEFAULT NULL,
   `Password` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
