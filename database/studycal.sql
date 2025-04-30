@@ -48,7 +48,7 @@ CREATE TABLE `user` (
   `Surname` varchar(100) DEFAULT NULL,
   `Institution` varchar(100) DEFAULT NULL,
   `Securitypassphrase` varchar(100) DEFAULT NULL,
-  `Calendarfile` varchar(100) DEFAULT NULL,
+  `Calendarfile` blob DEFAULT NULL,
   `Password` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
