@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StudyCal - Registrierung</title>
-  <script type="text/javascript" src="system/javascript/login.js"></script>
+  <script type="text/javascript" src="system/javascript/register.js"></script>
   <link rel="stylesheet" href="/system/style/main.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -41,9 +41,7 @@
 
       <!-- Sicherheitsfrage -->
       <div style="margin-bottom: 20px;">
-        <label style="font-weight: bold; display: block; margin-bottom: 8px;">
-          Sicherheitsfrage:
-        </label>
+        <label for="securityanswer" style="font-weight: bold; display: block; margin-bottom: 8px;">Sicherheitsfrage:</label>
         <p style="margin-bottom: 10px; font-style: italic;">Wie lautet der Name deines ersten Haustiers?</p>
         <input type="text" id="securityanswer" name="securityanswer" placeholder="Antwort auf Sicherheitsfrage eingeben" required 
           style="width: 100%; padding: 12px; border-radius: var(--border-radius); border: 1px solid var(--gray-dark); font-family: var(--font-family);"/>
