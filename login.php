@@ -21,40 +21,47 @@ if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script type="text/javascript" src="system/javascript/login.js"></script>
   <title>StudyCal - Login</title>
-  <link rel="stylesheet" href="/system/style/main.css"/>
+  <link rel="stylesheet" href="system/style/prelogin.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<a href="index.html" class="zurueck-button" title="Zurück zur Startseite">
-  <i class="fas fa-arrow-left"></i>
-</a>
-  <div class="container">
-    <div class="logo">
-      <img src="images/Logo.png" alt="StudyCal Logo" style="width: 20%; height: 20%;" />
-    </div>
-    <h1 class="title" style="height: 60px; text-align: center; line-height: 50px;">Willkommen zurück</h1>
-    <form action="#" method="post" style="max-width: 400px; margin: 0 auto; text-align: left;">
-      <div style="margin-bottom: 20px;">
-        <label for="username" style="font-weight: bold; display: block; margin-bottom: 8px;">Benutzername</label>
-        <input type="text" id="username" name="username" placeholder="Benutzername eingeben" required
-          style="width: 100%; padding: 12px; border-radius: var(--border-radius); border: 1px solid var(--gray-dark); font-family: var(--font-family);"/>
-      </div>
-      <div style="margin-bottom: 20px;">
-        <label for="password" style="font-weight: bold; display: block; margin-bottom: 8px;">Passwort</label>
-        <input type="password" id="password" name="password" placeholder="Passwort eingeben" required
-          style="width: 100%; padding: 12px; border-radius: var(--border-radius); border: 1px solid var(--gray-dark); font-family: var(--font-family);"/>
-      </div>
-      <div class="buttons">
-        <button onclick="input_to_var()" type="submit" class="btn">Login</button>
-        <?php if (!empty($fehlermeldung)) echo "<p style='color:red;'>$fehlermeldung</p>"; ?>
-      </div>
-    </form>
+
+<header>
+    <h1>Willkommen zurück bei StudyCal</h1>
+    <a href="index.html" class="zurueck-button"><i class="fas fa-arrow-left"></i> Zurück</a>
+</header>
+
+  <div class="main">
+  
+    <img src="images/Logo.png" alt="StudyCal Logo" />
+    <p class="subtitle">Bitte melde dich an, um fortzufahren</p>
+
+    <form action="login.php" method="post">
+  <div>
+    <label for="username">Benutzername</label>
+    <input class="input" type="text" id="username" name="username" placeholder="Benutzername eingeben" required />
   </div>
-  <?php if (!empty($hashedPassword)): ?>
-        <h3>Gehashtes Passwort (SHA-256):</h3>
-        <p style="word-break: break-all; font-family: monospace;"><?= htmlspecialchars($hashedPassword) ?></p>
-    <?php endif; ?>
+
+  <div>
+    <label for="password">Passwort</label>
+    <input class="input" type="password" id="password" name="password" placeholder="Passwort eingeben" required />
+  </div>
+
+  <div class="buttons">
+    <button type="submit" class="btn">Einloggen</button>
+  </div>
+
+  <?php if (!empty($fehlermeldung)): ?>
+    <p style="color: red; text-align: center;"><?= $fehlermeldung ?></p>
+  <?php endif; ?>
+</form>
+  </div>
+
+  <footer>
+    &copy; 2025 StudyCal. Alle Rechte vorbehalten.
+  </footer>
+
 </body>
 </html>
 
