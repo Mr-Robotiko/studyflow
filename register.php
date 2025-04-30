@@ -61,14 +61,16 @@
 
 
 <?php
+require_once("/system/user_classes/user.php");
+
 $alert = "";
 $host = "localhost";
 $dbname = "studycal";
-$user = "Admin";
+$databaseUser = "Admin";
 $pass = "rH!>|r'h6.XXlN.=2\"}A_#u[gxvhU3q;";
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -76,6 +78,11 @@ try {
         $password = $_POST["password"] ?? '';
         $passwordrep = $_POST["passwordrep"] ?? '';
         $securitypassphrase = trim($_POST["securitypassphrase"] ?? '');
+
+        $user = new User();
+        $user->setUserName($username);
+        $user->setPassword($password);
+        $user->setSecurityPassphrase($securitypassphrase);
 
         if (empty($username) || empty($password) || empty($passwordrep) || empty($securitypassphrase)) {
             $alert = "Bitte alle Felder ausfüllen.";
