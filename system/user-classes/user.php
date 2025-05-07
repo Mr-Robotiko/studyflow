@@ -78,11 +78,11 @@ require_once "settings.php";
         }
 
         public function getSetting() {
-            return $this->setting;
+            return $this->Setting;
         }
 
         public function setSetting($Setting) {
-            $this->setting = $Setting;
+            $this->Setting = $Setting;
         }
 
         public function __toString() {

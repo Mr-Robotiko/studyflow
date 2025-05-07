@@ -1,3 +1,81 @@
+<?php
+// Am Ende Löschen!!!
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require_once "system/user-classes/user.php";
+
+$alert = "Fülle das Formular aus, um dich zu registrieren";
+$host = "localhost";
+$dbname = "studycal";
+$databaseUser = "Admin";
+$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
+
+try {
+  $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
+  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+  echo "Verbindung erfolgreich.<br>";
+
+  if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Eingaben holen
+    $username = trim($_POST["username"] ?? '');
+    $name = trim($_POST["name"] ?? '');
+    $surname = trim($_POST["surname"] ?? '');
+    $password_plain = $_POST["password"] ?? '';
+    $passwordrep = $_POST["passwordrep"] ?? '';
+    $securitypassphrase = trim($_POST["securitypassphrase"] ?? '');
+    $calenderfile = null;
+
+    if (empty($username) || empty($password_plain) || empty($passwordrep) || empty($securitypassphrase) || empty($name) || empty($surname)) {
+        $alert = "Bitte alle Felder ausfüllen.";
+    } elseif ($password_plain !== $passwordrep) {
+        $alert = "Passwörter stimmen nicht überein.";
+    } else {
+        $password = password_hash($password_plain, PASSWORD_DEFAULT);
+
+        $user = new User();
+        $user->setUserName($username);
+        $user->setPassword($password);
+        $user->setSecurityPassphrase($securitypassphrase);
+        $user->setName($name);
+        $user->setSurname($surname);
+
+        echo $user->__toString();
+
+        $check = $conn->prepare("SELECT Username FROM user WHERE Username = :username");
+        $check->execute(["username" => $username]);
+
+        if ($check->fetch()) {
+            $alert = "Benutzername bereits vergeben.";
+        } else {
+            $query = $conn->prepare("INSERT INTO user (Username, Name, Surname, Securitypassphrase, Calendarfile, Password)
+                                     VALUES (:username, :name, :surname, :securitypassphrase, :calenderfile, :password)");
+
+            $query->bindParam(':username', $username);
+            $query->bindParam(':name', $name);
+            $query->bindParam(':surname', $surname);
+            $query->bindParam(':securitypassphrase', $securitypassphrase);
+            $query->bindParam(':calenderfile', $calenderfile);
+            $query->bindParam(':password', $password);
+
+            if ($query->execute()) {
+                $alert = "Einfügen erfolgreich!";
+            } else {
+                $alert = "Fehler beim Einfügen: ";
+                print_r($query->errorInfo());
+            }
+        }
+    }
+
+    echo $alert;
+}
+} catch (PDOException $e) {
+  echo "PDO-Fehler: " . $e->getMessage();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -16,19 +94,19 @@
 </header>
 
 <div class="main">
-  <p class="subtitle">Fülle das Formular aus, um dich zu registrieren</p>
+  <p class="subtitle"><?php echo $alert?></p>
 
   <form action="register.php" method="post">
     <!-- Vorname -->
     <div>
       <label for="vorname">Vorname</label>
-      <input class="input" type="text" id="vorname" name="vorname" placeholder="Vorname eingeben" required />
+      <input class="input" type="text" id="vorname" name="name" placeholder="Vorname eingeben" required />
     </div>
 
     <!-- Nachname -->
     <div>
       <label for="nachname">Nachname</label>
-      <input class="input" type="text" id="nachname" name="nachname" placeholder="Nachname eingeben" required />
+      <input class="input" type="text" id="nachname" name="surname" placeholder="Nachname eingeben" required />
     </div>
 
     <!-- Benutzername -->
@@ -46,14 +124,14 @@
     <!-- Passwort wiederholen -->
     <div>
       <label for="passwordwdh">Passwort wiederholen</label>
-      <input class="input" type="password" id="passwordwdh" name="passwordwdh" placeholder="Passwort wiederholen" required />
+      <input class="input" type="password" id="passwordwdh" name="passwordrep" placeholder="Passwort wiederholen" required />
     </div>
 
     <!-- Sicherheitsfrage -->
     <div>
       <label for="securityanswer">Sicherheitsfrage</label>
       <p style="margin-bottom: 10px; font-style: italic;">Wie lautet der Name deines ersten Haustiers?</p>
-      <input class="input" type="text" id="securityanswer" name="securityanswer" placeholder="Antwort eingeben" required />
+      <input class="input" type="text" id="securityanswer" name="securitypassphrase" placeholder="Antwort eingeben" required />
     </div>
 
     <!-- Button -->
@@ -73,95 +151,6 @@
 </body>
 </html>
 
-
-
-<?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-require_once "system/user-classes/user.php";
-
-$alert = "";
-$host = "localhost";
-$dbname = "studycal";
-$databaseUser = "Admin";
-$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
-
-try {
-  $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-  echo "Verbindung erfolgreich.<br>";
-
-  $username = "TestUser_" . rand(1000, 9999);
-  $name = "Max";
-  $surname = "Mustermann";
-  $securitypassphrase = "Affe";
-  $calenderfile = null;
-  $password_plain = "test1234";
-  $password = password_hash($password_plain, PASSWORD_DEFAULT);
-
-  $query = $conn->prepare("INSERT INTO user (Username, Name, Surname, Securitypassphrase, Calendarfile, Password)
-                           VALUES (:username, :name, :surname, :securitypassphrase, :calenderfile, :password)");
-
-  $query->bindParam(':username', $username);
-  $query->bindParam(':name', $name);
-  $query->bindParam(':surname', $surname);
-  $query->bindParam(':securitypassphrase', $securitypassphrase);
-  $query->bindParam(':calenderfile', $calenderfile);
-  $query->bindParam(':password', $password);
-
-  if ($query->execute()) {
-      echo "Einfügen erfolgreich!";
-  } else {
-      echo "Fehler beim Einfügen:<br>";
-      print_r($query->errorInfo());
-  }
-
-} catch (PDOException $e) {
-  echo "PDO-Fehler: " . $e->getMessage();
-}
-
-
-      // if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    //     $username = trim($_POST["username"] ?? '');
-    //     $password = $_POST["password"] ?? '';
-    //     $passwordrep = $_POST["passwordrep"] ?? '';
-    //     $securitypassphrase = trim($_POST["securitypassphrase"] ?? '');
-
-    //     $user = new User();
-    //     $user->setUserName($username);
-    //     $user->setPassword($password);
-    //     $user->setSecurityPassphrase($securitypassphrase);
-
-    //     if (empty($username) || empty($password) || empty($passwordrep) || empty($securitypassphrase)) {
-    //         $alert = "Bitte alle Felder ausfüllen.";
-    //     } elseif ($password !== $passwordrep) {
-    //         $alert = "Passwörter stimmen nicht überein.";
-    //     } else {
-    //         // Prüfen ob Benutzername bereits existiert
-    //         $check = $pdo->prepare("SELECT Username FROM user WHERE Username = :username");
-    //         $check->execute(["username" => $username]);
-
-    //         if ($check->fetch()) {
-    //             $alert = "Benutzername bereits vergeben.";
-    //         } else {
-    //             $hash = password_hash($password, PASSWORD_DEFAULT);
-
-    //             $stmt = $pdo->prepare("INSERT INTO user (Username, Password, Securitypassphrase) 
-    //                                    VALUES (:username, :password, :securitypassphrase)");
-    //             $stmt->execute([
-    //                 "username" => $username,
-    //                 "password" => $hash,
-    //                 "securitypassphrase" => $securitypassphrase
-    //             ]);
-
-    //             $alert = "Registrierung erfolgreich. <a href='login.php'>Jetzt einloggen</a>";
-    //         }
-    //     }
-    // }
-?>
 
 
     
