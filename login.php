@@ -47,6 +47,10 @@ if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
     <input class="input" type="password" id="password" name="password" placeholder="Passwort eingeben" required />
   </div>
 
+  <div class="password-forgotten">
+    <a href="passwort.html" class="forgot-password-link">Passwort vergessen?</a>
+  </div>
+
   <div class="buttons">
     <button onclick="input_to_var()" type="submit" class="btn">Einloggen</button>
     <a href="index.html" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
