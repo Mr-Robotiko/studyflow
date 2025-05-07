@@ -86,24 +86,45 @@ $alert = "";
 $host = "localhost";
 $dbname = "studycal";
 $databaseUser = "Admin";
-$pass = "rH!>|r'h6.XXlN.=2\"}A_#u[gxvhU3q;";
+$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
 
 try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
+  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $query = $conn->prepare("INSERT INTO user (username, password, securitypassphrase)
-    VALUES (:username, :password, :securitypassphrase)");
-    $query->bindParam(':username', $username);
-    $query->bindParam(':password', $password);
-    $query->bindParam(':securitypassphrase', $securitypassphrase);
+  echo "Verbindung erfolgreich.<br>";
 
-    $username = "Test";
-    $password = "test1234";
-    $securitypassphrase = "Affe";
-    $query->execute();
+  $username = "TestUser_" . rand(1000, 9999);
+  $name = "Max";
+  $surname = "Mustermann";
+  $securitypassphrase = "Affe";
+  $calenderfile = null;
+  $password_plain = "test1234";
+  $password = password_hash($password_plain, PASSWORD_DEFAULT);
 
-    // if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $query = $conn->prepare("INSERT INTO user (Username, Name, Surname, Securitypassphrase, Calendarfile, Password)
+                           VALUES (:username, :name, :surname, :securitypassphrase, :calenderfile, :password)");
+
+  $query->bindParam(':username', $username);
+  $query->bindParam(':name', $name);
+  $query->bindParam(':surname', $surname);
+  $query->bindParam(':securitypassphrase', $securitypassphrase);
+  $query->bindParam(':calenderfile', $calenderfile);
+  $query->bindParam(':password', $password);
+
+  if ($query->execute()) {
+      echo "Einfügen erfolgreich!";
+  } else {
+      echo "Fehler beim Einfügen:<br>";
+      print_r($query->errorInfo());
+  }
+
+} catch (PDOException $e) {
+  echo "PDO-Fehler: " . $e->getMessage();
+}
+
+
+      // if ($_SERVER["REQUEST_METHOD"] === "POST") {
     //     $username = trim($_POST["username"] ?? '');
     //     $password = $_POST["password"] ?? '';
     //     $passwordrep = $_POST["passwordrep"] ?? '';
@@ -140,9 +161,8 @@ try {
     //         }
     //     }
     // }
-    
-} catch (PDOException $e) {
-    $alert = "Fehler bei der Datenbankverbindung: " . $e->getMessage();
-}
-  $conn = null;
 ?>
+
+
+    
+
