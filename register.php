@@ -76,7 +76,11 @@
 
 
 <?php
-require_once("/system/user_classes/user.php");
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require_once "system/user-classes/user.php";
 
 $alert = "";
 $host = "localhost";
@@ -85,47 +89,60 @@ $databaseUser = "Admin";
 $pass = "rH!>|r'h6.XXlN.=2\"}A_#u[gxvhU3q;";
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        $username = trim($_POST["username"] ?? '');
-        $password = $_POST["password"] ?? '';
-        $passwordrep = $_POST["passwordrep"] ?? '';
-        $securitypassphrase = trim($_POST["securitypassphrase"] ?? '');
+    $query = $conn->prepare("INSERT INTO user (username, password, securitypassphrase)
+    VALUES (:username, :password, :securitypassphrase)");
+    $query->bindParam(':username', $username);
+    $query->bindParam(':password', $password);
+    $query->bindParam(':securitypassphrase', $securitypassphrase);
 
-        $user = new User();
-        $user->setUserName($username);
-        $user->setPassword($password);
-        $user->setSecurityPassphrase($securitypassphrase);
+    $username = "Test";
+    $password = "test1234";
+    $securitypassphrase = "Affe";
+    $query->execute();
 
-        if (empty($username) || empty($password) || empty($passwordrep) || empty($securitypassphrase)) {
-            $alert = "Bitte alle Felder ausfüllen.";
-        } elseif ($password !== $passwordrep) {
-            $alert = "Passwörter stimmen nicht überein.";
-        } else {
-            // Prüfen ob Benutzername bereits existiert
-            $check = $pdo->prepare("SELECT Username FROM user WHERE Username = :username");
-            $check->execute(["username" => $username]);
+    // if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    //     $username = trim($_POST["username"] ?? '');
+    //     $password = $_POST["password"] ?? '';
+    //     $passwordrep = $_POST["passwordrep"] ?? '';
+    //     $securitypassphrase = trim($_POST["securitypassphrase"] ?? '');
 
-            if ($check->fetch()) {
-                $alert = "Benutzername bereits vergeben.";
-            } else {
-                $hash = password_hash($password, PASSWORD_DEFAULT);
+    //     $user = new User();
+    //     $user->setUserName($username);
+    //     $user->setPassword($password);
+    //     $user->setSecurityPassphrase($securitypassphrase);
 
-                $stmt = $pdo->prepare("INSERT INTO user (Username, Password, Securitypassphrase) 
-                                       VALUES (:username, :password, :securitypassphrase)");
-                $stmt->execute([
-                    "username" => $username,
-                    "password" => $hash,
-                    "securitypassphrase" => $securitypassphrase
-                ]);
+    //     if (empty($username) || empty($password) || empty($passwordrep) || empty($securitypassphrase)) {
+    //         $alert = "Bitte alle Felder ausfüllen.";
+    //     } elseif ($password !== $passwordrep) {
+    //         $alert = "Passwörter stimmen nicht überein.";
+    //     } else {
+    //         // Prüfen ob Benutzername bereits existiert
+    //         $check = $pdo->prepare("SELECT Username FROM user WHERE Username = :username");
+    //         $check->execute(["username" => $username]);
 
-                $alert = "Registrierung erfolgreich. <a href='login.php'>Jetzt einloggen</a>";
-            }
-        }
-    }
+    //         if ($check->fetch()) {
+    //             $alert = "Benutzername bereits vergeben.";
+    //         } else {
+    //             $hash = password_hash($password, PASSWORD_DEFAULT);
+
+    //             $stmt = $pdo->prepare("INSERT INTO user (Username, Password, Securitypassphrase) 
+    //                                    VALUES (:username, :password, :securitypassphrase)");
+    //             $stmt->execute([
+    //                 "username" => $username,
+    //                 "password" => $hash,
+    //                 "securitypassphrase" => $securitypassphrase
+    //             ]);
+
+    //             $alert = "Registrierung erfolgreich. <a href='login.php'>Jetzt einloggen</a>";
+    //         }
+    //     }
+    // }
+    
 } catch (PDOException $e) {
     $alert = "Fehler bei der Datenbankverbindung: " . $e->getMessage();
 }
+  $conn = null;
 ?>
