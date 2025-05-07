@@ -1,11 +1,15 @@
 <?php
+session_start();
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+define('SESSION_TIMEOUT', 600); // 10 Minuten
+
 $alert = "Bitte melde dich an, um fortzufahren";
 $host = "localhost";
-$dbname = "studycal"; // Achte auf den korrekten Namen hier!
+$dbname = "studycal";
 $databaseUser = "Admin";
 $pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
 
@@ -27,7 +31,10 @@ try {
 
         if ($user && password_verify($password_plain, $user['Password'])) {
             $alert = "Login erfolgreich";
-            // Hier ggf. session_start(); setzen und weiterleiten
+            $_SESSION['eingeloggt'] = true;
+            $_SESSION['nutzername'] = $username;
+            $_SESSION['LAST_ACTIVITY'] = time();
+            header("Location: start.php");
         } else {
             $alert = "Login fehlgeschlagen";
         }

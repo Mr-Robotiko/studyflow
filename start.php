@@ -1,3 +1,21 @@
+<?php
+session_start();
+define('SESSION_TIMEOUT', 600);
+
+if (!isset($_SESSION['eingeloggt']) || $_SESSION['eingeloggt'] !== true) {
+    header("Location: login.php?fehler=1");
+    exit;
+}
+
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=1");
+    exit;
+}
+$_SESSION['LAST_ACTIVITY'] = time();
+?>
+
 <!DOCTYPE html>
 <html lang="de">
   <head>
