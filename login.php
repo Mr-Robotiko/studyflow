@@ -29,7 +29,6 @@ if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
 
 <header>
     <h1>Willkommen zurück bei StudyCal</h1>
-    <a href="index.html" class="zurueck-button"><i class="fas fa-arrow-left"></i> Zurück</a>
 </header>
 
   <div class="main">
@@ -50,6 +49,7 @@ if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
 
   <div class="buttons">
     <button onclick="input_to_var()" type="submit" class="btn">Einloggen</button>
+    <a href="index.html" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
   </div>
 
   <?php if (!empty($fehlermeldung)): ?>

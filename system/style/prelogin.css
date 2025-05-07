@@ -1,189 +1,179 @@
 :root {
-    --black: #000000;
-    --blue-accent: #2D2FA2;
-    --light-blue: #4B9BF6;
-    --white: #FFFFFF;
-    --gray-light: #D9D9D9;
-    --gray-medium: #EBEBEB;
-    --gray-dark: #BEB9B9;
-    --cyan-bright: #2B2EE5;
-    --cyan-soft: #2B2EE5B8;
-    --gray-muted: #393A39;
-    --purple-accent: #8E5AF4CC;
-    --primary-color: var(--purple-accent);
-    --primary-hover: #7749D6;
-    --text-color: var(--black);
-    --font-family: 'Inter', sans-serif;
-    --border-radius: 20px;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
+  --black: #000000;
+  --blue-accent: #2D2FA2;
+  --light-blue: #4B9BF6;
+  --white: #FFFFFF;
+  --gray-light: #D9D9D9;
+  --gray-medium: #EBEBEB;
+  --gray-dark: #BEB9B9;
+  --cyan-bright: #2B2EE5;
+  --cyan-soft: #2B2EE5B8;
+  --gray-muted: #393A39;
+  --purple-accent: #8E5AF4CC;
+  --primary-color: var(--purple-accent);
+  --primary-hover: #7749D6;
+  --text-color: var(--black);
+  --font-family: 'Inter', sans-serif;
+  --border-radius: 20px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 /* Header */
 
 h1 {
-    font-size: 1.6rem;
-    color: var(--cyan-bright);
-    text-align: center;
-    background-color: var(--gray-light);
-    border-radius: var(--border-radius);
-    padding: 5px;
-    margin-bottom: 10px;
-  }
-  
+  font-size: 1.6rem;
+  color: var(--cyan-bright);
+  text-align: center;
+  background-color: var(--gray-light);
+  border-radius: var(--border-radius);
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
 header {
-    position: relative;
-    text-align: center;
-    padding: 2rem 1rem 1rem 1rem;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0;
-    color: #333;
-  }
-  /* Body */
-  
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background-color: white;
-  }
-  
-  
-  /* Main Part */
-  
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 1rem;
-  }
-  
-  .main img {
-    width: 100%;
-    max-width: 400px; 
-    height: auto;
-  }
-  
-  .subtitle {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-    color: #444;
-  }
-  
-  /* Formular */
-  
-  form {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  form div {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
-  
-  label {
-    margin-bottom: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    color: #333;
-    text-align: left;
-    width: 100%;
-  }
-  
-  .input {
-    width: 100%;
-    padding: 12px;
-    background-color: white;
-    border-radius: 20px;
-    border: 1px solid var(--gray-dark);
-    font-family: var(--font-family);
-    font-size: 1rem;
-  }
-  
-  
-  /* Buttons */
+  position: relative;
+  text-align: center;
+  padding: 2rem 1rem 1rem 1rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+}
+/* Body */
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: white;
+}
+
+
+/* Main Part */
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+.main img {
+  width: 100%;
+  max-width: 400px; 
+  height: auto;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #444;
+}
+
+/* Formular */
+
+form {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+form div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+  text-align: left;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  background-color: white;
+  border-radius: 20px;
+  border: 1px solid var(--gray-dark);
+  font-family: var(--font-family);
+  font-size: 1rem;
+}
+
+
+/* Buttons */
 .buttons {
-    margin-top: 20px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .btn {
-    background-color: var(--primary-color);
-    color: var(--text-color);
-    text-decoration: none;
-    padding: 20px 48px;
-    font-size: 1.4rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
-    font-weight: bold;
-    letter-spacing: 1px;
-    border: none; 
-  }
-  
-  .btn:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-  }
-  
+  margin-top: 20px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.btn {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 20px 48px;
+  font-size: 1.4rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: none; 
+}
+
+.btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
 /* Zurück-Button */
-
 .zurueck-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 15px;
-    font-size: 16px;
-    color: var(--text-color);  
-    background-color: var(--primary-color); 
-    border: none;
-    border-radius: var(--border-radius);  
-    text-decoration: none;
-    margin-top: 20px;  
+  display: inline;
+  font-size: 16px;
+  color: var(--text-color);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 20px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.zurueck-button:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+  transform: none;
+}
 
-  }
-  
-  .zurueck-button i {
-    margin-right: 8px; 
-  }
-  
+/* Footer */
 
-  .zurueck-button:hover {
-    background-color: var(--primary-hover);  
-    transform: scale(1.05); 
-  }
-  
-  /* Footer */
-  
-  footer {
-    text-align: center;
-    padding: 1rem;
-    background-color: var(--primary-color);
-    color: black;
-    font-size: 0.9rem;
-  }
-  
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: var(--primary-color);
+  color: black;
+  font-size: 0.9rem;
+}

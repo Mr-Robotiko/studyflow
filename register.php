@@ -13,9 +13,6 @@
 
 <header>
   <h1>Registriere dich bei StudyCal</h1>
-  <a href="index.html" class="zurueck-button" title="Zurück zur Startseite">
-    <i class="fas fa-arrow-left"></i> Zurück
-  </a>
 </header>
 
 <div class="main">
@@ -62,6 +59,9 @@
     <!-- Button -->
     <div class="buttons">
       <button onclick="input_to_var()" type="submit" class="btn">Registrieren</button>
+      <a href="index.html" class="zurueck-button" title="Zurück zur Startseite">
+    <i class="fas fa-arrow-left"></i>Zurück
+  </a>
     </div>
   </form>
 </div>
