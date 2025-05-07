@@ -1,16 +1,41 @@
 <?php
-session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-define('SESSION_TIMEOUT', 600); // 10 min
+$alert = "Bitte melde dich an, um fortzufahren";
+$host = "localhost";
+$dbname = "studycal"; // Achte auf den korrekten Namen hier!
+$databaseUser = "Admin";
+$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
 
-if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
-    if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
-        session_unset();
-        session_destroy();
-        header("Location: login.php?timeout=1");
-        exit;
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    echo "Verbindung erfolgreich.<br>";
+
+    $username = trim($_POST["username"] ?? '');
+    $password_plain = $_POST["password"] ?? '';
+
+    if (empty($username) || empty($password_plain)) {
+        $alert = "Bitte alle Felder ausfüllen.";
+    } else {
+        $stmt = $conn->prepare("SELECT Password FROM user WHERE Username = :username");
+        $stmt->execute(["username" => $username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && password_verify($password_plain, $user['Password'])) {
+            $alert = "Login erfolgreich";
+            // Hier ggf. session_start(); setzen und weiterleiten
+        } else {
+            $alert = "Login fehlgeschlagen";
+        }
     }
-    $_SESSION['LAST_ACTIVITY'] = time();
+
+    echo $alert;
+} catch (PDOException $e) {
+    echo "PDO-Fehler: " . $e->getMessage();
 }
 ?>
 
@@ -34,7 +59,7 @@ if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
   <div class="main">
   
     <img src="images/Logo.png" alt="StudyCal Logo" />
-    <p class="subtitle">Bitte melde dich an, um fortzufahren</p>
+    <p class="subtitle"><?php echo $alert?></p>
 
     <form action="login.php" method="post">
   <div>
@@ -68,56 +93,3 @@ if (isset($_SESSION["eingeloggt"]) && $_SESSION["eingeloggt"] === true) {
 
 </body>
 </html>
-
-<?php
-$hashedPassword = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $username = $_POST["username"] ?? '';
-    $password = $_POST["password"] ?? '';
-
-    $hashedPassword = hash("sha256", $password);
-
-    echo "Benutzer: $username<br>";
-    echo "Gehashtes Passwort: $hashedPassword";
-}
-?>
-
-<?php
-session_start();
-
-define('SESSION_TIMEOUT', 600); // 10 Minuten
-
-$host = 'localhost';
-$db = 'studycal_db';
-$user = 'root';
-$pass = '';
-$dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
-
-$fehlermeldung = "";
-
-try {
-    $pdo = new PDO($dsn, $user, $pass);
-} catch (PDOException $e) {
-    die("Verbindung fehlgeschlagen: " . $e->getMessage());
-}
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $username = $_POST["username"] ?? '';
-    $password = $_POST["password"] ?? '';
-
-    $stmt = $pdo->prepare("SELECT * FROM benutzer WHERE username = :username");
-    $stmt->execute(["username" => $username]);
-    $nutzer = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($nutzer && password_verify($password, $nutzer["passwort"])) {
-        $_SESSION["eingeloggt"] = true;
-        $_SESSION["nutzername"] = $nutzer["username"];
-        $_SESSION['LAST_ACTIVITY'] = time(); // Timeout-Start
-        header("Location: geschuetzt.php");
-        exit;
-    } else {
-        $fehlermeldung = "Benutzername oder Passwort ist falsch.";
-    }
-}
-?>
