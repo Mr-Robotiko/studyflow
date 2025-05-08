@@ -4,8 +4,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once "system/user-classes/user.php";
-
 $alert = "Fülle das Formular aus, um dich zu registrieren";
 $host = "localhost";
 $dbname = "studycal";
@@ -34,15 +32,6 @@ try {
         $alert = "Passwörter stimmen nicht überein.";
     } else {
         $password = password_hash($password_plain, PASSWORD_DEFAULT);
-
-        $user = new User();
-        $user->setUserName($username);
-        $user->setPassword($password);
-        $user->setSecurityPassphrase($securitypassphrase);
-        $user->setName($name);
-        $user->setSurname($surname);
-
-        echo $user->__toString();
 
         $check = $conn->prepare("SELECT Username FROM user WHERE Username = :username");
         $check->execute(["username" => $username]);
