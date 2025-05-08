@@ -72,6 +72,7 @@ try {
   <script type="text/javascript" src="system/javascript/login.js"></script>
   <title>StudyCal - Login</title>
   <link rel="stylesheet" href="system/style/prelogin.css"/>
+  <link rel="stylesheet" href="system/style/popup.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -102,7 +103,7 @@ try {
   </div>
 
   <div class="buttons">
-    <button onclick="input_to_var()" type="submit" class="btn">Einloggen</button>
+    <button onclick="input_to_var(event)" type="submit" class="btn">Einloggen</button>
     <a href="index.html" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
   </div>
 
@@ -115,6 +116,15 @@ try {
   <footer>
     &copy; 2025 StudyCal. Alle Rechte vorbehalten.
   </footer>
+
+  <div id="customAlert" class="custom-popup-overlay">
+  <div class="custom-popup">
+    <h2 id="popupTitle">Benachrichtigung</h2> 
+    <p id="alertMessage"></p>
+    <button onclick="closeCustomAlert()">Schließen</button>
+  </div>
+</div>
+
 
 </body>
 </html>

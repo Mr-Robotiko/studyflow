@@ -1,81 +1,74 @@
-// Event Listener für den Button hinzufügen
 document.querySelector(".btn").addEventListener("click", function(event) {
-    input_to_var(event); 
+    input_to_var(event);
 });
 
-function input_to_var() {
-    // Prevent form submission
+function input_to_var(event) {
     event.preventDefault();
 
     var username = document.getElementById("username").value.trim();
     var password = document.getElementById("password").value.trim();
-    var passwordwdh = document.getElementById("passwordwdh").value.trim();
-    var securityanswer = document.getElementById("securityanswer").value.trim();
-    var vorname = document.getElementById("vorname").value.trim();
-    var nachname = document.getElementById("nachname").value.trim();
+    var passwordwdh = document.getElementById("passwordwdh")?.value.trim(); // optional
+    var securityanswer = document.getElementById("securityanswer")?.value.trim();
+    var vorname = document.getElementById("vorname")?.value.trim();
+    var nachname = document.getElementById("nachname")?.value.trim();
 
-    // Regex für gültige Zeichen: Buchstaben, Zahlen, Unterstrich, Punkt, Bindestrich
-    var validInput = /^[a-zA-Z0-9_.-]+/; //$ verboten
+    var validInput = /^[a-zA-Z0-9_.-]+$/;
 
-    // Leere Felder prüfen
     if (!username) {
-        alert("Bitte Benutzername eingeben.");
+        openCustomAlert("Benutzername", "Bitte Benutzername eingeben."); 
         return;
     }
     if (!password) {
-        alert("Bitte Passwort eingeben.");
-        return;
-    }
-    if (!passwordwdh) {
-        alert("Bitte Passwortwiederholung eingeben.");
-        return;
-    }
-    if (!securityanswer) {
-        alert("Bitte Sicherheitsfrage eingeben.");
-        return;
-    }
-    if (!vorname) {
-        alert("Bitte Benutzername eingeben.");
-        return;
-    }
-    if (!nachname) {
-        alert("Bitte Benutzername eingeben.");
+        openCustomAlert("Passwort", "Bitte Passwort eingeben."); 
         return;
     }
 
-
-    // Passwort und Passwortwiederholung abgleichen
-    if (password != passwordwdh) {
-        alert("Passwort und Passwortwiederholung stimmen nicht überein");
+    if (typeof passwordwdh !== "undefined" && password !== passwordwdh) {
+        openCustomAlert("Passwort stimmt nicht überein", "Passwort und Wiederholung sind unterschiedlich.");
         return;
     }
 
-    // Eingaben validieren
     if (!validInput.test(username)) {
-        alert("Ungültige Zeichen im Benutzernamen.");
+        openCustomAlert("Ungültiger Benutzername", "Nur Buchstaben, Zahlen, _, -, . erlaubt."); 
         return;
     }
+
     if (!validInput.test(password)) {
-        alert("Ungültige Zeichen im Passwort.");
-        return;
-    }
-    if (!validInput.test(passwordwdh)) {
-        alert("Ungültige Zeichen in der Passwortwiederholung.");
-        return;
-    }
-    if (!validInput.test(vorname)) {
-        alert("Ungültige Zeichen im Vorname.");
-        return;
-    }
-    if (!validInput.test(nachname)) {
-        alert("Ungültige Zeichen im Nachname.");
+        openCustomAlert("Ungültiges Passwort", "Nur Buchstaben, Zahlen, _, -, . erlaubt."); 
         return;
     }
 
+    // Optional: Felder validieren, falls vorhanden (Registrierung)
+    if (vorname && !validInput.test(vorname)) {
+        openCustomAlert("Vorname ungültig", "Nur Buchstaben, Zahlen, _, -, . erlaubt."); 
+        return;
+    }
 
-    // Wenn alles gut ist, zeige die Werte
-    alert("In Variable vorname: "+ vorname + " || In Variable nachname: " + nachname + " || In Variable username: " + username + " || In Variable password: " + password) + " || In Variable passwordwdh: " + passwordwdh;
+    if (nachname && !validInput.test(nachname)) {
+        openCustomAlert("Nachname ungültig", "Nur Buchstaben, Zahlen, _, -, . erlaubt."); 
+        return;
+    }
 
-    // Das Formular nach erfolgreicher Validierung absenden
-    document.querySelector("form").submit(); // Formular absenden
+    if (securityanswer && !validInput.test(securityanswer)) {
+        openCustomAlert("Sicherheitsantwort ungültig", "Nur Buchstaben, Zahlen, _, -, . erlaubt."); 
+        return;
+    }
+
+    // Alles OK
+    document.querySelector("form").submit();
+}
+
+function openCustomAlert(title, message) {
+    var alertOverlay = document.getElementById("customAlert");
+    var alertMessage = document.getElementById("alertMessage");
+    var popupTitle = document.getElementById("popupTitle");
+
+    popupTitle.innerHTML = title;
+    alertMessage.innerHTML = message;
+
+    alertOverlay.style.display = "flex"; 
+}
+
+function closeCustomAlert() {
+    document.getElementById("customAlert").style.display = "none";
 }

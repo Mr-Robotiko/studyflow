@@ -51,4 +51,21 @@ function checkSecurityAnswer() {
       alert("Die Passwörter stimmen nicht überein oder sind leer.");
     }
   }
+
+
+function openCustomAlert(title, message) {
+    var alertOverlay = document.getElementById("customAlert");
+    var alertMessage = document.getElementById("alertMessage");
+    var popupTitle = document.getElementById("popupTitle");
+
+    popupTitle.innerHTML = title; 
+    alertMessage.innerHTML = message;
+
+    alertOverlay.style.display = "flex"; 
+}
+
+function closeCustomAlert() {
+    document.getElementById("customAlert").style.display = "none";
+}
+
   

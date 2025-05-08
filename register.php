@@ -73,6 +73,7 @@ try {
   <title>StudyCal - Registrierung</title>
   <script type="text/javascript" src="system/javascript/register.js"></script>
   <link rel="stylesheet" href="system/style/prelogin.css">
+  <link rel="stylesheet" href="system/style/popup.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -125,12 +126,20 @@ try {
 
     <!-- Button -->
     <div class="buttons">
-      <button onclick="input_to_var()" type="submit" class="btn">Registrieren</button>
+      <button onclick="input_to_var(event)" type="submit" class="btn">Registrieren</button>
       <a href="index.html" class="zurueck-button" title="Zurück zur Startseite">
     <i class="fas fa-arrow-left"></i>Zurück
   </a>
     </div>
   </form>
+</div>
+
+<div id="customAlert" class="custom-popup-overlay">
+  <div class="custom-popup">
+    <h2 id="popupTitle">Benachrichtigung</h2> 
+    <p id="alertMessage"></p>
+    <button onclick="closeCustomAlert()">Schließen</button>
+  </div>
 </div>
 
 <footer>
