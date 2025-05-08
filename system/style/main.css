@@ -178,7 +178,7 @@ button:hover {
 /* Kalenderbereich */
 
 h2 {
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .kalender-grid {
@@ -270,6 +270,8 @@ h1 {
   margin-right: 10px;
 }
 
+/* Einstellungsbereich*/ 
+
 .settings {
   padding: 20px;
 }
@@ -332,21 +334,28 @@ input:checked + .s:before {
   transform: translateX(26px);
 }
 
-.slider {
+.slidecontainer {
   width: 100%;
+}
+
+#slider {
+  -webkit-appearance: none;
+  width: 90%;
   height: 25px;
   background-image: linear-gradient(to right, white, var(--blue-accent));
-  border-radius: 25px;
   outline: none;
   opacity: 0.8;
+  border-radius: 25px;
+  -webkit-transition: .2s;
   transition: opacity 0.2s;
 }
 
-.slider:hover {
+#slider:hover {
   opacity: 1;
 }
 
-.slider::-webkit-slider-thumb {
+#slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
   appearance: none;
   width: 25px;
   height: 25px;
@@ -355,20 +364,89 @@ input:checked + .s:before {
   border-radius: 50%;
 }
 
-.slider::-moz-range-thumb {
+#slider::-moz-range-thumb {
   width: 25px;
   height: 25px;
   background: #0417aa;
   cursor: pointer;
 }
 
-.subtitle {
-  padding: 10px 0;
+#subtitle {
+  padding: 10px;
   text-align: center;
   font-size: 0.9rem;
   color: var(--gray-muted);
 }
 
+#zeitzone {
+  background-image: linear-gradient(to right, white, var(--blue-accent));
+  opacity: 0.8;
+}
+
+#zeitzone:hover {
+  opacity: 1;
+}
+
+/* Tobis Startseite bitte nicht löschen */
+
+.container {
+  text-align: center;
+  padding: 30px;
+}
+.title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--text-color);
+  margin-bottom: 40px;
+}
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+.btn {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 20px 48px;
+  font-size: 1.4rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.zurueck-button {
+  position: fixed;
+  top: 20px;
+  right: 25px;
+  background-color: var(--gray-light);
+  color: var(--text-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  z-index: 9999;
+  text-decoration: none;
+}
+
+.zurueck-button:hover {
+  background-color: var(--primary-hover);
+  color: white;
+  transform: scale(1.1);
+}
 /* Footer */
 
 .footer {
