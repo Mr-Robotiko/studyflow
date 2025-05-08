@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyCal</title>
-    <link rel="stylesheet" type="text/css" href="system/style/main.css" />
+    <link rel="stylesheet" type="text/css" href="main.css" />
   </head>
   <body>
     <div class="body">
@@ -39,21 +39,33 @@
           <li><span class="arrow left"></span></li>
           <li><p>Kalenderwoche 42</p></li>
           <li><span class="arrow right"></span></li>
-          <li><p>Username - Hey Alexa, spiel Despacito</p></li>
+          <li><p>Username </p></li>
           <li><button>Neuer Eintrag</button></li>
         </ul>
       </div>
       <div class="settings">
-        <h2>Einstellungen</h2>
-        <label class="switch">
-          <input type="checkbox" id="darkModeToggle" />
-          <span class="s"></span>
-        </label>
-        <span id="mode-label">☀️</span>
         <div class="lernideal">
+          <h2>Einstellungen</h2>
+          <label class="switch">
+            <input type="checkbox" id="darkModeToggle" />
+            <span class="s"></span>
+          </label>
+          <span id="mode-label">☀️</span>
           <p class="settings">Lernideal</p>
-          <input type="range" min="1" max="5" class="slider" id="myRange" />
-          <div class="subtitle">30 min 45 min 60 min 120 min 180 min</div>
+          <div class="slidecontainer"> 
+            <input type="range" min="1" max="5" id="slider"/>
+          </div>
+          <div id="subtitle">30 min 45 min 60 min 120 min 180 min</div>
+          <div> 
+            <p>Zeitzone:</p>
+            <input type="dateime-local" id="zeitzone"> 
+          </div> 
+          
+          <button id="profilbild_aendern">Profilbild ändern</button>
+          <button id="password_aendern">Passwort ändern</button>
+          <button id="konto-loeschen">Konto löschen</button> 
+          
+          
         </div>
       </div>
 
@@ -78,7 +90,7 @@
     <div class="footer">
       <p>Datenschutz</p>
     </div>
-    <script src="system/javascript/main.js"></script>
+    <script src="main.js"></script>
     <style>
       .show {
         display: block;
