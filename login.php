@@ -98,7 +98,7 @@ try {
   </div>
 
   <div class="password-forgotten">
-    <a href="passwort.html" class="forgot-password-link">Passwort vergessen?</a>
+    <a href="password.php" class="forgot-password-link">Passwort vergessen?</a>
   </div>
 
   <div class="buttons">
