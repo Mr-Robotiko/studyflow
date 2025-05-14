@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Erstellungszeit: 30. Apr 2025 um 14:48
--- Server-Version: 10.4.32-MariaDB
--- PHP-Version: 8.2.12
+-- Host: localhost
+-- Erstellungszeit: 14. Mai 2025 um 14:44
+-- Server-Version: 10.4.28-MariaDB
+-- PHP-Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -49,7 +49,7 @@ CREATE TABLE `user` (
   `Institution` varchar(100) DEFAULT NULL,
   `Securitypassphrase` varchar(100) DEFAULT NULL,
   `Calendarfile` blob DEFAULT NULL,
-  `Password` int(11) NOT NULL
+  `Password` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
