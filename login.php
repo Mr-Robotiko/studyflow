@@ -9,11 +9,21 @@ require_once "system/user-classes/user.php";
 
 define('SESSION_TIMEOUT', 600);
 
-$alert = "Bitte melde dich an, um fortzufahren";
-$host = "localhost";
-$dbname = "studycal";
-$databaseUser = "Admin";
-$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
+// CSV-Datei mit Zugangsdaten einlesen
+$credentialsFile = __DIR__ . '/configuration.csv';
+if (!file_exists($credentialsFile)) {
+    die("Zugangsdaten-Datei nicht gefunden.");
+}
+
+$csv = array_map('str_getcsv', file($credentialsFile));
+$headers = array_map('trim', $csv[0]);
+$values = array_map('trim', $csv[1]);
+$credentials = array_combine($headers, $values);
+
+$host = $credentials['host'];
+$dbname = $credentials['dbname'];
+$databaseUser = $credentials['databaseUser'];
+$pass = $credentials['pass'];
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);

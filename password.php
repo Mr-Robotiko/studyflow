@@ -3,11 +3,21 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$alert = "Bitte beantworte die Sicherheitsfrage, um fortzufahren.";
-$host = "localhost";
-$dbname = "studycal";
-$dbuser = "Admin";
-$dbpass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
+// CSV-Datei mit Zugangsdaten einlesen
+$credentialsFile = __DIR__ . '/configuration.csv';
+if (!file_exists($credentialsFile)) {
+    die("Zugangsdaten-Datei nicht gefunden.");
+}
+
+$csv = array_map('str_getcsv', file($credentialsFile));
+$headers = array_map('trim', $csv[0]);
+$values = array_map('trim', $csv[1]);
+$credentials = array_combine($headers, $values);
+
+$host = $credentials['host'];
+$dbname = $credentials['dbname'];
+$databaseUser = $credentials['databaseUser'];
+$pass = $credentials['pass'];
 
 try {
   $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
