@@ -1,5 +1,5 @@
 <?php
-session_start();
+//session_start();
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -11,24 +11,24 @@ $today = new DateTime();
 $weekNumber = $today->format("W");  
 
 
-define('SESSION_TIMEOUT', 600); // 10 Minuten
+// define('SESSION_TIMEOUT', 600); // 10 Minuten
 
-if (!isset($_SESSION["eingeloggt"]) || !$_SESSION["eingeloggt"]) {
-    header("Location: login.php");
-    exit;
-}
+// if (!isset($_SESSION["eingeloggt"]) || !$_SESSION["eingeloggt"]) {
+//     header("Location: login.php");
+//     exit;
+// }
 
-// Session Timeout prüfen
-if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
-    session_unset();
-    session_destroy();
-    header("Location: login.php?timeout=1");
-    exit;
-}
-$_SESSION['LAST_ACTIVITY'] = time();
+// // Session Timeout prüfen
+// if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
+//     session_unset();
+//     session_destroy();
+//     header("Location: login.php?timeout=1");
+//     exit;
+// }
+// $_SESSION['LAST_ACTIVITY'] = time();
 
-// User aus Session-Daten neu erstellen
-$data = $_SESSION['user_data'];
+// // User aus Session-Daten neu erstellen
+// $data = $_SESSION['user_data'];
 $user = new User();
 $user->setUserName($data['username']);
 $user->setName($data['name']);
