@@ -1,34 +1,33 @@
 <?php
-session_start();
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once "system/database-classes/database.php";
-require_once "system/user-classes/user.php";
 require_once "system/login-classes/login-class.php";
-
-define('SESSION_TIMEOUT', 600);
+require_once "system/session-classes/session-manager.php";
 
 try {
     $db = new Database(__DIR__ . '/configuration.csv');
-    $pdo = $db->getConnection();
+    $conn = $db->getConnection();
 
-    $login = new Login($pdo);
-    $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $login = new Login($conn);
 
-    if ($login->login($username, $password)) {
-        header("Location: start.php");
-        exit;
-    } else {
-        echo "Login fehlgeschlagen";
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = trim($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        if ($login->login($username, $password)) {
+            header("Location: start.php");
+            exit;
+        } else {
+            echo $login->alert;
+        }
     }
-
 } catch (Exception $e) {
     echo "Fehler: " . $e->getMessage();
 }
+
 ?>
 
 <!DOCTYPE html>

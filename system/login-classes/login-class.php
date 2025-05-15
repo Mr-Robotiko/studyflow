@@ -1,25 +1,23 @@
 <?php
+require_once "system/session-classes/session-manager.php";
+require_once "system/user-classes/user.php";
 
 class Login {
     private $conn;
-    public $alert = "";
+    public $alert;
 
     public function __construct(PDO $conn) {
         $this->conn = $conn;
     }
 
-    public function login(string $username, string $password): bool {
-        if (empty($username) || empty($password)) {
-            $this->alert = "Bitte alle Felder ausfüllen.";
-            return false;
-        }
-
+    public function login(string $username, string $password_plain): bool {
         $query = $this->conn->prepare("SELECT * FROM user WHERE Username = :username");
         $query->execute(["username" => $username]);
         $row = $query->fetch(PDO::FETCH_ASSOC);
 
-        if ($row && password_verify($password, $row['Password'])) {
-            require_once __DIR__ . '/../user-classes/user.php';
+        if ($row && password_verify($password_plain, $row['Password'])) {
+            // Session starten (wenn noch nicht gestartet)
+            SessionManager::start();
 
             $user = new User();
             $user->setUserName($row['Username']);
@@ -41,9 +39,10 @@ class Login {
             $_SESSION['LAST_ACTIVITY'] = time();
 
             return true;
+        } else {
+            $this->alert = "Login fehlgeschlagen";
+            return false;
         }
-
-        $this->alert = "Login fehlgeschlagen.";
-        return false;
     }
 }
+?>
