@@ -2,75 +2,34 @@
 session_start();
 
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once "system/user-classes/user.php";
+require_once __DIR__ . '/system/database-classes/database.php';
+require_once __DIR__ . '/system/login-classes/login-class.php';
 
 define('SESSION_TIMEOUT', 600);
 
-// CSV-Datei mit Zugangsdaten einlesen
-$credentialsFile = __DIR__ . '/configuration.csv';
-if (!file_exists($credentialsFile)) {
-    die("Zugangsdaten-Datei nicht gefunden.");
-}
-
-$csv = array_map('str_getcsv', file($credentialsFile));
-$headers = array_map('trim', $csv[0]);
-$values = array_map('trim', $csv[1]);
-$credentials = array_combine($headers, $values);
-
-$host = $credentials['host'];
-$dbname = $credentials['dbname'];
-$databaseUser = $credentials['databaseUser'];
-$pass = $credentials['pass'];
-
 try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db = new Database(__DIR__ . '/configuration.csv');
+    $conn = $db->connect();
 
-    echo "Verbindung erfolgreich.<br>";
+    $loginHandler = new Login($conn);
 
-    $username = trim($_POST["username"] ?? '');
-    $password_plain = $_POST["password"] ?? '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = trim($_POST["username"] ?? '');
+        $password = $_POST["password"] ?? '';
 
-    if (empty($username) || empty($password_plain)) {
-        $alert = "Bitte alle Felder ausfüllen.";
-    } else {
-        $query = $conn->prepare("SELECT * FROM user WHERE Username = :username");
-        $query->execute(["username" => $username]);
-        $row = $query->fetch(PDO::FETCH_ASSOC);
-
-        if ($row && password_verify($password_plain, $row['Password'])) {
-            $user = new User();
-            $user->setUserName($row['Username']);
-            $user->setPassword($row['Password']);
-            $user->setSecurityPassphrase($row['Securitypassphrase']);
-            $user->setName($row['Name']);
-            $user->setSurname($row['Surname']);
-            $user->setCalendarfile($row['Calendarfile'] ?? null);
-
-            $_SESSION['user_data'] = [
-                'username' => $user->getUserName(),
-                'name' => $user->getName(),
-                'surname' => $user->getSurname(),
-                'securityPassphrase' => $user->getSecurityPassphrase(),
-                'calendarfile' => $user->getCalendarfile()
-            ];
-
-            $_SESSION['eingeloggt'] = true;
-            $_SESSION['LAST_ACTIVITY'] = time();
-
+        if ($loginHandler->login($username, $password)) {
             header("Location: start.php");
             exit;
-        } else {
-            $alert = "Login fehlgeschlagen";
         }
     }
 
+    $alert = $loginHandler->alert ?? '';
     echo $alert;
-} catch (PDOException $e) {
-    echo "PDO-Fehler: " . $e->getMessage();
+
+} catch (Exception $e) {
+    echo "Fehler: " . $e->getMessage();
 }
 ?>
 
