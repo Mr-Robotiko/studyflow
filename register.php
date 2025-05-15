@@ -1,77 +1,24 @@
 <?php
-// Am Ende Löschen!!!
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// CSV-Datei mit Zugangsdaten einlesen
-$credentialsFile = __DIR__ . '/configuration.csv';
-if (!file_exists($credentialsFile)) {
-    die("Zugangsdaten-Datei nicht gefunden.");
-}
-
-$csv = array_map('str_getcsv', file($credentialsFile));
-$headers = array_map('trim', $csv[0]);
-$values = array_map('trim', $csv[1]);
-$credentials = array_combine($headers, $values);
-
-$host = $credentials['host'];
-$dbname = $credentials['dbname'];
-$databaseUser = $credentials['databaseUser'];
-$pass = $credentials['pass'];
+require_once 'system/database-classes/database.php';
+require_once 'system/login-classes/registration.php';
 
 try {
-  $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db = new Database(__DIR__ . '/configuration.csv');
+    $conn = $db->connect();
 
-  echo "Verbindung erfolgreich.<br>";
+    $registration = new Registration($conn);
 
-  if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Eingaben holen
-    $username = trim($_POST["username"] ?? '');
-    $name = trim($_POST["name"] ?? '');
-    $surname = trim($_POST["surname"] ?? '');
-    $password_plain = $_POST["password"] ?? '';
-    $passwordrep = $_POST["passwordrep"] ?? '';
-    $securitypassphrase = trim($_POST["securitypassphrase"] ?? '');
-    $calenderfile = null;
-
-    if (empty($username) || empty($password_plain) || empty($passwordrep) || empty($securitypassphrase) || empty($name) || empty($surname)) {
-        $alert = "Bitte alle Felder ausfüllen.";
-    } elseif ($password_plain !== $passwordrep) {
-        $alert = "Passwörter stimmen nicht überein.";
-    } else {
-        $password = password_hash($password_plain, PASSWORD_DEFAULT);
-
-        $check = $conn->prepare("SELECT Username FROM user WHERE Username = :username");
-        $check->execute(["username" => $username]);
-
-        if ($check->fetch()) {
-            $alert = "Benutzername bereits vergeben.";
-        } else {
-            $query = $conn->prepare("INSERT INTO user (Username, Name, Surname, Securitypassphrase, Calendarfile, Password)
-                                     VALUES (:username, :name, :surname, :securitypassphrase, :calenderfile, :password)");
-
-            $query->bindParam(':username', $username);
-            $query->bindParam(':name', $name);
-            $query->bindParam(':surname', $surname);
-            $query->bindParam(':securitypassphrase', $securitypassphrase);
-            $query->bindParam(':calenderfile', $calenderfile);
-            $query->bindParam(':password', $password);
-
-            if ($query->execute()) {
-                $alert = "Einfügen erfolgreich!";
-            } else {
-                $alert = "Fehler beim Einfügen: ";
-                print_r($query->errorInfo());
-            }
-        }
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $registration->handleRegistration($_POST);
     }
 
-    echo $alert;
-}
-} catch (PDOException $e) {
-  echo "PDO-Fehler: " . $e->getMessage();
+    $alert = $registration->alert;
+
+} catch (Exception $e) {
+    $alert = "Fehler: " . $e->getMessage();
 }
 ?>
 
