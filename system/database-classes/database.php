@@ -1,34 +1,30 @@
 <?php
 
 class Database {
-    private $host;
-    private $dbname;
-    private $user;
-    private $pass;
-    private $conn;
+    private $pdo;
 
-    public function __construct($credentialsPath) {
-        if (!file_exists($credentialsPath)) {
+    public function __construct($configPath) {
+        if (!file_exists($configPath)) {
             throw new Exception("Zugangsdaten-Datei nicht gefunden.");
         }
 
-        $csv = array_map('str_getcsv', file($credentialsPath));
+        $csv = array_map('str_getcsv', file($configPath));
         $headers = array_map('trim', $csv[0]);
         $values = array_map('trim', $csv[1]);
-        $data = array_combine($headers, $values);
+        $credentials = array_combine($headers, $values);
 
-        $this->host = $data['host'];
-        $this->dbname = $data['dbname'];
-        $this->user = $data['databaseUser'];
-        $this->pass = $data['pass'];
+        $host = $credentials['host'];
+        $dbname = $credentials['dbname'];
+        $user = $credentials['databaseUser'];
+        $pass = $credentials['pass'];
+
+        $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
+
+        $this->pdo = new PDO($dsn, $user, $pass);
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    public function connect() {
-        if (!$this->conn) {
-            $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
-            $this->conn = new PDO($dsn, $this->user, $this->pass);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        }
-        return $this->conn;
+    public function getConnection() {
+        return $this->pdo;
     }
 }

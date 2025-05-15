@@ -3,77 +3,30 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// CSV-Datei mit Zugangsdaten einlesen
-$credentialsFile = __DIR__ . '/configuration.csv';
-if (!file_exists($credentialsFile)) {
-    die("Zugangsdaten-Datei nicht gefunden.");
-}
+require_once __DIR__ . '/system/login-classes/password.php';
 
-$csv = array_map('str_getcsv', file($credentialsFile));
-$headers = array_map('trim', $csv[0]);
-$values = array_map('trim', $csv[1]);
-$credentials = array_combine($headers, $values);
-
-$host = $credentials['host'];
-$dbname = $credentials['dbname'];
-$databaseUser = $credentials['databaseUser'];
-$pass = $credentials['pass'];
-
-try {
-  $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-  if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Eingaben holen
-    $username = trim($_POST['username'] ?? '');
-    $securitypassphrase = trim($_POST['securitypassphrase'] ?? '');
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $username = $_POST['username'] ?? '';
+    $securitypassphrase = $_POST['securitypassphrase'] ?? '';
     $newPassword = $_POST['newPassword'] ?? '';
     $confirmPassword = $_POST['confirmPassword'] ?? '';
 
-    if (empty($username) || empty($securitypassphrase) || empty($newPassword) || empty($confirmPassword)) {
-      echo "<script>alert('Bitte alle Felder ausfüllen.'); window.history.back();</script>";
-      exit;
+    try {
+        $reset = new PasswordReset(__DIR__ . '/configuration.csv');
+        $result = $reset->reset($username, $securitypassphrase, $newPassword, $confirmPassword);
+
+        if ($result === "success") {
+            echo "<script>alert('Passwort erfolgreich geändert.'); window.location.href='login.php';</script>";
+        } else {
+            echo "<script>alert('$result'); window.history.back();</script>";
+        }
+    } catch (Exception $e) {
+        $msg = addslashes($e->getMessage());
+        echo "<script>alert('Fehler: $msg'); window.history.back();</script>";
     }
-
-    if ($newPassword !== $confirmPassword) {
-        echo "<script>alert('Die Passwörter stimmen nicht überein.'); window.history.back();</script>";
-        exit;
-    }
-
-    // Sicherheitsfrage prüfen
-    $stmt = $pdo->prepare("SELECT Securitypassphrase FROM user WHERE Username = :username");
-    $stmt->execute(['username' => $username]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$user) {
-        echo "<script>alert('Benutzer existiert nicht.'); window.history.back();</script>";
-        exit;
-    }
-
-    if (strcasecmp(trim($user['Securitypassphrase']), $securitypassphrase) !== 0) {
-        echo "<script>alert('Sicherheitsantwort ist falsch.'); window.history.back();</script>";
-        exit;
-    }
-
-    // Neues Passwort speichern
-    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-    $update = $pdo->prepare("UPDATE user SET Password = :password WHERE Username = :username");
-
-    if ($update->execute(['password' => $hashedPassword, 'username' => $username])) {
-        echo "<script>alert('Passwort erfolgreich geändert.'); window.location.href='login.php';</script>";
-    } 
-    
-    else {
-        echo "<script>alert('Fehler beim Speichern des neuen Passworts.'); window.history.back();</script>";
-    }
-
-  }
-
-} catch (PDOException $e) {
-  echo "<script>alert('Verbindungsfehler zur Datenbank: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
-  exit;
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">
@@ -89,7 +42,7 @@ try {
 
   <div class="container">
     <h1>Passwort Wiederherstellung</h1>
-    <p class="subtitle"><?php echo $alert?></p>
+    <p class="subtitle">Passwort zurücksetzen</p>
 
     <form method="POST" action="password.php">
       <div class="form-group">

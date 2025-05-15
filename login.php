@@ -2,31 +2,29 @@
 session_start();
 
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once __DIR__ . '/system/database-classes/database.php';
-require_once __DIR__ . '/system/login-classes/login-class.php';
+require_once "system/database-classes/database.php";
+require_once "system/user-classes/user.php";
+require_once "system/login-classes/login-class.php";
 
 define('SESSION_TIMEOUT', 600);
 
 try {
     $db = new Database(__DIR__ . '/configuration.csv');
-    $conn = $db->connect();
+    $pdo = $db->getConnection();
 
-    $loginHandler = new Login($conn);
+    $login = new Login($pdo);
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = trim($_POST["username"] ?? '');
-        $password = $_POST["password"] ?? '';
-
-        if ($loginHandler->login($username, $password)) {
-            header("Location: start.php");
-            exit;
-        }
+    if ($login->login($username, $password)) {
+        header("Location: start.php");
+        exit;
+    } else {
+        echo "Login fehlgeschlagen";
     }
-
-    $alert = $loginHandler->alert ?? '';
-    echo $alert;
 
 } catch (Exception $e) {
     echo "Fehler: " . $e->getMessage();
@@ -54,7 +52,7 @@ try {
   <div class="main">
   
     <img src="images/Logo.png" alt="StudyCal Logo" />
-    <p class="subtitle"><?php echo $alert?></p>
+    <p class="subtitle">Einloggen</p>
 
     <form action="login.php" method="post">
   <div>

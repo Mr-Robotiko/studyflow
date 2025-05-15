@@ -1,25 +1,21 @@
 <?php
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once 'system/database-classes/database.php';
-require_once 'system/login-classes/registration.php';
+require_once "system/database-classes/database.php";
+require_once "system/login-classes/registration.php";
 
-try {
-    $db = new Database(__DIR__ . '/configuration.csv');
-    $conn = $db->connect();
+$db = new Database(__DIR__ . '/configuration.csv'); 
+$pdo = $db->getConnection();
 
-    $registration = new Registration($conn);
+$registration = new Registration($pdo);
 
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        $registration->handleRegistration($_POST);
-    }
-
-    $alert = $registration->alert;
-
-} catch (Exception $e) {
-    $alert = "Fehler: " . $e->getMessage();
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $registration->handleRegistration($_POST);
 }
+
+$alert = $registration->alert;
 ?>
 
 <!DOCTYPE html>
