@@ -13,10 +13,10 @@ class Registration {
         $surname = trim($post["surname"] ?? '');
         $password_plain = $post["password"] ?? '';
         $passwordrep = $post["passwordrep"] ?? '';
-        $securitypassphrase = trim($post["securitypassphrase"] ?? '');
+        $securitypassphrase_plain = trim($post["securitypassphrase"] ?? '');
         $calenderfile = null;
 
-        if (empty($username) || empty($password_plain) || empty($passwordrep) || empty($securitypassphrase) || empty($name) || empty($surname)) {
+        if (empty($username) || empty($password_plain) || empty($passwordrep) || empty($securitypassphrase_plain) || empty($name) || empty($surname)) {
             $this->alert = "Bitte alle Felder ausfüllen.";
             return;
         }
@@ -27,6 +27,8 @@ class Registration {
         }
 
         $password = password_hash($password_plain, PASSWORD_DEFAULT);
+        $securitypassphrase = password_hash($securitypassphrase_plain, PASSWORD_DEFAULT);
+
 
         $check = $this->conn->prepare("SELECT Username FROM user WHERE Username = :username");
         $check->execute(["username" => $username]);

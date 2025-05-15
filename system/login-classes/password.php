@@ -12,7 +12,7 @@ class PasswordReset {
 
     public function reset($username, $securitypassphrase, $newPassword, $confirmPassword) {
         $username = trim($username);
-        $securitypassphrase = trim($securitypassphrase);
+        $securitypassphrase = trim($_POST['securitypassphrase'] ?? '');
 
         if (empty($username) || empty($securitypassphrase) || empty($newPassword) || empty($confirmPassword)) {
             return "Bitte alle Felder ausfüllen.";
@@ -30,7 +30,7 @@ class PasswordReset {
             return "Benutzer existiert nicht.";
         }
 
-        if (strcasecmp(trim($user['Securitypassphrase']), $securitypassphrase) !== 0) {
+        if (!password_verify($securitypassphrase, $user['Securitypassphrase'])) {
             return "Sicherheitsantwort ist falsch.";
         }
 
