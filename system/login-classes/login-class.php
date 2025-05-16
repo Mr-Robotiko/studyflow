@@ -1,24 +1,32 @@
 <?php
-require_once "system/session-classes/session-manager.php";
 require_once "system/user-classes/user.php";
 
 class Login {
-    private $conn;
-    public $alert;
+    private PDO $conn;
+    public string $alert = '';
 
     public function __construct(PDO $conn) {
         $this->conn = $conn;
     }
 
+    /**
+     * Versucht, den Benutzer einzuloggen.
+     * Gibt true zurück, wenn erfolgreich, andernfalls false und $this->alert enthält die Fehlermeldung.
+     */
     public function login(string $username, string $password_plain): bool {
-        $query = $this->conn->prepare("SELECT * FROM user WHERE Username = :username");
-        $query->execute(["username" => $username]);
-        $row = $query->fetch(PDO::FETCH_ASSOC);
+        // 1) Benutzer aus der DB laden
+        $stmt = $this->conn->prepare(
+            "SELECT Username, Password, Securitypassphrase, Name, Surname, Calendarfile
+             FROM user
+             WHERE Username = :username
+             LIMIT 1"
+        );
+        $stmt->execute(['username' => $username]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        // 2) Prüfen, ob gefunden und Passwort stimmt
         if ($row && password_verify($password_plain, $row['Password'])) {
-            // Session starten (wenn noch nicht gestartet)
-            SessionManager::start();
-
+            // 3) User-Objekt befüllen
             $user = new User();
             $user->setUserName($row['Username']);
             $user->setPassword($row['Password']);
@@ -27,22 +35,21 @@ class Login {
             $user->setSurname($row['Surname']);
             $user->setCalendarfile($row['Calendarfile'] ?? null);
 
-            $_SESSION['user_data'] = [
-                'username' => $user->getUserName(),
-                'name' => $user->getName(),
-                'surname' => $user->getSurname(),
+            // 4) Session-Flags und User-Daten setzen (login.php übernimmt dann redirect)
+            $_SESSION['eingeloggt'] = true;
+            $_SESSION['user_data']  = [
+                'username'           => $user->getUserName(),
+                'name'               => $user->getName(),
+                'surname'            => $user->getSurname(),
                 'securityPassphrase' => $user->getSecurityPassphrase(),
-                'calendarfile' => $user->getCalendarfile()
+                'calendarfile'       => $user->getCalendarfile(),
             ];
 
-            $_SESSION['eingeloggt'] = true;
-            $_SESSION['LAST_ACTIVITY'] = time();
-
             return true;
-        } else {
-            $this->alert = "Login fehlgeschlagen";
-            return false;
         }
+
+        // 5) Bei Fehlschlag Fehlermeldung setzen
+        $this->alert = 'Login fehlgeschlagen: Benutzername oder Passwort ist falsch.';
+        return false;
     }
 }
-?>

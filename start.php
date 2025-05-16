@@ -1,19 +1,25 @@
 <?php
+// start.php
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// 1) SessionManager laden und Session prüfen (Login + Timeout)
 require_once "system/session-classes/session-manager.php";
 require_once "system/user-classes/user.php";
 
 SessionManager::start();
 
-$data = $_SESSION['user_data'] ?? null;
+// 2) User-Daten sicher aus Session holen
+$data = SessionManager::getUserData();
 if (!$data) {
+    // Fallback, sollte durch start() aber nie nötig sein
     header("Location: login.php");
     exit;
 }
 
+// 3) User-Objekt befüllen
 $user = new User();
 $user->setUserName($data['username']);
 $user->setName($data['name']);
@@ -21,20 +27,11 @@ $user->setSurname($data['surname']);
 $user->setSecurityPassphrase($data['securityPassphrase']);
 $user->setCalendarfile($data['calendarfile'] ?? null);
 
-$weekNumber = date('W'); // Aktuelle Kalenderwoche
+// 4) Kalenderwoche ermitteln
+$weekNumber = date('W');
 
-// Prüfen, ob der Button "Neuer Eintrag" gedrückt wurde
-$showEntryForm = false;
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_entry_form'])) {
-    $showEntryForm = true;
-}
-
-// Wenn entry.php ein Formular zum Speichern hat und es abgeschickt wird,
-// kannst du hier die Logik ergänzen und $showEntryForm = true setzen,
-// damit das Formular auch nach Absenden angezeigt wird.
-
-// Fehler und Erfolgsmeldungen vom entry.php könnten hier ggf. per Session oder anderem Mechanismus ankommen
-
+// 5) Steuert, ob das Formular für neuen Eintrag angezeigt wird
+$showEntryForm = ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_entry_form']));
 ?>
 
 <!DOCTYPE html>

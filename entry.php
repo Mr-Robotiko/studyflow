@@ -1,5 +1,5 @@
 <?php
-// Optional: Erfolg & Fehler setzen (werden aus start.php übergeben)
+session_start()
 $success = $success ?? false;
 $errors = $errors ?? [];
 ?>
