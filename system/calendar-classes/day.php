@@ -1,32 +1,30 @@
 <?php
-    include_once "todo.php";
-    class Day {   
-        private $day;
-        private $Task;
+require_once "entry.php";
 
-        public function __construct($day = NULL, $Task = NULL) {
-            $this->setDay($day);
-            $this->setTask($Task);
-        }
+class Day {
+    private $date;
+    private $entries = [];
 
-        public function getDay() {
-            return $this->day;
-        }
-
-        public function getTask() {
-            return $this->Task;
-        }
-
-        public function setDay($dayValue) {
-            $this->day = $dayValue;
-        }
-
-        public function setTask($TaskValue) {
-            $this->Task = $TaskValue;
-        }
-
-        public function __toString() {
-            return "Day: {$this->day}\nTask: {$this->Task}";
-        }
+    public function __construct($date = null) {
+        $this->date = $date;
     }
+
+    public function getDate() {
+        return $this->date;
+    }
+
+    public function setDate($date) {
+        $this->date = $date;
+    }
+
+    public function getEntries() {
+        return $this->entries;
+    }
+
+    // Einen neuen Eintrag hinzufügen
+    public function addEntry(Entry $entry) {
+        $this->entries[] = $entry;
+    }
+}
 ?>
+
