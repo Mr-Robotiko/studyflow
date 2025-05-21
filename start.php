@@ -1,5 +1,5 @@
 <?php
-//session_start();
+session_start();
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -7,28 +7,25 @@ error_reporting(E_ALL);
 
 require_once "system/user-classes/user.php";
 
-$today = new DateTime();            
-$weekNumber = $today->format("W");  
+define('SESSION_TIMEOUT', 600); // 10 Minuten
 
+// Benutzer muss eingeloggt sein
+if (!isset($_SESSION["eingeloggt"]) || !$_SESSION["eingeloggt"]) {
+    header("Location: login.php");
+    exit;
+}
 
-// define('SESSION_TIMEOUT', 600); // 10 Minuten
+// Session-Timeout prüfen
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
+    session_unset();
+    session_destroy();
+    header("Location: login.php?timeout=1");
+    exit;
+}
+$_SESSION['LAST_ACTIVITY'] = time();
 
-// if (!isset($_SESSION["eingeloggt"]) || !$_SESSION["eingeloggt"]) {
-//     header("Location: login.php");
-//     exit;
-// }
-
-// // Session Timeout prüfen
-// if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
-//     session_unset();
-//     session_destroy();
-//     header("Location: login.php?timeout=1");
-//     exit;
-// }
-// $_SESSION['LAST_ACTIVITY'] = time();
-
-// // User aus Session-Daten neu erstellen
-// $data = $_SESSION['user_data'];
+// User aus Session-Daten neu erstellen
+$data = $_SESSION['user_data'];
 $user = new User();
 $user->setUserName($data['username']);
 $user->setName($data['name']);
@@ -39,6 +36,7 @@ $user->setCalendarfile($data['calendarfile'] ?? null);
 // Jetzt kannst du damit arbeiten
 echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">

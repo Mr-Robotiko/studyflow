@@ -1,5 +1,5 @@
 <?php
-//session_start();
+session_start();
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 require_once "system/user-classes/user.php";
 
-//define('SESSION_TIMEOUT', 600);
+define('SESSION_TIMEOUT', 600);
 
 
 $host = "localhost";
@@ -52,16 +52,16 @@ try {
           $user->setSurname($row['Surname']);
           $user->setCalendarfile($row['Calendarfile'] ?? null);
 
-            // $_SESSION['user_data'] = [
-            //     'username' => $user->getUserName(),
-            //     'name' => $user->getName(),
-            //     'surname' => $user->getSurname(),
-            //     'securityPassphrase' => $user->getSecurityPassphrase(),
-            //     'calendarfile' => $user->getCalendarfile()
-            // ];
+             $_SESSION['user_data'] = [
+                 'username' => $user->getUserName(),
+                 'name' => $user->getName(),
+                 'surname' => $user->getSurname(),
+                 'securityPassphrase' => $user->getSecurityPassphrase(),
+                 'calendarfile' => $user->getCalendarfile()
+            ];
 
-            // $_SESSION['eingeloggt'] = true;
-            // $_SESSION['LAST_ACTIVITY'] = time();
+            $_SESSION['eingeloggt'] = true;
+            $_SESSION['LAST_ACTIVITY'] = time();
           header("Location: start.php");
           exit;
       }
