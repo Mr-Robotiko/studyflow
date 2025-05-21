@@ -63,14 +63,10 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
           <li>
             <a href="#home" id="profilbild">
               <li class="dropdown">
-                <a href="#" id="profilbild" onclick="toggleDropdown(event, dropdown_profilbild)">
-                  <img
-                    src="images/rusty.jpg"
-                    alt="Profilbild"
-                    class="profil-img"
-                  />
+                <a href="#" onclick="toggleDropdown(event, 'dropdown-profilbild')">
+                  <img src="images/rusty.jpg" alt="Profilbild" class="profil-img" />
                 </a>
-                <div class="dropdown-content" id="dropdown-menu">
+                <div class="dropdown-content" id="dropdown-profilbild">
                   <a href="settings.html">Einstellungen</a>
                 </div>
               </li>
