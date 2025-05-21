@@ -1,11 +1,8 @@
 <?php
-// login.php
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 1) Session starten, bevor irgendetwas ausgegeben wird
 session_start();
 
 require_once "system/database-classes/database.php";
@@ -14,20 +11,16 @@ require_once "system/login-classes/login-class.php";
 $fehlermeldung = '';
 
 try {
-    // 2) DB-Verbindung initialisieren
     $db   = new Database(__DIR__ . '/configuration.csv');
     $conn = $db->getConnection();
 
     $login = new Login($conn);
 
-    // 3) Login-Formular wurde abgeschickt?
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        // 4) Login-Versuch
         if ($login->login($username, $password)) {
-            // 5) Session-Flags und User-Daten setzen
             $_SESSION['eingeloggt'] = true;
             $_SESSION['user_data']  = [
                 'username'           => $username,
@@ -36,15 +29,12 @@ try {
                 'securityPassphrase' => method_exists($login,'getSecurityPassphrase') ? $login->getSecurityPassphrase() : '',
                 'calendarfile'       => method_exists($login,'getCalendarfile')       ? $login->getCalendarfile()       : null,
             ];
-            // 6) LAST_ACTIVITY initialisieren (für Timeout)
             $_SESSION['LAST_ACTIVITY'] = time();
 
-            // 7) Session speichern und weiterleiten
             session_write_close();
             header("Location: start.php");
             exit;
         } else {
-            // 8) Fehler speichern
             $fehlermeldung = $login->alert;
         }
     }
@@ -52,8 +42,6 @@ try {
     $fehlermeldung = "Fehler: " . $e->getMessage();
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
