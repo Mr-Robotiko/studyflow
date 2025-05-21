@@ -47,6 +47,7 @@ $user->setCalendarfile($data['calendarfile'] ?? null);
     <title>StudyCal</title>
     <link rel="stylesheet" type="text/css" href="/system/style/main.css" />
     <script type="text/javascript" src="system/javascript/main.js"></script>
+    <script src="system/javascript/inactivityTimer.js" defer></script>
   </head>
   <body>
     <div class="body">
