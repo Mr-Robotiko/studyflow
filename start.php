@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 require_once "system/user-classes/user.php";
 
-define('SESSION_TIMEOUT', 600); // 10 Minuten
+define('SESSION_TIMEOUT', 600); // Timeout auf 10 Minuten setzen
 
 // Benutzer muss eingeloggt sein
 if (!isset($_SESSION["eingeloggt"]) || !$_SESSION["eingeloggt"]) {
@@ -15,13 +15,18 @@ if (!isset($_SESSION["eingeloggt"]) || !$_SESSION["eingeloggt"]) {
     exit;
 }
 
-// Session-Timeout prüfen
-if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
-    session_unset();
-    session_destroy();
-    header("Location: login.php?timeout=1");
-    exit;
+// Session-Timeout prüfen (nur wenn 'LAST_ACTIVITY' gesetzt ist)
+if (isset($_SESSION['LAST_ACTIVITY'])) {
+    if (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT) {
+        // Session ist abgelaufen, Benutzer wird zur Startseite (index.html) weitergeleitet
+        session_unset();
+        session_destroy();
+        header("Location: index.html"); // Umleitung zur Startseite
+        exit;
+    }
 }
+
+// Setze die letzte Aktivität auf die aktuelle Zeit
 $_SESSION['LAST_ACTIVITY'] = time();
 
 // User aus Session-Daten neu erstellen
@@ -45,6 +50,7 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyCal</title>
     <link rel="stylesheet" type="text/css" href="system/style/main.css" />
+    <script src="system/javascript/inactivityTimer.js" defer></script>
   </head>
   <body>
     <div class="body">
@@ -65,7 +71,7 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
                   <img src="images/rusty.jpg" alt="Profilbild" class="profil-img" />
                 </a>
                 <div class="dropdown-content" id="dropdown-profilbild">
-                  <a href="settings.html">Einstellungen</a>
+                  <a href="settings.php">Einstellungen</a>
                   <a href="logout.php">Logout</a>
                 </div>
               </li>
