@@ -68,6 +68,7 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
                 </a>
                 <div class="dropdown-content" id="dropdown-profilbild">
                   <a href="settings.html">Einstellungen</a>
+                  <a href="logout.php">Logout</a>
                 </div>
               </li>
             </a>
