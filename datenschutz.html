@@ -85,13 +85,19 @@
     <h3>Widerspruch Werbe-Mails</h3>
     <p>Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit widersprochen. Die Betreiber der Seiten behalten sich ausdrücklich rechtliche Schritte im Falle der unverlangten Zusendung von Werbeinformationen, etwa durch Spam-E-Mails, vor.</p>
 
-    <button onclick="document.getElementById('datenschutzModal').style.display='none'">Akzeptieren</button>
+    <button onclick="acceptAndRedirect('start.php')"> Akzeptieren </button>
   </div>
 </div>
 
 <script>
-  window.onload = () => {
+ window.onload = () => {
     document.getElementById('datenschutzModal').style.display = 'flex';
+  }
+  function acceptAndRedirect(url) {
+    document.getElementById('datenschutzModal').style.display = 'none';
+    setTimeout(() => {
+      window.location.href = url;
+    }, 200);
   }
 </script>
 

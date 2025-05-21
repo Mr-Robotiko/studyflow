@@ -63,7 +63,7 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
           <li>
             <a href="#home" id="profilbild">
               <li class="dropdown">
-                <a href="#" id="profilbild" onclick="toggleDropdown(event)">
+                <a href="#" id="profilbild" onclick="toggleDropdown(event, dropdown_profilbild)">
                   <img
                     src="images/rusty.jpg"
                     alt="Profilbild"
@@ -82,7 +82,20 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
           <li><p>Kalenderwoche <?php echo $weekNumber?></p></li>
           <li><span class="arrow right"></span></li>
           <li><p>Schön, dich zu sehen, <?php echo $user->getUserName()?></p></li>
-          <li><button>Neuer Eintrag</button></li>
+          <li>
+            <a href="#" id="neuer_eintrag"> 
+              <li class="drowpdown">
+                <a href="#" id="neuer_eintrag" onclick="toggleDropdown(event, dropdown_eintrag)"> 
+                  <button>
+                    Neuer Eintrag
+                  </button>
+                </a>
+                <div class="dropdown-content" id="dropdown-menu">
+                  <a href="entry.html">Klausur</a>
+                </div>
+              </li>
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -123,7 +136,9 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
       </div>
     </div>
     <div class="footer">
-      <p>Datenschutz</p>
+      <a href="datenschutz.html"> 
+        <p>Datenschutz</p>
+      </a> 
     </div>
     <script src="system/javascript/main.js"></script>
     <style>
