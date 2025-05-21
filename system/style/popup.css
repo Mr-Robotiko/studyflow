@@ -97,3 +97,8 @@
     transform: translateY(-2px);
   }
   
+  #entryPopupOverlay textarea {
+    resize: vertical;
+    font-family: var(--font);
+  }
+  

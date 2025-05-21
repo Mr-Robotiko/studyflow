@@ -14,22 +14,6 @@ function toggleDropdown(event, dropdown_profilbild) {
     }
   };
   
-
-function toggleDropdown(event, dropdown_eintrag) {
-    event.preventDefault();
-    document.getElementById("dropdown-menu").classList.toggle("show");
-  }
-  
-  window.onclick = function(event) {
-    if (!event.target.closest('#neuer_eintrag')) {
-      const dropdowns = document.getElementsByClassName("dropdown-content");
-      for (let i = 0; i < dropdowns.length; i++) {
-        dropdowns[i].classList.remove('show');
-      }
-    }
-  };
-
-  
   // --- DARK MODE ---
   
   document.addEventListener('DOMContentLoaded', () => {
@@ -59,5 +43,24 @@ function toggleDropdown(event, dropdown_eintrag) {
         updateModeLabel(isDark);
       });
     }
+  });
+  
+  // --- EINTRAG POPUP MIT JQUERY ---
+
+  $(document).ready(function () {
+    $('#openEntryPopup').on('click', function () {
+      $('#entryPopupOverlay').fadeIn();
+    });
+  
+    $('#closeEntryPopup').on('click', function () {
+      $('#entryPopupOverlay').fadeOut();
+    });
+  
+    // Optional: schließen, wenn außerhalb geklickt
+    $('#entryPopupOverlay').on('click', function (e) {
+      if (e.target === this) {
+        $(this).fadeOut();
+      }
+    });
   });
   

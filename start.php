@@ -1,5 +1,7 @@
 <?php
+require_once "system/handlers/entry-popup-handler.php";
 //session_start();
+
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -47,6 +49,8 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyCal</title>
     <link rel="stylesheet" type="text/css" href="system/style/main.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="system/javascript/main.js"></script>
   </head>
   <body>
     <div class="body">
@@ -82,20 +86,12 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
           <li><p>Kalenderwoche <?php echo $weekNumber?></p></li>
           <li><span class="arrow right"></span></li>
           <li><p>Schön, dich zu sehen, <?php echo $user->getUserName()?></p></li>
-          <li>
-            <a href="#" id="neuer_eintrag"> 
-              <li class="drowpdown">
-                <a href="#" id="neuer_eintrag" onclick="toggleDropdown(event, dropdown_eintrag)"> 
-                  <button>
-                    Neuer Eintrag
-                  </button>
-                </a>
-                <div class="dropdown-content" id="dropdown-menu">
-                  <a href="entry.html">Klausur</a>
-                </div>
-              </li>
-            </a>
-          </li>
+          <li class="dropdown">
+            <button id="openEntryPopup">Neuer Eintrag</button>
+            <div class="dropdown-content" id="dropdown-menu">
+             <a href="entry.html">Klausur</a>
+        </div>
+      </li>
         </ul>
       </div>
 
@@ -140,11 +136,81 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
         <p>Datenschutz</p>
       </a> 
     </div>
-    <script src="system/javascript/main.js"></script>
     <style>
       .show {
         display: block;
       }
     </style>
+
+    <!-- Overlay für Entry-Popup mit PHP-Formular -->
+<div id="entryPopupOverlay" class="popup-overlay" style="display: none;">
+  <div class="popup-content">
+    <button id="closeEntryPopup">&times;</button>
+    
+    <div class="entry">
+      <h2>Neuer Eintrag</h2>
+
+      <?php if ($success): ?>
+        <p style="color: green;">Eintrag erfolgreich gespeichert!</p>
+      <?php endif; ?>
+
+      <?php if (!empty($errors)): ?>
+        <ul style="color: red;">
+          <?php foreach ($errors as $error): ?>
+            <li><?= htmlspecialchars($error) ?></li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+
+      <form id="entryForm" method="post" action="start.php">
+        <div class="klausur-grid">
+          <div class="klausur">
+            <label for="klausur">Klausur</label><br />
+            <input
+              type="text"
+              id="klausur"
+              name="klausur"
+              class="entry_h"
+              value="<?= htmlspecialchars($_POST['klausur'] ?? '') ?>"
+              required
+            />
+          </div>
+          <div class="dates">
+            <label for="anfangsdatum">Anfangsdatum:</label><br />
+            <input
+              type="date"
+              id="anfangsdatum"
+              name="anfangsdatum"
+              class="entry_be"
+              value="<?= htmlspecialchars($_POST['anfangsdatum'] ?? '') ?>"
+              required
+            /><br />
+            <label for="endungsdatum">Endungsdatum:</label><br />
+            <input
+              type="date"
+              id="endungsdatum"
+              name="endungsdatum"
+              class="entry_end"
+              value="<?= htmlspecialchars($_POST['endungsdatum'] ?? '') ?>"
+              required
+            />
+          </div>
+          <div class="notes">
+            <label for="notizen">Notizen:</label><br />
+            <textarea
+              id="notizen"
+              name="notizen"
+              rows="4"
+              maxlength="1000"
+              class="notes"
+            ><?= htmlspecialchars($_POST['notizen'] ?? '') ?></textarea>
+          </div>
+        </div>
+        <button type="submit" name="save_entry" value="1">Speichern</button>
+      </form>
+    </div>
+  </div>
+</div>
+
   </body>
 </html>
