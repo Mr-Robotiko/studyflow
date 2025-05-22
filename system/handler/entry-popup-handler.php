@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . "/../calendar-classes/entry.php";
 require_once __DIR__ . "/../calendar-classes/day.php";
 
 $success = $_SESSION['entry_success'] ?? false;
