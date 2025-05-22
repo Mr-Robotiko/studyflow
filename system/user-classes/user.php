@@ -1,5 +1,6 @@
 <?php
 require_once "settings.php";
+require_once 'system/database-classes/database.php';
     class User {
         private $name;
         private $surname;
@@ -96,14 +97,24 @@ require_once "settings.php";
                 throw new Exception("Benutzername fehlt");
             }
             
-        
-            require_once 'system/database-classes/database.php';
             $db = new Database("config/configuration.csv");
             $pdo = $db->getConnection();
         
             $stmt = $pdo->prepare("DELETE FROM user WHERE username = :username");
             return $stmt->execute(['username' => $username]);
         }
+
+        public function saveCalendarfileToDatabase(string $json): bool {
+            $db = new Database("config/configuration.csv");
+            $pdo = $db->getConnection();
+        
+            $stmt = $pdo->prepare("UPDATE user SET calendarfile = :calendar WHERE username = :username");
+            return $stmt->execute([
+                'calendar' => $json,
+                'username' => $this->getUserName()
+            ]);
+        }
+        
         
     }
 ?>

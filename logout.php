@@ -4,18 +4,29 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once "system/session-classes/session-manager.php";
+require_once "system/user-classes/user.php";
 
 SessionManager::start();
+$userData = SessionManager::getUserData();
 
-session_unset();
-session_destroy();
+if ($userData) {
+    $username = $userData['username'];
+    $user = new User();
+    $user->setUserName($username);
 
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
-    );
+    $calendarPath = __DIR__ . "/data/calendar_{$username}.json";
+
+    if (file_exists($calendarPath)) {
+        $json = file_get_contents($calendarPath);
+
+        // 📥 Speichern in DB
+        if ($user->saveCalendarfileToDatabase($json)) {
+            // 🧹 Löschen der lokalen Datei
+            unlink($calendarPath);
+        }
+    }
+
+    SessionManager::destroy();
 }
 
 header("Location: login.php");
