@@ -52,7 +52,7 @@ $days = $_SESSION['days'] ?? [];
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyCal</title>
-    <link rel="icon" href="images/Logo.png">
+    <link rel="icon" href="images/Logo_favicon.png">
     <link rel="stylesheet" type="text/css" href="system/style/main.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="system/javascript/inactivityTimer.js" defer></script>

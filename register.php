@@ -54,7 +54,7 @@ try {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StudyCal | Registrierung</title>
-  <link rel="icon" href="images/Logo.png">
+  <link rel="icon" href="images/Logo_favicon.png">
   <link rel="stylesheet" href="system/style/prelogin.css">
   <link rel="stylesheet" href="system/style/popup.css"/>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
