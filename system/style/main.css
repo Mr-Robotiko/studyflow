@@ -183,9 +183,9 @@ h2 {
 
 .kalender-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 Spalten */
-  gap: 10px;
-  margin-top: 15px;
+  grid-template-columns: repeat(5, 1fr); /* 5 Spalten für 5 Tage */
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .termin {

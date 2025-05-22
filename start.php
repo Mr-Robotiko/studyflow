@@ -6,19 +6,15 @@ error_reporting(E_ALL);
 require_once "system/session-classes/session-manager.php";
 require_once "system/user-classes/user.php";
 require_once "system/database-classes/database.php";
-
-// Beispielstruktur – ersetzen mit realem Laden aus Datei/DB:
 require_once "system/calendar-classes/day.php";
 require_once "system/calendar-classes/entry.php";
 
 SessionManager::start();
 
-$weekNumber = date('W');
 $userData = SessionManager::getUserData();
-
+$weekNumber = date('W');
 $showEntryForm = ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_entry_form']));
 
-// ✅ Fehlervermeidung: Initialisierung
 $success = false;
 $errors = [];
 
@@ -27,15 +23,6 @@ if (!$userData) {
     exit;
 }
 
-// Kalenderdaten laden (hier mit Dummy-Daten als Beispiel)
-$days = [];
-
-// Dummy-Eintrag (optional entfernen, wenn du später dynamisch lädst)
-$day = new Day("2025-05-22");
-$entry = new Entry("Mathe Klausur", "Kapitel 1-3 wiederholen", "10:00", "12:00");
-$day->addEntry($entry);
-$days["2025-05-22"] = $day;
-
 $user = new User();
 $user->setUserName($userData['username']);
 $user->setName($userData['name']);
@@ -43,22 +30,85 @@ $user->setSurname($userData['surname']);
 $user->setSecurityPassphrase($userData['securityPassphrase'] ?? '');
 $user->setCalendarfile($userData['calendarfile'] ?? null);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) { 
-  try {
-      if ($user->deleteFromDatabase()) {
-          SessionManager::destroy();
-          header("Location: login.php");
-          exit;
-      } else {
-          echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
-      }
-  } catch (Exception $e) {
-      echo "<p style='color:red;'>Fehler beim Löschen: " . htmlspecialchars($e->getMessage()) . "</p>";
-  }
+$calendarFile = __DIR__ . '/data/calendar_' . $user->getUserName() . '.json';
+
+// Einträge laden
+$days = [];
+
+if (file_exists($calendarFile)) {
+    $savedData = json_decode(file_get_contents($calendarFile), true);
+
+    foreach ($savedData as $date => $entries) {
+        $day = new Day($date);
+        foreach ($entries as $entryData) {
+            $entry = new Entry(
+                $entryData['title'],
+                $entryData['description'],
+                $entryData['start'],
+                $entryData['end']
+            );
+            $day->addEntry($entry);
+        }
+        $days[$date] = $day;
+    }
 }
 
-?>
+// Formularverarbeitung für Eintrag speichern
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_entry'])) {
+    $title = trim($_POST['klausur'] ?? '');
+    $description = trim($_POST['notizen'] ?? '');
+    $startDate = $_POST['anfangsdatum'] ?? '';
+    $endDate = $_POST['endungsdatum'] ?? '';
 
+    if ($title && $startDate && $endDate) {
+        // Für den ersten Tag Eintrag speichern (Vereinfachung)
+        $day = $days[$startDate] ?? new Day($startDate);
+        $entry = new Entry($title, $description, "00:00", "00:00");
+        $day->addEntry($entry);
+        $days[$startDate] = $day;
+        $success = true;
+
+        // Speichern als JSON
+        $savedDays = [];
+        foreach ($days as $date => $dayObj) {
+            $entries = [];
+            foreach ($dayObj->getEntries() as $entryObj) {
+                $entries[] = [
+                    'title' => $entryObj->getTitle(),
+                    'description' => $entryObj->getDescription(),
+                    'start' => $entryObj->getStartTime(),
+                    'end' => $entryObj->getEndTime()
+                ];
+            }
+            $savedDays[$date] = $entries;
+        }
+
+        if (!is_dir(__DIR__ . '/data')) {
+            mkdir(__DIR__ . '/data', 0777, true);
+            touch(__DIR__ . '/data/calendar_' . $user->getUserName() . '.json');
+        }
+
+        file_put_contents($calendarFile, json_encode($savedDays, JSON_PRETTY_PRINT));
+    } else {
+        $errors[] = "Bitte alle Pflichtfelder ausfüllen.";
+    }
+}
+
+// Kontolöschung
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
+    try {
+        if ($user->deleteFromDatabase()) {
+            SessionManager::destroy();
+            header("Location: login.php");
+            exit;
+        } else {
+            echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
+        }
+    } catch (Exception $e) {
+        echo "<p style='color:red;'>Fehler beim Löschen: " . htmlspecialchars($e->getMessage()) . "</p>";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="de">
   <head>
