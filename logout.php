@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once "../session-classes/session-manager.php";
+require_once "system/session-classes/session-manager.php";
 
 SessionManager::start();
 
@@ -19,5 +19,5 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-header("Location: ../../../../login.php");
+header("Location: login.php");
 exit;

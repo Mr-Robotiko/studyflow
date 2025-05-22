@@ -2,14 +2,6 @@
 require_once "system/session-classes/session-manager.php";
 require_once "system/user-classes/user.php";
 
-SessionManager::start();
-
-$userData = SessionManager::getUserData();
-
-if (!$userData) {
-    header("Location: login.php");
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="de">

@@ -22,8 +22,6 @@ $user->setName($userData['name']);
 $user->setSurname($userData['surname']);
 $user->setSecurityPassphrase($userData['securityPassphrase'] ?? '');
 $user->setCalendarfile($userData['calendarfile'] ?? null);
-
-echo "Willkommen, " . htmlspecialchars($user->getName()) . " " . htmlspecialchars($user->getSurname());
 ?>
 
 <!DOCTYPE html>
@@ -55,7 +53,7 @@ echo "Willkommen, " . htmlspecialchars($user->getName()) . " " . htmlspecialchar
                 </a>
                 <div class="dropdown-content" id="dropdown-profilbild">
                   <a href="settings.php">Einstellungen</a>
-                  <a href="system/login-classes/logout.php">Logout</a>
+                  <a href="logout.php">Logout</a>
                 </div>
               </li>
             </a>
