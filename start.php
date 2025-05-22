@@ -9,105 +9,56 @@ require_once "system/database-classes/database.php";
 require_once "system/calendar-classes/day.php";
 require_once "system/calendar-classes/entry.php";
 
+require_once "system/user-classes/account-manager.php";
+require_once "system/calendar-classes/calendar-manager.php";
+require_once "system/session-classes/user-session.php";
+
 SessionManager::start();
 
-$userData = SessionManager::getUserData();
-$weekNumber = date('W');
-$showEntryForm = ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_entry_form']));
+$userSession = new UserSession();
+$user = $userSession->getUser();
 
-$success = false;
-$errors = [];
+$calendarManager = new CalendarManager($user);
+$accountManager = new AccountManager($user);
 
-if (!$userData) {
-    header("Location: login.php");
-    exit;
-}
-
-$user = new User();
-$user->setUserName($userData['username']);
-$user->setName($userData['name']);
-$user->setSurname($userData['surname']);
-$user->setSecurityPassphrase($userData['securityPassphrase'] ?? '');
-$user->setCalendarfile($userData['calendarfile'] ?? null);
-
-$calendarFile = __DIR__ . '/data/calendar_' . $user->getUserName() . '.json';
-
-// Einträge laden
-$days = [];
-
-if (file_exists($calendarFile)) {
-    $savedData = json_decode(file_get_contents($calendarFile), true);
-
-    foreach ($savedData as $date => $entries) {
-        $day = new Day($date);
-        foreach ($entries as $entryData) {
-            $entry = new Entry(
-                $entryData['title'],
-                $entryData['description'],
-                $entryData['start'],
-                $entryData['end']
-            );
-            $day->addEntry($entry);
-        }
-        $days[$date] = $day;
-    }
-}
-
-// Formularverarbeitung für Eintrag speichern
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_entry'])) {
-    $title = trim($_POST['klausur'] ?? '');
-    $description = trim($_POST['notizen'] ?? '');
-    $startDate = $_POST['anfangsdatum'] ?? '';
-    $endDate = $_POST['endungsdatum'] ?? '';
-
-    if ($title && $startDate && $endDate) {
-        // Für den ersten Tag Eintrag speichern (Vereinfachung)
-        $day = $days[$startDate] ?? new Day($startDate);
-        $entry = new Entry($title, $description, "00:00", "00:00");
-        $day->addEntry($entry);
-        $days[$startDate] = $day;
-        $success = true;
-
-        // Speichern als JSON
-        $savedDays = [];
-        foreach ($days as $date => $dayObj) {
-            $entries = [];
-            foreach ($dayObj->getEntries() as $entryObj) {
-                $entries[] = [
-                    'title' => $entryObj->getTitle(),
-                    'description' => $entryObj->getDescription(),
-                    'start' => $entryObj->getStartTime(),
-                    'end' => $entryObj->getEndTime()
-                ];
-            }
-            $savedDays[$date] = $entries;
-        }
-
-        if (!is_dir(__DIR__ . '/data')) {
-            mkdir(__DIR__ . '/data', 0777, true);
-            touch(__DIR__ . '/data/calendar_' . $user->getUserName() . '.json');
-        }
-
-        file_put_contents($calendarFile, json_encode($savedDays, JSON_PRETTY_PRINT));
+try {
+    $calendarJson = $calendarManager->loadCalendarFromDatabase();
+    if ($calendarJson !== null) {
+        $calendarManager->saveCalendarToFile($calendarJson);
     } else {
-        $errors[] = "Bitte alle Pflichtfelder ausfüllen.";
+        echo "<p>Keine Kalenderdaten gefunden.</p>";
+    }
+} catch (Exception $e) {
+    echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+}
+
+$days = $calendarManager->loadDaysFromFile();
+
+$errors = [];
+$success = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['save_entry'])) {
+        $calendarManager->handleEntryFormSubmission($days, $errors, $success);
+    }
+
+    if (isset($_POST['delete_account'])) {
+        try {
+            if ($accountManager->deleteAccount()) {
+                SessionManager::destroy();
+                header("Location: login.php");
+                exit;
+            } else {
+                echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
+            }
+        } catch (Exception $e) {
+            echo "<p style='color:red;'>" . htmlspecialchars($e->getMessage()) . "</p>";
+        }
     }
 }
 
-// Kontolöschung
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
-    try {
-        if ($user->deleteFromDatabase()) {
-            SessionManager::destroy();
-            header("Location: login.php");
-            exit;
-        } else {
-            echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
-        }
-    } catch (Exception $e) {
-        echo "<p style='color:red;'>Fehler beim Löschen: " . htmlspecialchars($e->getMessage()) . "</p>";
-    }
-}
+$weekNumber = date('W');
+$showEntryForm = isset($_POST['show_entry_form']);
 ?>
 <!DOCTYPE html>
 <html lang="de">
