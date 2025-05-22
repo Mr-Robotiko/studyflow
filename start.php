@@ -33,6 +33,19 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
     <link rel="stylesheet" type="text/css" href="system/style/main.css" />
     <script src="system/javascript/inactivityTimer.js" defer></script>
   </head>
+  <script>
+  function showSettings() {
+    event.preventDefault();
+    document.querySelector('.kalender').style.display = 'none';
+    document.querySelector('.settings').style.display = 'block';
+  }
+
+  function showCalendar() {
+    document.querySelector('.settings').style.display = 'none';
+    document.querySelector('.kalender').style.display = 'block';
+  }
+</script>
+
   <body>
     <div class="body">
       <div class="head">
@@ -52,7 +65,7 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
                   <img src="images/rusty.jpg" alt="Profilbild" class="profil-img" />
                 </a>
                 <div class="dropdown-content" id="dropdown-profilbild">
-                  <a href="settings.php">Einstellungen</a>
+                  <a href="#" onclick="showSettings()">Einstellungen</a>
                   <a href="logout.php">Logout</a>
                 </div>
               </li>
@@ -99,6 +112,35 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
           <div class="termin frei">Frei</div>
         </div>
       </div>
+      <div class="settings" style="display: none;">
+  <div class="lernideal">
+    <h2>Einstellungen</h2>
+
+    <label class="switch">
+      <input type="checkbox" id="darkModeToggle" />
+      <span class="s"></span>
+    </label>
+    <span id="mode-label">☀️</span>
+
+    <p class="settings">Lernideal</p>
+    <div class="slidecontainer">
+      <input type="range" min="1" max="5" id="slider" />
+    </div>
+    <div id="subtitle">30 min 45 min 60 min 120 min 180 min</div>
+
+    <div>
+      <p>Zeitzone:</p>
+      <input type="datetime-local" id="zeitzone" />
+    </div>
+
+    <button id="profilbild_aendern">Profilbild ändern</button>
+    <button id="password_aendern">Passwort ändern</button>
+    <button id="konto-loeschen">Konto löschen</button>
+    <br><br>
+    <button onclick="showCalendar()">Zurück zum Kalender</button>
+  </div>
+</div>
+
       <div class="todaytodo">
         <div class="anstehend">
           <h1>Today</h1>
