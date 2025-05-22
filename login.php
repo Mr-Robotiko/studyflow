@@ -6,71 +6,42 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once "system/user-classes/user.php";
+require_once "system/database-classes/database.php";
+require_once "system/login-classes/login-class.php";
 
-define('SESSION_TIMEOUT', 600);
+define('SESSION_TIMEOUT', 600); // 10 Minuten Timeout
 
-
-$host = "localhost";
-$dbname = "studycal";
-$databaseUser = "Admin";
-$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
-
+$alert = '';
 try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $username = trim($_POST["username"] ?? '');
-    $password_plain = $_POST["password"] ?? '';
+    $db = new Database("config/configuration.csv");
+    $conn = $db->getConnection();
 
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  if (empty($username) && empty($password_plain)) {
-      $popupTitle = "Fehlerhafte Eingabe";
-      $alert = "Bitte Benutzername und Passwort eingeben.";
-  } elseif (empty($username)) {
-      $popupTitle = "Benutzername fehlt";
-      $alert = "Bitte gib deinen Benutzernamen ein.";
-  } elseif (empty($password_plain)) {
-      $popupTitle = "Passwort fehlt";
-      $alert = "Bitte gib dein Passwort ein.";
-  } else {
-      $query = $conn->prepare("SELECT * FROM user WHERE Username = :username");
-      $query->execute(["username" => $username]);
-      $row = $query->fetch(PDO::FETCH_ASSOC);
+        $username = trim($_POST["username"] ?? '');
+        $password = $_POST["password"] ?? '';
 
-      if (!$row) {
-          $popupTitle = "Benutzer nicht gefunden";
-          $alert = "Es existiert kein Benutzer mit diesem Namen.";
-      } elseif (!password_verify($password_plain, $row['Password'])) {
-          $popupTitle = "Falsches Passwort";
-          $alert = "Das eingegebene Passwort ist nicht korrekt.";
-      } else {
-          $user = new User();
-          $user->setUserName($row['Username']);
-          $user->setPassword($row['Password']);
-          $user->setSecurityPassphrase($row['Securitypassphrase']);
-          $user->setName($row['Name']);
-          $user->setSurname($row['Surname']);
-          $user->setCalendarfile($row['Calendarfile'] ?? null);
+        if (empty($username) && empty($password)) {
+            $alert = "Bitte Benutzername und Passwort eingeben.";
+        } elseif (empty($username)) {
+            $alert = "Bitte gib deinen Benutzernamen ein.";
+        } elseif (empty($password)) {
+            $alert = "Bitte gib dein Passwort ein.";
+        } else {
+            $login = new Login($conn);
+            if ($login->login($username, $password)) {
+                $_SESSION['LAST_ACTIVITY'] = time();
+                header("Location: start.php");
+                exit;
+            } else {
+                $alert = $login->alert;
+            }
+        }
+    }
 
-             $_SESSION['user_data'] = [
-                 'username' => $user->getUserName(),
-                 'name' => $user->getName(),
-                 'surname' => $user->getSurname(),
-                 'securityPassphrase' => $user->getSecurityPassphrase(),
-                 'calendarfile' => $user->getCalendarfile()
-            ];
-
-            $_SESSION['eingeloggt'] = true;
-            $_SESSION['LAST_ACTIVITY'] = time();
-          header("Location: start.php");
-          exit;
-      }
-  }
+} catch (Exception $e) {
+    $alert = "Fehler bei der Verbindung: " . $e->getMessage();
 }
-
-} catch (PDOException $e) {
-    $alert = "PDO-Fehler: " . $e->getMessage();
-}
+?>
 ?>
 <!DOCTYPE html>
 <html lang="de">
