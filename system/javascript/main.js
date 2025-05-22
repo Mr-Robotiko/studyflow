@@ -1,18 +1,19 @@
 // --- DROPDOWN-MENÜ ---
 
-function toggleDropdown(event, dropdown_profilbild) {
-    event.preventDefault();
-    document.getElementById("dropdown-menu").classList.toggle("show");
-  }
-  
-  window.onclick = function(event) {
-    if (!event.target.closest('#profilbild')) {
-      const dropdowns = document.getElementsByClassName("dropdown-content");
-      for (let i = 0; i < dropdowns.length; i++) {
-        dropdowns[i].classList.remove('show');
-      }
+function toggleDropdown(event, id) {
+  event.preventDefault();
+  document.getElementById(id).classList.toggle("show");
+}
+
+window.onclick = function(event) {
+  if (!event.target.closest('.dropdown')) {
+    const dropdowns = document.getElementsByClassName("dropdown-content");
+    for (let i = 0; i < dropdowns.length; i++) {
+      dropdowns[i].classList.remove('show');
     }
-  };
+  }
+};
+
   
   // --- DARK MODE ---
   
@@ -64,3 +65,16 @@ function toggleDropdown(event, dropdown_profilbild) {
     });
   });
   
+  // Show Settings Form
+
+  function showSettings(event) {
+    if (event) event.preventDefault();
+    document.querySelector('.kalender').style.display = 'none';
+    document.querySelector('.settings').style.display = 'block';
+  }
+
+  // Show Clalendar
+  function showCalendar() {
+    document.querySelector('.settings').style.display = 'none';
+    document.querySelector('.kalender').style.display = 'block';
+  }

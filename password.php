@@ -3,28 +3,51 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once __DIR__ . '/system/login-classes/password.php';
+require_once "system/login-classes/password.php";
 
+$alert = "Bitte beantworte die Sicherheitsfrage, um fortzufahren.";
+$errorMessage = null;
+$errorTitle = null;
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $username = $_POST['username'] ?? '';
-    $securitypassphrase = $_POST['securitypassphrase'] ?? '';
-    $newPassword = $_POST['newPassword'] ?? '';
-    $confirmPassword = $_POST['confirmPassword'] ?? '';
+try {
+    $resetHandler = new PasswordReset("config/configuration.csv");
 
-    try {
-        $reset = new PasswordReset(__DIR__ . '/configuration.csv');
-        $result = $reset->reset($username, $securitypassphrase, $newPassword, $confirmPassword);
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $username = $_POST['username'] ?? '';
+        $securitypassphrase = $_POST['securitypassphrase'] ?? '';
+        $newPassword = $_POST['newPassword'] ?? '';
+        $confirmPassword = $_POST['confirmPassword'] ?? '';
+
+        $result = $resetHandler->reset($username, $securitypassphrase, $newPassword, $confirmPassword);
 
         if ($result === "success") {
-            echo "<script>alert('Passwort erfolgreich geändert.'); window.location.href='login.php';</script>";
+            echo "<script>
+                    setTimeout(function() {
+                        window.location.href = 'login.php';
+                    }, 300);
+                  </script>";
+            exit;
         } else {
-            echo "<script>alert('$result'); window.history.back();</script>";
+            // Fehlertext dynamisch setzen
+            $errorMessage = $result;
+
+            if ($result === "Bitte alle Felder ausfüllen.") {
+                $errorTitle = "Fehlende Angaben";
+            } elseif ($result === "Die Passwörter stimmen nicht überein.") {
+                $errorTitle = "Passwortfehler";
+            } elseif ($result === "Benutzer existiert nicht.") {
+                $errorTitle = "Benutzerfehler";
+            } elseif ($result === "Sicherheitsantwort ist falsch.") {
+                $errorTitle = "Sicherheitsfrage";
+            } else {
+                $errorTitle = "Fehlgeschlagen";
+            }
         }
-    } catch (Exception $e) {
-        $msg = addslashes($e->getMessage());
-        echo "<script>alert('Fehler: $msg'); window.history.back();</script>";
     }
+
+} catch (Exception $e) {
+    $errorTitle = "Datenbankfehler";
+    $errorMessage = "Verbindungsfehler: " . $e->getMessage();
 }
 ?>
 
@@ -70,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <input type="password" name="confirmPassword" placeholder="Passwort bestätigen">
       </div class="buttons">
       <button type="submit" class="btn">Passwort ändern</button>
-      <a href="login.php" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
+      <a href="start.php" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
     </form>
   </div>
 

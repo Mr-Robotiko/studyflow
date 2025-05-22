@@ -88,5 +88,22 @@ require_once "settings.php";
         public function __toString() {
             return "Name: {$this->name} {$this->surname}, Institution: {$this->institution}, Calendar: {$this->Calendarfile}";
         }
+
+        public function deleteFromDatabase() {
+
+            $username = $this->getUserName();
+            if (!$username) {
+                throw new Exception("Benutzername fehlt");
+            }
+            
+        
+            require_once 'system/database-classes/database.php';
+            $db = new Database("config/configuration.csv");
+            $pdo = $db->getConnection();
+        
+            $stmt = $pdo->prepare("DELETE FROM user WHERE username = :username");
+            return $stmt->execute(['username' => $username]);
+        }
+        
     }
 ?>

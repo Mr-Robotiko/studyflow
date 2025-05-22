@@ -6,25 +6,43 @@ error_reporting(E_ALL);
 
 require_once "system/session-classes/session-manager.php";
 require_once "system/user-classes/user.php";
+require_once "system/database-classes/database.php";
 
 SessionManager::start();
 
-$data = SessionManager::getUserData();
-if (!$data) {
+$weekNumber = date('W');
+$userData = SessionManager::getUserData();
+
+$showEntryForm = ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_entry_form']));
+
+if (!$userData) {
     header("Location: login.php");
     exit;
 }
 
 $user = new User();
-$user->setUserName($data['username']);
-$user->setName($data['name']);
-$user->setSurname($data['surname']);
-$user->setSecurityPassphrase($data['securityPassphrase']);
-$user->setCalendarfile($data['calendarfile'] ?? null);
+$user->setUserName($userData['username']);
+$user->setName($userData['name']);
+$user->setSurname($userData['surname']);
+$user->setSecurityPassphrase($userData['securityPassphrase'] ?? '');
+$user->setCalendarfile($userData['calendarfile'] ?? null);
 
-$weekNumber = date('W');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) { 
 
-$showEntryForm = ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_entry_form']));
+  try {
+      if ($user->deleteFromDatabase()) {
+          SessionManager::destroy();
+          header("Location: login.php");
+          exit;
+      } else {
+          echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
+      }
+  } catch (Exception $e) {
+      echo "<p style='color:red;'>Fehler beim Löschen: " . htmlspecialchars($e->getMessage()) . "</p>";
+  }
+}
+
+?>
 
 $days = $_SESSION['days'] ?? [];
 ?>
@@ -34,8 +52,10 @@ $days = $_SESSION['days'] ?? [];
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyCal</title>
+    <link rel="icon" href="images/Logo.png">
     <link rel="stylesheet" type="text/css" href="system/style/main.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="system/javascript/inactivityTimer.js" defer></script>
     <script src="system/javascript/main.js"></script>
   </head>
   <body>
@@ -43,27 +63,23 @@ $days = $_SESSION['days'] ?? [];
       <div class="head">
         <ul class="header">
           <li>
-            <a href="#home" id="logo">
+            <a href="start.php" id="logo">
               <img src="images/logo.png" alt="Logo" class="logo-img" />
             </a>
           </li>
           <li>
             <a id="name"> StudyCal </a>
           </li>
-          <li>
-            <a href="#home" id="profilbild">
-              <li class="dropdown">
-                <a href="#" id="profilbild" onclick="toggleDropdown(event, dropdown_profilbild)">
-                  <img
-                    src="images/rusty.jpg"
-                    alt="Profilbild"
-                    class="profil-img"
-                  />
-                </a>
-                <div class="dropdown-content" id="dropdown-menu">
-                  <a href="settings.html">Einstellungen</a>
-                </div>
-              </li>
+            <li class="dropdown">
+              <a href="#" onclick="toggleDropdown(event, 'dropdown-profilbild')">
+                <img src="images/rusty.jpg" alt="Profilbild" class="profil-img" />
+              </a>
+              <div class="dropdown-content" id="dropdown-profilbild">
+                <a href="#" onclick="showSettings(event)">Einstellungen</a>
+                <a href="#" onclick="showCalendar()">Kalender</a>
+                <a href="logout.php">Logout</a>
+              </div>
+            </li>
             </a>
           </li>
         </ul>
@@ -106,18 +122,50 @@ $days = $_SESSION['days'] ?? [];
           <?php endif; ?>
         </div>
       </div>
-    <?php endif; ?>
-    <div class="todaytodo">
-      <div class="anstehend">
-        <h1>Today</h1>
-        <p>Content wird nicht eingedeutscht, Alexa!</p>
-      </div>
-      <div class="todo">
-        <h1>To Do</h1>
-        <div class="tasks">
-          <input type="checkbox" id="Task1" /><label for="Task1"> Labor-Bericht</label><br/>
-          <input type="checkbox" id="Task2" /><label for="Task2"> Zusammenfassung BWL</label><br/>
-          <input type="checkbox" id="Task3" /><label for="Task3"> RSA-Verfahren</label><br/><br/>
+      <div class="settings" style="display: none;">
+  <div class="lernideal">
+    <h2>Einstellungen</h2>
+
+    <label class="switch">
+      <input type="checkbox" id="darkModeToggle" />
+      <span class="s"></span>
+    </label>
+    <span id="mode-label">☀️</span>
+
+    <p class="settings">Lernideal</p>
+    <div class="slidecontainer">
+      <input type="range" min="1" max="5" id="slider" />
+    </div>
+    <div id="subtitle">30 min 45 min 60 min 120 min 180 min</div>
+
+    <div>
+      <p>Zeitzone:</p>
+      <input type="datetime-local" id="zeitzone" />
+    </div>
+    <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
+    <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
+      <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
+    </form>
+    <br><br>
+    <button onclick="showCalendar()">Zurück zum Kalender</button>
+  </div>
+</div>
+
+      <div class="todaytodo">
+        <div class="anstehend">
+          <h1>Today</h1>
+          <p>Content wird nicht eingedeutscht, Alexa!</p>
+        </div>
+        <div class="todo">
+          <h1>To Do</h1>
+          <div class="tasks">
+            <input type="checkbox" id="Task1" name="Task1" value="Task" />
+            <label for="Task1"> Labor-Bericht</label><br />
+            <input type="checkbox" id="Task2" name="Task2" value="Task" />
+            <label for="Task2"> Zusammenfassung BWL</label><br />
+            <input type="checkbox" id="Task3" name="Task3" value="Task" />
+            <label for="Task3"> RSA-Verfahren</label><br /><br />
+          </div>
         </div>
       </div>
     </div>

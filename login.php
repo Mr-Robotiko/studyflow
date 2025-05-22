@@ -1,45 +1,45 @@
 <?php
+session_start();
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
-
+require_once "system/user-classes/user.php";
 require_once "system/database-classes/database.php";
 require_once "system/login-classes/login-class.php";
 
-$fehlermeldung = '';
+define('SESSION_TIMEOUT', 600); // 10 Minuten Timeout
 
+$alert = '';
 try {
-    $db   = new Database(__DIR__ . '/configuration.csv');
+    $db = new Database("config/configuration.csv");
     $conn = $db->getConnection();
 
-    $login = new Login($conn);
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $username = trim($_POST["username"] ?? '');
+        $password = $_POST["password"] ?? '';
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = trim($_POST['username'] ?? '');
-        $password = $_POST['password'] ?? '';
-
-        if ($login->login($username, $password)) {
-            $_SESSION['eingeloggt'] = true;
-            $_SESSION['user_data']  = [
-                'username'           => $username,
-                'name'               => method_exists($login,'getName')               ? $login->getName()               : '',
-                'surname'            => method_exists($login,'getSurname')            ? $login->getSurname()            : '',
-                'securityPassphrase' => method_exists($login,'getSecurityPassphrase') ? $login->getSecurityPassphrase() : '',
-                'calendarfile'       => method_exists($login,'getCalendarfile')       ? $login->getCalendarfile()       : null,
-            ];
-            $_SESSION['LAST_ACTIVITY'] = time();
-
-            session_write_close();
-            header("Location: start.php");
-            exit;
+        if (empty($username) && empty($password)) {
+            $alert = "Bitte Benutzername und Passwort eingeben.";
+        } elseif (empty($username)) {
+            $alert = "Bitte gib deinen Benutzernamen ein.";
+        } elseif (empty($password)) {
+            $alert = "Bitte gib dein Passwort ein.";
         } else {
-            $fehlermeldung = $login->alert;
+            $login = new Login($conn);
+            if ($login->login($username, $password)) {
+                $_SESSION['LAST_ACTIVITY'] = time();
+                header("Location: start.php");
+                exit;
+            } else {
+                $alert = $login->alert;
+            }
         }
     }
+
 } catch (Exception $e) {
-    $fehlermeldung = "Fehler: " . $e->getMessage();
+    $alert = "Fehler bei der Verbindung: " . $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
@@ -47,7 +47,8 @@ try {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StudyCal - Login</title>
+  <title>StudyCal | Login</title>
+  <link rel="icon" href="images/Logo.png">
   <link rel="stylesheet" href="system/style/prelogin.css"/>
   <link rel="stylesheet" href="system/style/popup.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
