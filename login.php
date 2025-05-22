@@ -61,9 +61,16 @@ try {
 <header>
     <h1>Willkommen zurück bei StudyCal</h1>
 </header>
+  <div class="main">
+  
+    <img src="images/Logo.png" alt="StudyCal Logo" />
+    <p class="subtitle">Einloggen</p>
 
-<div class="main">
-
+    <form action="login.php" method="post">
+  <div>
+    <label for="username">Benutzername</label>
+    <input class="input" type="text" id="username" name="username" placeholder="Benutzername eingeben" required />
+  </div>
   <img src="images/Logo.png" alt="StudyCal Logo" />
 
   <?php if (!empty($alert)): ?>
