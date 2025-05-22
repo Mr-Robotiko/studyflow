@@ -46,6 +46,25 @@ window.onclick = function(event) {
     }
   });
   
+  // --- EINTRAG POPUP MIT JQUERY ---
+
+  $(document).ready(function () {
+    $('#openEntryPopup').on('click', function () {
+      $('#entryPopupOverlay').fadeIn();
+    });
+  
+    $('#closeEntryPopup').on('click', function () {
+      $('#entryPopupOverlay').fadeOut();
+    });
+  
+    // Optional: schließen, wenn außerhalb geklickt
+    $('#entryPopupOverlay').on('click', function (e) {
+      if (e.target === this) {
+        $(this).fadeOut();
+      }
+    });
+  });
+  
   // Show Settings Form
 
   function showSettings(event) {

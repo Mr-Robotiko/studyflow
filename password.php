@@ -70,11 +70,7 @@ try {
 
   <div class="container">
     <h1>Passwort Wiederherstellung</h1>
-    <p class="subtitle"><?php echo $alert ?></p>
-
-    <?php if (isset($errorMessage)): ?>
-      <div id="phpErrorMessage" data-title="<?= htmlspecialchars($errorTitle) ?>" data-message="<?= htmlspecialchars($errorMessage) ?>" style="display: none;"></div>
-    <?php endif; ?>
+    <p class="subtitle">Passwort zurücksetzen</p>
 
     <form method="POST" action="password.php">
       <div class="form-group">

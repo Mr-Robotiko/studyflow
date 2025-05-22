@@ -52,7 +52,6 @@ class SessionManager {
         session_unset();
         session_destroy();
     }
-
     public static function getUserData(): ?array {
         return $_SESSION['user_data'] ?? null;
     }

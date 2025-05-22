@@ -3,7 +3,7 @@ $(document).ready(function () {
     window.openCustomAlert = function (title, message) {
       $("#popupTitle").text(title);
       $("#alertMessage").text(message);
-      $("#customAlert").fadeIn(); // jQuery Animation
+      $("#customAlert").fadeIn(); 
     };
   
     // Schließt das Popup
@@ -24,4 +24,6 @@ $(document).ready(function () {
       closeCustomAlert();
     });
   });
+
+  
   

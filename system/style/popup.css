@@ -11,29 +11,7 @@
     --font: 'Inter', sans-serif;
   }
   
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    color: var(--black);
-  }
-  
-  button {
-    background-color: var(--purple);
-    color: var(--black);
-    border: none;
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    border-radius: var(--radius);
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    transition: 0.3s ease;
-    font-weight: bold;
-  }
-  
-  button:hover {
-    background-color: var(--purple-hover);
-    transform: translateY(-2px);
-  }
+
   
   /* ==== Popup Styles ==== */
   .custom-popup-overlay {
@@ -95,5 +73,10 @@
   .custom-popup button:hover {
     background-color: var(--purple-hover);
     transform: translateY(-2px);
+  }
+  
+  #entryPopupOverlay textarea {
+    resize: vertical;
+    font-family: var(--font);
   }
   
