@@ -97,7 +97,7 @@ try {
         <input type="password" name="confirmPassword" placeholder="Passwort bestätigen">
       </div class="buttons">
       <button type="submit" class="btn">Passwort ändern</button>
-      <a href="login.php" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
+      <a href="start.php" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
     </form>
   </div>
 

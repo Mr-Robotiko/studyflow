@@ -40,7 +40,7 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
       <div class="head">
         <ul class="header">
           <li>
-            <a href="#home" id="logo">
+            <a href="start.php" id="logo">
               <img src="images/logo.png" alt="Logo" class="logo-img" />
             </a>
           </li>
@@ -120,9 +120,7 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
       <p>Zeitzone:</p>
       <input type="datetime-local" id="zeitzone" />
     </div>
-
-    <button id="profilbild_aendern">Profilbild ändern</button>
-    <button id="password_aendern">Passwort ändern</button>
+    <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
     <button id="konto-loeschen">Konto löschen</button>
     <br><br>
     <button onclick="showCalendar()">Zurück zum Kalender</button>
