@@ -30,6 +30,7 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyCal</title>
+    <link rel="icon" href="images/Logo.png">
     <link rel="stylesheet" type="text/css" href="system/style/main.css" />
     <script src="system/javascript/inactivityTimer.js" defer></script>
     <script src="system/javascript/main.js"></script>
