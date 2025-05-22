@@ -1,5 +1,4 @@
 <?php
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -9,18 +8,31 @@ require_once "system/login-classes/registration.php";
 
 $popupTitle = "";
 $alert = "";
+$registration = null;
+
+// Eingabewerte für Re-Population vorbereiten
+$name = "";
+$surname = "";
+$username = "";
+$securitypassphrase = "";
 
 try {
     $db = new Database("config/configuration.csv");
     $conn = $db->getConnection();
 
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        // Eingaben übernehmen
+        $name = $_POST['name'] ?? '';
+        $surname = $_POST['surname'] ?? '';
+        $username = $_POST['username'] ?? '';
+        $securitypassphrase = $_POST['securitypassphrase'] ?? '';
+
         $registration = new Registration($conn);
         $registration->handleRegistration($_POST);
 
+        $popupTitle = $registration->popupTitle;
         $alert = $registration->alert;
 
-        // Popup-Titel je nach Ergebnis setzen
         if ($alert === "Einfügen erfolgreich!") {
             $popupTitle = "Registrierung erfolgreich";
             $alert = "Viel Spaß mit StudyCal!";
@@ -34,10 +46,7 @@ try {
     $popupTitle = "Verbindungsfehler";
     $alert = "Datenbankfehler: " . $e->getMessage();
 }
-
-$alert = $registration->alert;
 ?>
-
 
 <!DOCTYPE html>
 <html lang="de">
@@ -65,15 +74,15 @@ $alert = $registration->alert;
   <form action="register.php" method="post">
     <div>
       <label for="vorname">Vorname</label>
-      <input class="input" type="text" id="vorname" name="name" placeholder="Vorname eingeben" />
+      <input class="input" type="text" id="vorname" name="name" placeholder="Vorname eingeben" value="<?= htmlspecialchars($name) ?>" />
     </div>
     <div>
       <label for="nachname">Nachname</label>
-      <input class="input" type="text" id="nachname" name="surname" placeholder="Nachname eingeben" />
+      <input class="input" type="text" id="nachname" name="surname" placeholder="Nachname eingeben" value="<?= htmlspecialchars($surname) ?>" />
     </div>
     <div>
       <label for="username">Benutzername</label>
-      <input class="input" type="text" id="username" name="username" placeholder="Benutzername eingeben" />
+      <input class="input" type="text" id="username" name="username" placeholder="Benutzername eingeben" value="<?= htmlspecialchars($username) ?>" />
     </div>
     <div>
       <label for="password">Passwort</label>
@@ -86,7 +95,7 @@ $alert = $registration->alert;
     <div>
       <label for="securityanswer">Sicherheitsfrage</label>
       <p style="margin-bottom: 10px; font-style: italic;">Wie lautet der Name deines ersten Haustiers?</p>
-      <input class="input" type="text" id="securityanswer" name="securitypassphrase" placeholder="Antwort eingeben" />
+      <input class="input" type="text" id="securityanswer" name="securitypassphrase" placeholder="Antwort eingeben" value="<?= htmlspecialchars($securitypassphrase) ?>" />
     </div>
 
     <div class="buttons">

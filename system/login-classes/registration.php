@@ -2,6 +2,7 @@
 class Registration {
     private $conn;
     public $alert = "Fülle das Formular aus, um dich zu registrieren";
+    public $popupTitle = "Fehler";
 
     public function __construct(PDO $conn) {
         $this->conn = $conn;
@@ -16,25 +17,63 @@ class Registration {
         $securitypassphrase_plain = trim($post["securitypassphrase"] ?? '');
         $calenderfile = null;
 
+        // Leere Felder
         if (empty($username) || empty($password_plain) || empty($passwordrep) || empty($securitypassphrase_plain) || empty($name) || empty($surname)) {
+            $this->popupTitle = "Leere Felder";
             $this->alert = "Bitte alle Felder ausfüllen.";
             return;
         }
 
+        // Zeichenprüfung Vorname & Nachname
+        if (!preg_match('/^[a-zA-ZäöüÄÖÜß]{1,50}$/u', $name)) {
+            $this->popupTitle = "Ungültiger Vorname";
+            $this->alert = "Nur Buchstaben erlaubt, max. 50 Zeichen.";
+            return;
+        }
+
+        if (!preg_match('/^[a-zA-ZäöüÄÖÜß]{1,50}$/u', $surname)) {
+            $this->popupTitle = "Ungültiger Nachname";
+            $this->alert = "Nur Buchstaben erlaubt, max. 50 Zeichen.";
+            return;
+        }
+
+        // Benutzername: Buchstaben, Zahlen, _ und -, max. 50
+        if (!preg_match('/^[a-zA-Z0-9_-]{1,50}$/', $username)) {
+            $this->popupTitle = "Ungültiger Benutzername";
+            $this->alert = "Nur Buchstaben, Zahlen, _ und - erlaubt, max. 50 Zeichen.";
+            return;
+        }
+
+        // Passwort: min. 5, max. 50, nur Buchstaben/Zahlen/_/-
+        if (!preg_match('/^[a-zA-Z0-9_-]{5,50}$/', $password_plain)) {
+            $this->popupTitle = "Ungültiges Passwort";
+            $this->alert = "5–50 Zeichen, nur Buchstaben, Zahlen, _ und - erlaubt.";
+            return;
+        }
+
+        // Sicherheitsfrage: nur Buchstaben/Zahlen, max. 50
+        if (!preg_match('/^[a-zA-Z0-9]{1,50}$/', $securitypassphrase_plain)) {
+            $this->popupTitle = "Ungültige Sicherheitsantwort";
+            $this->alert = "Nur Buchstaben und Zahlen erlaubt, max. 50 Zeichen.";
+            return;
+        }
+
+        // Passwortgleichheit
         if ($password_plain !== $passwordrep) {
-            $this->alert = "Passwörter stimmen nicht überein.";
+            $this->popupTitle = "Passwörter stimmen nicht überein";
+            $this->alert = "Bitte gleiche Passwörter eingeben.";
             return;
         }
 
         $password = password_hash($password_plain, PASSWORD_DEFAULT);
         $securitypassphrase = password_hash($securitypassphrase_plain, PASSWORD_DEFAULT);
 
-
         $check = $this->conn->prepare("SELECT Username FROM user WHERE Username = :username");
         $check->execute(["username" => $username]);
 
         if ($check->fetch()) {
-            $this->alert = "Benutzername bereits vergeben.";
+            $this->popupTitle = "Benutzername vergeben";
+            $this->alert = "Der Benutzername ist bereits registriert.";
             return;
         }
 
@@ -49,8 +88,10 @@ class Registration {
         $query->bindParam(':password', $password);
 
         if ($query->execute()) {
-            $this->alert = "Einfügen erfolgreich!";
+            $this->popupTitle = "Registrierung erfolgreich";
+            $this->alert = "Viel Spaß mit StudyCal!";
         } else {
+            $this->popupTitle = "Fehler";
             $this->alert = "Fehler beim Einfügen: " . implode(", ", $query->errorInfo());
         }
     }

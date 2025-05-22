@@ -17,14 +17,22 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if (isset($_POST['change_password'], $_POST['username'], $_POST['new_password'])) {
-        $hashed = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("UPDATE user SET Password = :password WHERE Username = :username");
-        $stmt->execute([
-            ':password' => $hashed,
-            ':username' => $_POST['username']
-        ]);
-        $popupTitle = "Passwort aktualisiert";
-        $alert = "Das Passwort wurde erfolgreich geändert.";
+        $username = $_POST['username'];
+        $newPassword = $_POST['new_password'];
+
+        if (!preg_match('/^[a-zA-Z0-9_-]{5,50}$/', $newPassword)) {
+            $popupTitle = "Ungültiges Passwort";
+            $alert = "Passwort muss 5–50 Zeichen lang sein und darf nur Buchstaben, Zahlen, _ und - enthalten.";
+        } else {
+            $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("UPDATE user SET Password = :password WHERE Username = :username");
+            $stmt->execute([
+                ':password' => $hashed,
+                ':username' => $username
+            ]);
+            $popupTitle = "Passwort aktualisiert";
+            $alert = "Das Passwort wurde erfolgreich geändert.";
+        }
     }
 
     if (isset($_POST['toggle_admin'], $_POST['username'])) {

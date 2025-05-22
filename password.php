@@ -5,9 +5,10 @@ error_reporting(E_ALL);
 
 require_once "system/login-classes/password.php";
 
-$alert = "Bitte beantworte die Sicherheitsfrage, um fortzufahren.";
-$errorMessage = null;
-$errorTitle = null;
+$popupTitle = "";
+$alert = "";
+$username = "";
+$securitypassphrase = "";
 
 try {
     $resetHandler = new PasswordReset("config/configuration.csv");
@@ -28,29 +29,30 @@ try {
                   </script>";
             exit;
         } else {
-            // Fehlertext dynamisch setzen
-            $errorMessage = $result;
+            $alert = $result;
 
             if ($result === "Bitte alle Felder ausfüllen.") {
-                $errorTitle = "Fehlende Angaben";
+                $popupTitle = "Fehlende Angaben";
             } elseif ($result === "Die Passwörter stimmen nicht überein.") {
-                $errorTitle = "Passwortfehler";
+                $popupTitle = "Passwortfehler";
             } elseif ($result === "Benutzer existiert nicht.") {
-                $errorTitle = "Benutzerfehler";
+                $popupTitle = "Benutzerfehler";
+            } elseif (str_contains($result, "Benutzername ist ungültig")) {
+                $popupTitle = "Benutzername ungültig";
+            } elseif (str_contains($result, "Neues Passwort ist ungültig")) {
+                $popupTitle = "Passwort ungültig";
             } elseif ($result === "Sicherheitsantwort ist falsch.") {
-                $errorTitle = "Sicherheitsfrage";
+                $popupTitle = "Sicherheitsfrage";
             } else {
-                $errorTitle = "Fehlgeschlagen";
+                $popupTitle = "Fehlgeschlagen";
             }
         }
     }
-
 } catch (Exception $e) {
-    $errorTitle = "Datenbankfehler";
-    $errorMessage = "Verbindungsfehler: " . $e->getMessage();
+    $popupTitle = "Datenbankfehler";
+    $alert = "Verbindungsfehler: " . $e->getMessage();
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="de">
@@ -64,7 +66,6 @@ try {
   <script defer src="system/javascript/popup.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 </head>
 <body>
 
@@ -75,12 +76,12 @@ try {
     <form method="POST" action="password.php">
       <div class="form-group">
         <label for="username">Benutzername</label>
-        <input type="text" name="username" placeholder="Benutzername">
+        <input type="text" name="username" placeholder="Benutzername" value="<?= htmlspecialchars($username) ?>">
       </div>
 
       <div class="form-group">
         <label for="securitypassphrase">Wie lautet der Name deines ersten Haustiers?</label>
-        <input type="text" name="securitypassphrase" placeholder="Antwort auf die Sicherheitsfrage">
+        <input type="text" name="securitypassphrase" placeholder="Antwort auf die Sicherheitsfrage" value="<?= htmlspecialchars($securitypassphrase) ?>">
       </div>
 
       <div class="form-group">
@@ -91,19 +92,29 @@ try {
       <div class="form-group">
         <label for="confirmPassword">Passwort bestätigen</label>
         <input type="password" name="confirmPassword" placeholder="Passwort bestätigen">
-      </div class="buttons">
-      <button type="submit" class="btn">Passwort ändern</button>
-      <a href="start.php" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
+      </div>
+
+      <div class="buttons">
+        <button type="submit" class="btn">Passwort ändern</button>
+        <a href="login.php" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
+      </div>
     </form>
   </div>
 
+  <!-- Popup -->
   <div id="customAlert" class="custom-popup-overlay" style="display: none;">
-  <div class="custom-popup">
-    <h2 id="popupTitle">Benachrichtigung</h2> 
-    <p id="alertMessage"></p>
-    <button id="closePopup">Schließen</button>
+    <div class="custom-popup">
+      <h2 id="popupTitle">Benachrichtigung</h2> 
+      <p id="alertMessage"></p>
+      <button id="closePopup">Schließen</button>
+    </div>
   </div>
-</div>
+
+  <!-- Übergabe PHP Fehler -->
+  <div id="phpErrorMessage"
+       data-title="<?= htmlspecialchars($popupTitle) ?>"
+       data-message="<?= htmlspecialchars($alert) ?>"
+       style="display:none;"></div>
 
 </body>
 </html>

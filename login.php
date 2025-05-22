@@ -11,7 +11,9 @@ require_once "system/login-classes/login-class.php";
 
 define('SESSION_TIMEOUT', 600); // 10 Minuten Timeout
 
+$popupTitle = '';
 $alert = '';
+
 try {
     $db = new Database("config/configuration.csv");
     $conn = $db->getConnection();
@@ -20,25 +22,31 @@ try {
         $username = trim($_POST["username"] ?? '');
         $password = $_POST["password"] ?? '';
 
+        $login = new Login($conn);
+
         if (empty($username) && empty($password)) {
+            $popupTitle = "Fehlende Eingabe";
             $alert = "Bitte Benutzername und Passwort eingeben.";
         } elseif (empty($username)) {
+            $popupTitle = "Benutzername fehlt";
             $alert = "Bitte gib deinen Benutzernamen ein.";
         } elseif (empty($password)) {
+            $popupTitle = "Passwort fehlt";
             $alert = "Bitte gib dein Passwort ein.";
         } else {
-            $login = new Login($conn);
             if ($login->login($username, $password)) {
                 $_SESSION['LAST_ACTIVITY'] = time();
                 header("Location: start.php");
                 exit;
             } else {
+                $popupTitle = $login->popupTitle;
                 $alert = $login->alert;
             }
         }
     }
 
 } catch (Exception $e) {
+    $popupTitle = "Verbindungsfehler";
     $alert = "Fehler bei der Verbindung: " . $e->getMessage();
 }
 ?>
@@ -61,26 +69,15 @@ try {
 <header>
     <h1>Willkommen zurück bei StudyCal</h1>
 </header>
-  <div class="main">
-  
-    <img src="images/Logo.png" alt="StudyCal Logo" />
-    <p class="subtitle">Einloggen</p>
 
-    <form action="login.php" method="post">
-  <div>
-    <label for="username">Benutzername</label>
-    <input class="input" type="text" id="username" name="username" placeholder="Benutzername eingeben" required />
-  </div>
+<div class="main">
   <img src="images/Logo.png" alt="StudyCal Logo" />
-
-  <?php if (!empty($alert)): ?>
-    <div id="phpErrorMessage" data-title="Login fehlgeschlagen" data-message="<?= htmlspecialchars($alert) ?>" style="display: none;"></div>
-  <?php endif; ?>
+  <p class="subtitle">Bitte melden sie sich an</p>
 
   <form action="login.php" method="post">
     <div>
       <label for="username">Benutzername</label>
-      <input class="input" type="text" id="username" name="username" placeholder="Benutzername eingeben" />
+      <input class="input" type="text" id="username" name="username" placeholder="Benutzername eingeben" value="<?= htmlspecialchars($username ?? '') ?>" />
     </div>
 
     <div>
@@ -91,6 +88,7 @@ try {
     <div class="password-forgotten">
       <a href="password.php" class="forgot-password-link">Passwort vergessen?</a>
     </div>
+
     <div class="buttons">
       <button type="submit" class="btn">Einloggen</button>
       <a href="index.html" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
@@ -102,7 +100,6 @@ try {
   &copy; 2025 StudyCal. Alle Rechte vorbehalten.
 </footer>
 
-
 <div id="customAlert" class="custom-popup-overlay" style="display: none;">
   <div class="custom-popup">
     <h2 id="popupTitle">Benachrichtigung</h2> 
@@ -110,6 +107,11 @@ try {
     <button id="closePopup">Schließen</button>
   </div>
 </div>
+
+<div id="phpErrorMessage"
+     data-title="<?= htmlspecialchars($popupTitle) ?>"
+     data-message="<?= htmlspecialchars($alert) ?>"
+     style="display:none;"></div>
 
 </body>
 </html>
