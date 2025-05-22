@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyCal</title>
-    <link rel="icon" href="images/Logo.png">
+    <link rel="icon" href="images/Logo_favicon.png">
     <link rel="stylesheet" type="text/css" href="system/style/main.css" />
     <script src="system/javascript/inactivityTimer.js" defer></script>
     <script src="system/javascript/main.js"></script>
