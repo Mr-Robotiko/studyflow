@@ -46,18 +46,16 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
           <li>
             <a id="name"> StudyCal </a>
           </li>
-          <li>
-            <a href="#home" id="profilbild">
-              <li class="dropdown">
-                <a href="#" onclick="toggleDropdown(event, 'dropdown-profilbild')">
-                  <img src="images/rusty.jpg" alt="Profilbild" class="profil-img" />
-                </a>
-                <div class="dropdown-content" id="dropdown-profilbild">
-                  <a href="#" onclick="showSettings(event)">Einstellungen</a>
-                  <a href="#" onclick="showCalendar()">Kalender</a>
-                  <a href="logout.php">Logout</a>
-                </div>
-              </li>
+            <li class="dropdown">
+              <a href="#" onclick="toggleDropdown(event, 'dropdown-profilbild')">
+                <img src="images/rusty.jpg" alt="Profilbild" class="profil-img" />
+              </a>
+              <div class="dropdown-content" id="dropdown-profilbild">
+                <a href="#" onclick="showSettings(event)">Einstellungen</a>
+                <a href="#" onclick="showCalendar()">Kalender</a>
+                <a href="logout.php">Logout</a>
+              </div>
+            </li>
             </a>
           </li>
         </ul>
