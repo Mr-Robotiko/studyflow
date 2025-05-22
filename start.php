@@ -54,6 +54,7 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
                 </a>
                 <div class="dropdown-content" id="dropdown-profilbild">
                   <a href="#" onclick="showSettings(event)">Einstellungen</a>
+                  <a href="#" onclick="showCalendar()">Kalender</a>
                   <a href="logout.php">Logout</a>
                 </div>
               </li>
