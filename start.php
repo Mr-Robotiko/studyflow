@@ -1,36 +1,20 @@
 <?php
-require_once "system/handlers/entry-popup-handler.php";
-//session_start();
-
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+require_once "system/session-classes/session-manager.php";
 require_once "system/user-classes/user.php";
 
-$today = new DateTime();            
-$weekNumber = $today->format("W");  
+SessionManager::start();
 
+$data = SessionManager::getUserData();
+if (!$data) {
+    header("Location: login.php");
+    exit;
+}
 
-// define('SESSION_TIMEOUT', 600); // 10 Minuten
-
-// if (!isset($_SESSION["eingeloggt"]) || !$_SESSION["eingeloggt"]) {
-//     header("Location: login.php");
-//     exit;
-// }
-
-// // Session Timeout prüfen
-// if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_TIMEOUT)) {
-//     session_unset();
-//     session_destroy();
-//     header("Location: login.php?timeout=1");
-//     exit;
-// }
-// $_SESSION['LAST_ACTIVITY'] = time();
-
-// // User aus Session-Daten neu erstellen
-// $data = $_SESSION['user_data'];
 $user = new User();
 $user->setUserName($data['username']);
 $user->setName($data['name']);
@@ -38,10 +22,12 @@ $user->setSurname($data['surname']);
 $user->setSecurityPassphrase($data['securityPassphrase']);
 $user->setCalendarfile($data['calendarfile'] ?? null);
 
-// Jetzt kannst du damit arbeiten
-echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
-?>
+$weekNumber = date('W');
 
+$showEntryForm = ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_entry_form']));
+
+$days = $_SESSION['days'] ?? [];
+?>
 <!DOCTYPE html>
 <html lang="de">
   <head>
@@ -94,40 +80,44 @@ echo "Willkommen, " . $user->getName() . " " . $user->getSurname();
       </li>
         </ul>
       </div>
-
+    <?php if ($showEntryForm): ?>
+      <div class="entry">
+        <?php require_once "entry.php"; ?>
+      </div>
+    <?php else: ?>
       <div class="kalender">
         <h2>Kalender</h2>
         <div class="kalender-grid">
-          <div class="termin">
-            Mathe-Vorlesung (Lieben Wir)<br /><small>08:00 - 09:30</small>
-          </div>
-          <div class="termin">
-            BWL-Seminar (Super spannend)<br /><small>10:00 - 11:30</small>
-          </div>
-          <div class="termin">
-            Lernsession<br /><small>14:00 - 15:30</small>
-          </div>
-          <div class="termin frei">Frei</div>
-          <div class="termin frei">Frei</div>
-          <div class="termin">Abgabe Projekt<br /><small>23:59</small></div>
-          <div class="termin frei">Frei</div>
+          <?php if (empty($days)): ?>
+            <div class="termin frei">Keine Einträge vorhanden</div>
+          <?php else: ?>
+            <?php foreach ($days as $date => $day): /** @var Day $day **/ ?>
+              <div class="kalender-tag">
+                <h3><?= htmlspecialchars($date) ?></h3>
+                <?php foreach ($day->getEntries() as $entry): /** @var Entry $entry **/ ?>
+                  <div class="termin">
+                    <strong><?= htmlspecialchars($entry->getTitle()) ?></strong><br>
+                    <?= nl2br(htmlspecialchars($entry->getDescription())) ?><br>
+                    <small><?= htmlspecialchars($entry->getStartTime()) ?> – <?= htmlspecialchars($entry->getEndTime()) ?></small>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
         </div>
       </div>
-      <div class="todaytodo">
-        <div class="anstehend">
-          <h1>Today</h1>
-          <p>Content wird nicht eingedeutscht, Alexa!</p>
-        </div>
-        <div class="todo">
-          <h1>To Do</h1>
-          <div class="tasks">
-            <input type="checkbox" id="Task1" name="Task1" value="Task" />
-            <label for="Task1"> Labor-Bericht</label><br />
-            <input type="checkbox" id="Task2" name="Task2" value="Task" />
-            <label for="Task2"> Zusammenfassung BWL</label><br />
-            <input type="checkbox" id="Task3" name="Task3" value="Task" />
-            <label for="Task3"> RSA-Verfahren</label><br /><br />
-          </div>
+    <?php endif; ?>
+    <div class="todaytodo">
+      <div class="anstehend">
+        <h1>Today</h1>
+        <p>Content wird nicht eingedeutscht, Alexa!</p>
+      </div>
+      <div class="todo">
+        <h1>To Do</h1>
+        <div class="tasks">
+          <input type="checkbox" id="Task1" /><label for="Task1"> Labor-Bericht</label><br/>
+          <input type="checkbox" id="Task2" /><label for="Task2"> Zusammenfassung BWL</label><br/>
+          <input type="checkbox" id="Task3" /><label for="Task3"> RSA-Verfahren</label><br/><br/>
         </div>
       </div>
     </div>

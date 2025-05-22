@@ -1,70 +1,22 @@
 <?php
-session_start();
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$popupTitle = "";
-$alert = "";
+require_once "system/database-classes/database.php";
+require_once "system/login-classes/registration.php";
 
-$host = "localhost";
-$dbname = "studycal";
-$databaseUser = "Admin";
-$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
+$db = new Database(__DIR__ . '/configuration.csv'); 
+$pdo = $db->getConnection();
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$registration = new Registration($pdo);
 
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        $username = trim($_POST["username"] ?? '');
-        $name = trim($_POST["name"] ?? '');
-        $surname = trim($_POST["surname"] ?? '');
-        $password_plain = $_POST["password"] ?? '';
-        $passwordrep = $_POST["passwordrep"] ?? '';
-        $securitypassphrase = trim($_POST["securitypassphrase"] ?? '');
-        $calenderfile = null;
-
-        if (empty($username) || empty($password_plain) || empty($passwordrep) || empty($securitypassphrase) || empty($name) || empty($surname)) {
-            $popupTitle = "Leere Felder";
-            $alert = "Bitte fülle alle Felder aus";
-        } elseif ($password_plain !== $passwordrep) {
-            $popupTitle = "Falsches Passwort";
-            $alert = "Passwörter stimmen nicht überein";
-        } else {
-            $password = password_hash($password_plain, PASSWORD_DEFAULT);
-
-            $check = $conn->prepare("SELECT Username FROM user WHERE Username = :username");
-            $check->execute(["username" => $username]);
-
-            if ($check->fetch()) {
-                $popupTitle = "Benutzername vergeben";
-                $alert = "Benutzername ist bereits registriert";
-            } else {
-                $query = $conn->prepare("INSERT INTO user (Username, Name, Surname, Securitypassphrase, Calendarfile, Password)
-                                         VALUES (:username, :name, :surname, :securitypassphrase, :calenderfile, :password)");
-
-                $query->bindParam(':username', $username);
-                $query->bindParam(':name', $name);
-                $query->bindParam(':surname', $surname);
-                $query->bindParam(':securitypassphrase', $securitypassphrase);
-                $query->bindParam(':calenderfile', $calenderfile);
-                $query->bindParam(':password', $password);
-
-                if ($query->execute()) {
-                    $popupTitle = "Regestrierung erfolgreich";
-                    $alert = "Viel Spaß mit StudyCal";
-                } else {
-                    $popupTitle = "Regestrierung Fehlgeschlagen";
-                    $alert = "Registrierung nicht möglich";
-                }
-            }
-        }
-    }
-} catch (PDOException $e) {
-    $popupTitle = "Verbindungsfehler";
-    $alert = "Datenbankfehler: " . $e->getMessage();
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $registration->handleRegistration($_POST);
 }
+
+$alert = $registration->alert;
 ?>
 
 <!DOCTYPE html>

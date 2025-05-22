@@ -1,75 +1,45 @@
 <?php
-//session_start();
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once "system/user-classes/user.php";
+session_start();
 
-//define('SESSION_TIMEOUT', 600);
+require_once "system/database-classes/database.php";
+require_once "system/login-classes/login-class.php";
 
-
-$host = "localhost";
-$dbname = "studycal";
-$databaseUser = "Admin";
-$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
+$fehlermeldung = '';
 
 try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db   = new Database(__DIR__ . '/configuration.csv');
+    $conn = $db->getConnection();
 
-    $username = trim($_POST["username"] ?? '');
-    $password_plain = $_POST["password"] ?? '';
+    $login = new Login($conn);
 
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  if (empty($username) && empty($password_plain)) {
-      $popupTitle = "Fehlerhafte Eingabe";
-      $alert = "Bitte Benutzername und Passwort eingeben.";
-  } elseif (empty($username)) {
-      $popupTitle = "Benutzername fehlt";
-      $alert = "Bitte gib deinen Benutzernamen ein.";
-  } elseif (empty($password_plain)) {
-      $popupTitle = "Passwort fehlt";
-      $alert = "Bitte gib dein Passwort ein.";
-  } else {
-      $query = $conn->prepare("SELECT * FROM user WHERE Username = :username");
-      $query->execute(["username" => $username]);
-      $row = $query->fetch(PDO::FETCH_ASSOC);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = trim($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
 
-      if (!$row) {
-          $popupTitle = "Benutzer nicht gefunden";
-          $alert = "Es existiert kein Benutzer mit diesem Namen.";
-      } elseif (!password_verify($password_plain, $row['Password'])) {
-          $popupTitle = "Falsches Passwort";
-          $alert = "Das eingegebene Passwort ist nicht korrekt.";
-      } else {
-          $user = new User();
-          $user->setUserName($row['Username']);
-          $user->setPassword($row['Password']);
-          $user->setSecurityPassphrase($row['Securitypassphrase']);
-          $user->setName($row['Name']);
-          $user->setSurname($row['Surname']);
-          $user->setCalendarfile($row['Calendarfile'] ?? null);
+        if ($login->login($username, $password)) {
+            $_SESSION['eingeloggt'] = true;
+            $_SESSION['user_data']  = [
+                'username'           => $username,
+                'name'               => method_exists($login,'getName')               ? $login->getName()               : '',
+                'surname'            => method_exists($login,'getSurname')            ? $login->getSurname()            : '',
+                'securityPassphrase' => method_exists($login,'getSecurityPassphrase') ? $login->getSecurityPassphrase() : '',
+                'calendarfile'       => method_exists($login,'getCalendarfile')       ? $login->getCalendarfile()       : null,
+            ];
+            $_SESSION['LAST_ACTIVITY'] = time();
 
-            // $_SESSION['user_data'] = [
-            //     'username' => $user->getUserName(),
-            //     'name' => $user->getName(),
-            //     'surname' => $user->getSurname(),
-            //     'securityPassphrase' => $user->getSecurityPassphrase(),
-            //     'calendarfile' => $user->getCalendarfile()
-            // ];
-
-            // $_SESSION['eingeloggt'] = true;
-            // $_SESSION['LAST_ACTIVITY'] = time();
-          header("Location: start.php");
-          exit;
-      }
-  }
-}
-
-} catch (PDOException $e) {
-    $alert = "PDO-Fehler: " . $e->getMessage();
+            session_write_close();
+            header("Location: start.php");
+            exit;
+        } else {
+            $fehlermeldung = $login->alert;
+        }
+    }
+} catch (Exception $e) {
+    $fehlermeldung = "Fehler: " . $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
@@ -90,9 +60,16 @@ try {
 <header>
     <h1>Willkommen zurück bei StudyCal</h1>
 </header>
+  <div class="main">
+  
+    <img src="images/Logo.png" alt="StudyCal Logo" />
+    <p class="subtitle">Einloggen</p>
 
-<div class="main">
-
+    <form action="login.php" method="post">
+  <div>
+    <label for="username">Benutzername</label>
+    <input class="input" type="text" id="username" name="username" placeholder="Benutzername eingeben" required />
+  </div>
   <img src="images/Logo.png" alt="StudyCal Logo" />
 
   <?php if (!empty($alert)): ?>
