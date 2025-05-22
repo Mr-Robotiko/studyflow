@@ -46,3 +46,16 @@ window.onclick = function(event) {
     }
   });
   
+  // Show Settings Form
+
+  function showSettings(event) {
+    if (event) event.preventDefault();
+    document.querySelector('.kalender').style.display = 'none';
+    document.querySelector('.settings').style.display = 'block';
+  }
+
+  // Show Clalendar
+  function showCalendar() {
+    document.querySelector('.settings').style.display = 'none';
+    document.querySelector('.kalender').style.display = 'block';
+  }

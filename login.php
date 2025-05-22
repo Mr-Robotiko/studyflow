@@ -42,7 +42,6 @@ try {
     $alert = "Fehler bei der Verbindung: " . $e->getMessage();
 }
 ?>
-?>
 <!DOCTYPE html>
 <html lang="de">
 <head>

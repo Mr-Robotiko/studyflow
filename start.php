@@ -32,20 +32,8 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
     <title>StudyCal</title>
     <link rel="stylesheet" type="text/css" href="system/style/main.css" />
     <script src="system/javascript/inactivityTimer.js" defer></script>
+    <script src="system/javascript/main.js"></script>
   </head>
-  <script>
-  function showSettings() {
-    event.preventDefault();
-    document.querySelector('.kalender').style.display = 'none';
-    document.querySelector('.settings').style.display = 'block';
-  }
-
-  function showCalendar() {
-    document.querySelector('.settings').style.display = 'none';
-    document.querySelector('.kalender').style.display = 'block';
-  }
-</script>
-
   <body>
     <div class="body">
       <div class="head">
@@ -65,7 +53,7 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
                   <img src="images/rusty.jpg" alt="Profilbild" class="profil-img" />
                 </a>
                 <div class="dropdown-content" id="dropdown-profilbild">
-                  <a href="#" onclick="showSettings()">Einstellungen</a>
+                  <a href="#" onclick="showSettings(event)">Einstellungen</a>
                   <a href="logout.php">Logout</a>
                 </div>
               </li>
@@ -164,7 +152,6 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
         <p>Datenschutz</p>
       </a> 
     </div>
-    <script src="system/javascript/main.js"></script>
     <style>
       .show {
         display: block;
