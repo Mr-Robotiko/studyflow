@@ -3,65 +3,54 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+require_once "system/login-classes/password.php";
+
 $alert = "Bitte beantworte die Sicherheitsfrage, um fortzufahren.";
-$host = "localhost";
-$dbname = "studycal";
-$dbuser = "Admin";
-$dbpass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
+$errorMessage = null;
+$errorTitle = null;
 
 try {
-  $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $resetHandler = new PasswordReset("config/configuration.csv");
 
-  if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $username = trim($_POST['username'] ?? '');
-    $securitypassphrase = trim($_POST['securitypassphrase'] ?? '');
-    $newPassword = $_POST['newPassword'] ?? '';
-    $confirmPassword = $_POST['confirmPassword'] ?? '';
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $username = $_POST['username'] ?? '';
+        $securitypassphrase = $_POST['securitypassphrase'] ?? '';
+        $newPassword = $_POST['newPassword'] ?? '';
+        $confirmPassword = $_POST['confirmPassword'] ?? '';
 
-    if (empty($username) || empty($securitypassphrase) || empty($newPassword) || empty($confirmPassword)) {
-      $errorTitle = "Fehlende Angaben";
-      $errorMessage = "Bitte alle Felder ausfüllen.";
-    } elseif ($newPassword !== $confirmPassword) {
-      $errorTitle = "Passwortfehler";
-      $errorMessage = "Die Passwörter stimmen nicht überein.";
-    } else {
-      // Sicherheitsfrage prüfen
-      $stmt = $pdo->prepare("SELECT Securitypassphrase FROM user WHERE Username = :username");
-      $stmt->execute(['username' => $username]);
-      $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $resetHandler->reset($username, $securitypassphrase, $newPassword, $confirmPassword);
 
-      if (!$user) {
-        $errorTitle = "Benutzerfehler";
-        $errorMessage = "Benutzer existiert nicht.";
-      } elseif (strcasecmp(trim($user['Securitypassphrase']), $securitypassphrase) !== 0) {
-        $errorTitle = "Sicherheitsfrage";
-        $errorMessage = "Sicherheitsantwort ist falsch.";
-      } else {
-        // Neues Passwort speichern
-        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-        $update = $pdo->prepare("UPDATE user SET Password = :password WHERE Username = :username");
-
-        if ($update->execute(['password' => $hashedPassword, 'username' => $username])) {
-          echo "<script>
-                  setTimeout(function() {
-                window.location.href = 'login.php';
-            }, 300);
-                </script>";
-          exit;
+        if ($result === "success") {
+            echo "<script>
+                    setTimeout(function() {
+                        window.location.href = 'login.php';
+                    }, 300);
+                  </script>";
+            exit;
         } else {
-          $errorTitle = "Fehlgeschlagen";
-          $errorMessage = "Fehler beim Speichern des neuen Passworts.";
-        }
-      }
-    }
-  }
+            // Fehlertext dynamisch setzen
+            $errorMessage = $result;
 
-} catch (PDOException $e) {
-  $errorTitle = "Datenbankfehler";
-  $errorMessage = "Verbindungsfehler: " . $e->getMessage();
+            if ($result === "Bitte alle Felder ausfüllen.") {
+                $errorTitle = "Fehlende Angaben";
+            } elseif ($result === "Die Passwörter stimmen nicht überein.") {
+                $errorTitle = "Passwortfehler";
+            } elseif ($result === "Benutzer existiert nicht.") {
+                $errorTitle = "Benutzerfehler";
+            } elseif ($result === "Sicherheitsantwort ist falsch.") {
+                $errorTitle = "Sicherheitsfrage";
+            } else {
+                $errorTitle = "Fehlgeschlagen";
+            }
+        }
+    }
+
+} catch (Exception $e) {
+    $errorTitle = "Datenbankfehler";
+    $errorMessage = "Verbindungsfehler: " . $e->getMessage();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">
