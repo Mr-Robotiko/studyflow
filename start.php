@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 require_once "system/session-classes/session-manager.php";
 require_once "system/user-classes/user.php";
+require_once "system/database-classes/database.php";
 
 SessionManager::start();
 
@@ -22,6 +23,22 @@ $user->setName($userData['name']);
 $user->setSurname($userData['surname']);
 $user->setSecurityPassphrase($userData['securityPassphrase'] ?? '');
 $user->setCalendarfile($userData['calendarfile'] ?? null);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) { 
+
+  try {
+      if ($user->deleteFromDatabase()) {
+          SessionManager::destroy();
+          header("Location: login.php");
+          exit;
+      } else {
+          echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
+      }
+  } catch (Exception $e) {
+      echo "<p style='color:red;'>Fehler beim Löschen: " . htmlspecialchars($e->getMessage()) . "</p>";
+  }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -121,7 +138,9 @@ $user->setCalendarfile($userData['calendarfile'] ?? null);
       <input type="datetime-local" id="zeitzone" />
     </div>
     <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
-    <button id="konto-loeschen">Konto löschen</button>
+    <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
+      <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
+    </form>
     <br><br>
     <button onclick="showCalendar()">Zurück zum Kalender</button>
   </div>
