@@ -139,29 +139,33 @@ $showEntryForm = isset($_POST['show_entry_form']);
       <div class="settings" style="display: none;">
         <div class="lernideal">
           <h2>Einstellungen</h2>
+          <div class="einstellungen" > 
+            <label class="switch">
+              <input type="checkbox" id="darkModeToggle" />
+              <span class="s"></span>
+            </label>
+            <span id="mode-label">☀️</span>
 
-          <label class="switch">
-            <input type="checkbox" id="darkModeToggle" />
-            <span class="s"></span>
-          </label>
-          <span id="mode-label">☀️</span>
-
-          <p class="settings">Lernideal</p>
-          <div class="slidecontainer">
-            <input type="range" min="1" max="5" id="slider" />
-          </div>
-          <div id="subtitle">30 min 45 min 60 min 120 min 180 min</div>
-
-          <div>
-            <p>Zeitzone:</p>
-            <input type="datetime-local" id="zeitzone" />
-          </div>
-          <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
-          <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
-            <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
-          </form>
-          <br /><br />
-          <button onclick="showCalendar()">Zurück zum Kalender</button>
+            <p class="settings">Lernideal</p>
+            <div class="slidecontainer">
+              <div class="slider-container">
+                <input type="range" min="0" max="4" value="2" step="1" class="slider" id="study-slider">
+              </div>
+              <div class="slider-labels">
+                <span>30 min</span>
+                <span>45 min</span>
+                <span>60 min</span>
+                <span>120 min</span>
+                <span>180 min</span>
+              </div>
+            </div>
+              <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
+              <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
+                <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
+              </form>
+              <br /><br />
+              <button onclick="showCalendar()">Zurück zum Kalender</button>
+            </div>
         </div>
       </div>
 

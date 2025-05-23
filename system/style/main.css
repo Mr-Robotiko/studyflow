@@ -334,48 +334,38 @@ input:checked + .s:before {
   transform: translateX(26px);
 }
 
-.slidecontainer {
+.slider-container {
+  position: relative;
+  width: 80%;
+  margin: 40px auto;
+}
+
+.slider {
   width: 100%;
-}
-
-#slider {
-  -webkit-appearance: none;
-  width: 90%;
-  height: 25px;
-  background-image: linear-gradient(to right, white, var(--blue-accent));
-  outline: none;
-  opacity: 0.8;
-  border-radius: 25px;
-  -webkit-transition: .2s;
-  transition: opacity 0.2s;
-}
-
-#slider:hover {
-  opacity: 1;
-}
-
-#slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
   appearance: none;
-  width: 25px;
-  height: 25px;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #e0e0f8, #6666cc);
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   background: white;
   cursor: pointer;
-  border-radius: 50%;
+  border: 2px solid #4444cc;
+  margin-top: -6px;
 }
 
-#slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  background: #0417aa;
-  cursor: pointer;
-}
-
-#subtitle {
-  padding: 10px;
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--gray-muted);
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 2px 0;
+  font-size: 14px;
+  color: #333;
 }
 
 #zeitzone {
@@ -545,8 +535,171 @@ body.dark-mode .arrow {
   color: white;
 }
 
+body.dark-mode .arrow:hover {
+  color: var(--cyan-soft);
+}
+
+body.dark-mode .lernideal, body.dark-mode .lernideal p {
+  background-color: #2c2c2c;
+  color: white;
+}
+
+body.dark-mode .einstellungen {
+  background-color: #3a3a3a;
+}
+
+body.dark-mode .dropdown-content {
+  background-color: #2c2c2c;
+  border: 1px solid #555;
+}
+
+body.dark-mode .dropdown-content a {
+  color: white;
+}
+
+body.dark-mode .dropdown-content a:hover {
+  background-color: #444;
+}
+
+body.dark-mode input,
+body.dark-mode textarea {
+  background-color: #1e1e1e;
+  color: white;
+  border: 1px solid #555;
+}
+
+body.dark-mode .popup-content {
+  background-color: #3a3a3a;
+  color: white;
+}
+
+body.dark-mode .termin {
+  background-color: #3a3a3a;
+  color: #d0c4ff;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #f0f0f0; /* Helle Schriftfarbe für Kontrast */
+}
+
+.dark-mode .container {
+  background-color: #2a2a2a;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode label
+.dark-mode #subtitle {
+  color: #ffffff;
+}
+
+/* SLIDER UND LABELS */
+body.dark-mode .slider-container {
+  position: relative;
+  width: 80%;
+  margin: 50px auto;
+}
+
+/* Beispiel: Ziel-Element hat diese Eigenschaften */
+.dark-mode .slider {
+  font-size: 14px;
+  padding: 4px 8px;
+  background-color: #eee;
+  border-radius: 4px;
+}
+
+/* Dein span soll dazu passen */
+.dark-mode .slider span {
+  font-size: 14px;
+  padding: 4px 8px;
+  background-color: #eee;
+  border-radius: 4px;
+}
+
 body.dark-mode .slider {
-  background-image: linear-gradient(to right, #4e4e4e, #333);
+  width: 100%;
+  appearance: none;
+  height: 14px;
+  border-radius: 10px;
+  background: linear-gradient(to right, #a88beb, #6c63ff);
+  outline: none;
+  box-shadow: 0 0 8px rgba(168, 139, 235, 0.4);
+  transition: background 0.3s ease;
+}
+
+body.dark-mode .slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #a88beb;
+  cursor: pointer;
+  margin-top: -5px;
+  box-shadow: 0 0 5px rgba(168, 139, 235, 0.5);
+  transition: transform 0.2s ease;
+}
+
+body.dark-mode .slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+body.dark-mode .slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #ffffff;
+  border: 3px solid #a88beb;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+body.dark-mode .slider-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 5px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #cdbdf7;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 3px rgba(168, 139, 235, 0.4);
+  width: 80%;
+}
+
+
+.dark-mode button,
+.dark-mode .button {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  margin: 6px 0;
+  cursor: pointer;
+}
+
+.dark-mode button:hover,
+.dark-mode .button:hover {
+  background-color: #555;
+}
+
+.dark-mode a {
+  color: #a58fff;
+  text-decoration: underline;
+}
+
+.dark-mode .toggle-icon {
+  font-size: 1.5rem;
+  color: #ffd700; /* z.B. gelber Mond */
+}
+
+.dark-mode #subtitle {
+  color: #cccccc; /* Subtitle gezielt heller gemacht */
+  font-size: 1.1rem;
+  margin-bottom: 20px;
 }
 
 .switch input:checked + .s {
@@ -563,3 +716,4 @@ body.dark-mode .slider {
 .switch input:not(:checked) + .s:before {
   transform: translateX(0);
 }
+
