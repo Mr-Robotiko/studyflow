@@ -70,11 +70,13 @@ body {
   width: 100%;
   max-width: 400px; 
   height: auto;
+  margin-top: -3rem;
 }
 
 .subtitle {
+  margin-top: -1rem;
   font-size: 1.2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.2rem;
   color: #444;
 }
 

@@ -72,7 +72,7 @@ try {
 
 <div class="main">
   <img src="images/Logo.png" alt="StudyCal Logo" />
-  <p class="subtitle">Bitte melden sie sich an</p>
+  <p class="subtitle">Bitte melden Sie sich an</p>
 
   <form action="login.php" method="post">
     <div>

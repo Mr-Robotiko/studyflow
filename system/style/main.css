@@ -440,11 +440,15 @@ input:checked + .s:before {
 /* Footer */
 
 .footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0; 
   grid-area: footer;
   background-color: var(--primary-color);
   color: white;
   text-align: center;
-  padding: 10px;
+  padding: 1rem;
 }
 
 /* === Erweiterung für Entry-Popup === */

@@ -69,8 +69,7 @@ try {
 </header>
 
 <div class="main">
-  <p class="subtitle">Bitte fülle das Formular aus, um dich zu registrieren</p>
-
+  
   <form action="register.php" method="post">
     <div>
       <label for="vorname">Vorname</label>
