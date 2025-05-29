@@ -10,7 +10,7 @@ require_once "system/calendar-classes/day.php";
 require_once "system/calendar-classes/entry.php";
 
 require_once "system/user-classes/account-manager.php";
-require_once "system/calendar-classes/calendar-manager.php";
+
 require_once "system/session-classes/user-session.php";
 
 SessionManager::start();
@@ -18,21 +18,15 @@ SessionManager::start();
 $userSession = new UserSession();
 $user = $userSession->getUser();
 
-$calendarManager = new CalendarManager($user);
-$accountManager = new AccountManager($user);
-
 try {
-    $calendarJson = $calendarManager->loadCalendarFromDatabase();
-    if ($calendarJson !== null) {
-        $calendarManager->saveCalendarToFile($calendarJson);
-    } else {
-        echo "<p>Keine Kalenderdaten gefunden.</p>";
-    }
+  $configPath = __DIR__ . "/config/configuration.csv";
+  $database = new Database($configPath);
+  $pdo = $database->getConnection();
 } catch (Exception $e) {
-    echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+  die("Fehler bei der Datenbankverbindung: " . htmlspecialchars($e->getMessage()));
 }
 
-$days = $calendarManager->loadDaysFromFile();
+$accountManager = new AccountManager($user, $pdo);
 
 $errors = [];
 $success = false;
