@@ -149,7 +149,7 @@ $showEntryForm = isset($_POST['show_entry_form']);
         <div class="lernideal">
             <h2>Einstellungen</h2>
             <form method="POST" action="start.php" onsubmit="updateSettingsHiddenFields();">
-              <div class="einstellungen">
+              <div>
                 <!-- Dark Mode Switch -->
                 <label class="switch">
                   <input type="checkbox" id="darkModeToggle" <?= ($user->getDarkMode() ? 'checked' : '') ?> />
