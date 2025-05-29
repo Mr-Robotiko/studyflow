@@ -1,5 +1,4 @@
 <?php
-require_once "settings.php";
 require_once 'system/database-classes/database.php';
     class User {
         private $name;
@@ -9,9 +8,11 @@ require_once 'system/database-classes/database.php';
         private $securityPassphrase;
         private $userName;
         private $password;
-        private $Setting;
+        private $darkMode = false;
+        private $lernideal = 60;
 
-        public function __construct($name = null, $surname = null, $institution = null, $Calendarfile = null, $securityPassphrase = null, $userName = null, $password = null, $Setting = null) {
+
+        public function __construct($name = null, $surname = null, $institution = null, $Calendarfile = null, $securityPassphrase = null, $userName = null, $password = null, $darkMode = false, $lernideal = 60)  {
             $this->setName($name);
             $this->setSurname($surname);
             $this->setInstitution($institution);
@@ -19,7 +20,8 @@ require_once 'system/database-classes/database.php';
             $this->setSecurityPassphrase($securityPassphrase);
             $this->setUserName($userName);
             $this->setPassword($password);
-            $this->setSetting($Setting);
+            $this->setUserName($darkMode);
+            $this->setPassword($lernideal);
         }
 
         public function getName() {
@@ -78,13 +80,22 @@ require_once 'system/database-classes/database.php';
             $this->password = $password;
         }
 
-        public function getSetting() {
-            return $this->Setting;
+        public function getDarkMode() {
+            return $this->darkMode;
         }
-
-        public function setSetting($Setting) {
-            $this->Setting = $Setting;
+        
+        public function setDarkMode($darkMode) {
+            $this->darkMode = (bool)$darkMode;
         }
+        
+        public function getLernideal() {
+            return $this->lernideal;
+        }
+        
+        public function setLernideal($lernideal) {
+            $this->lernideal = (int)$lernideal;
+        }
+        
 
         public function __toString() {
             return "Name: {$this->name} {$this->surname}, Institution: {$this->institution}, Calendar: {$this->Calendarfile}";
@@ -104,16 +115,18 @@ require_once 'system/database-classes/database.php';
             return $stmt->execute(['username' => $username]);
         }
 
-        public function saveCalendarfileToDatabase(string $json): bool {
+        public function saveSettingsToDatabase() {
             $db = new Database("config/configuration.csv");
             $pdo = $db->getConnection();
         
-            $stmt = $pdo->prepare("UPDATE user SET calendarfile = :calendar WHERE username = :username");
+            $stmt = $pdo->prepare("UPDATE user SET dark_mode = :darkMode, lernideal = :lernideal WHERE username = :username");
             return $stmt->execute([
-                'calendar' => $json,
+                'darkMode' => $this->getDarkMode() ? 1 : 0,
+                'lernideal' => $this->getLernideal(),
                 'username' => $this->getUserName()
             ]);
         }
+        
         
         
     }

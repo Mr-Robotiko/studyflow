@@ -32,6 +32,22 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if (isset($_POST['save_settings'])) {
+    $litValue = intval($_POST['lit_value']);
+    $darkMode = intval($_POST['dark_mode']);
+
+    try {
+        $stmt = $pdo->prepare("UPDATE usr SET ILT = :ILT, Mode = :mode WHERE id = :userId");
+        $stmt->bindParam(':lit', $litValue, PDO::PARAM_INT);
+        $stmt->bindParam(':mode', $darkMode, PDO::PARAM_INT);
+        $stmt->bindParam(':userId', $user->getId(), PDO::PARAM_INT);
+        $stmt->execute();
+        echo "<p style='color:green;'>Einstellungen wurden gespeichert.</p>";
+    } catch (Exception $e) {
+        echo "<p style='color:red;'>Fehler beim Speichern der Einstellungen: " . htmlspecialchars($e->getMessage()) . "</p>";
+    }
+    }
+
     if (isset($_POST['save_entry'])) {
         $calendarManager->handleEntryFormSubmission($days, $errors, $success);
     }
@@ -129,41 +145,55 @@ $showEntryForm = isset($_POST['show_entry_form']);
           <?php endif; ?>
         </div>
       </div>
-
       <div class="settings" style="display: none;">
         <div class="lernideal">
-          <h2>Einstellungen</h2>
-          <div class="einstellungen" > 
-            <label class="switch">
-              <input type="checkbox" id="darkModeToggle" />
-              <span class="s"></span>
-            </label>
-            <span id="mode-label">☀️</span>
+            <h2>Einstellungen</h2>
+            <form method="POST" action="start.php" onsubmit="updateSettingsHiddenFields();">
+              <div class="einstellungen">
+                <!-- Dark Mode Switch -->
+                <label class="switch">
+                  <input type="checkbox" id="darkModeToggle" <?= ($user->getDarkMode() ? 'checked' : '') ?> />
+                  <span class="s"></span>
+                </label>
+                <span id="mode-label"><?= $user->getDarkMode() ? "🌙" : "☀️" ?></span>
 
-            <p class="settings">Lernideal</p>
-            <div class="slidecontainer">
-              <div class="slider-container">
-                <input type="range" min="0" max="4" value="2" step="1" class="slider" id="study-slider">
+                <!-- Lernideal Slider -->
+                <p class="settings">Lernideal</p>
+                <div class="slidecontainer">
+                  <div class="slider-container">
+                    <input type="range" min="0" max="4" value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>" step="1" class="slider" id="study-slider">
+                  </div>
+                  <div class="slider-labels">
+                    <span>30 min</span>
+                    <span>45 min</span>
+                    <span>60 min</span>
+                    <span>120 min</span>
+                    <span>180 min</span>
+                  </div>
+                </div>
+
+                <!-- Hidden inputs to send values to PHP -->
+                <input type="hidden" name="lit_value" id="lit_value" value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>">
+                <input type="hidden" name="dark_mode" id="dark_mode_value" value="<?= $user->getDarkMode() ? 1 : 0 ?>">
+
+                <button type="submit" name="save_settings">Einstellungen speichern</button>
+
+                <!-- Passwort ändern -->
+                <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
+
+                <!-- Konto löschen -->
+                <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
+                  <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
+                </form>
+
+                <br /><br />
+                <button onclick="showCalendar()">Zurück zum Kalender</button>
               </div>
-              <div class="slider-labels">
-                <span>30 min</span>
-                <span>45 min</span>
-                <span>60 min</span>
-                <span>120 min</span>
-                <span>180 min</span>
-              </div>
-            </div>
-              <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
-              <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
-                <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
-              </form>
-              <br /><br />
-              <button onclick="showCalendar()">Zurück zum Kalender</button>
-            </div>
+            </form>
+          </div>
         </div>
-      </div>
-
       <div class="todaytodo">
+
         <div class="anstehend">
           <h1>Today</h1>
           <p>Content wird nicht eingedeutscht, Alexa!</p>

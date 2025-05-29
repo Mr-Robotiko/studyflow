@@ -78,3 +78,8 @@ window.onclick = function(event) {
     document.querySelector('.settings').style.display = 'none';
     document.querySelector('.kalender').style.display = 'block';
   }
+
+  function updateSettingsHiddenFields() {
+    document.getElementById('lit_value').value = document.getElementById('study-slider').value;
+    document.getElementById('dark_mode_value').value = document.getElementById('darkModeToggle').checked ? 1 : 0;
+  }
