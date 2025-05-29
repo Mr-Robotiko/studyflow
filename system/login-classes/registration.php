@@ -15,7 +15,10 @@ class Registration {
         $password_plain = $post["password"] ?? '';
         $passwordrep = $post["passwordrep"] ?? '';
         $securitypassphrase_plain = trim($post["securitypassphrase"] ?? '');
-        $calenderfile = null;
+        $admin = 0;
+        $mode = 1;
+        $ILT = 60;
+        $DPS = 0;
 
         // Leere Felder
         if (empty($username) || empty($password_plain) || empty($passwordrep) || empty($securitypassphrase_plain) || empty($name) || empty($surname)) {
@@ -65,9 +68,12 @@ class Registration {
             return;
         }
 
+        // Hashing
         $password = password_hash($password_plain, PASSWORD_DEFAULT);
         $securitypassphrase = password_hash($securitypassphrase_plain, PASSWORD_DEFAULT);
+        $calenderfile = ""; // Leerer Kalender-Dateiname zum Start
 
+        // Benutzername bereits vergeben?
         $check = $this->conn->prepare("SELECT Username FROM user WHERE Username = :username");
         $check->execute(["username" => $username]);
 
@@ -77,19 +83,26 @@ class Registration {
             return;
         }
 
-        $query = $this->conn->prepare("INSERT INTO user (Username, Name, Surname, Securitypassphrase, Calendarfile, Password)
-                                      VALUES (:username, :name, :surname, :securitypassphrase, :calenderfile, :password)");
-
+        // INSERT-Query
+        $query = $this->conn->prepare("INSERT INTO user 
+            (Username, Name, Surname, Securitypassphrase, Password, Admin, DPS, Mode, ILT)
+            VALUES (:username, :name, :surname, :securitypassphrase, :password, :Admin, :DPS, :Mode, :ILT)");
+        
         $query->bindParam(':username', $username);
         $query->bindParam(':name', $name);
         $query->bindParam(':surname', $surname);
         $query->bindParam(':securitypassphrase', $securitypassphrase);
-        $query->bindParam(':calenderfile', $calenderfile);
         $query->bindParam(':password', $password);
+        $query->bindParam(':Admin', $admin);
+        $query->bindParam(':DPS', $DPS);
+        $query->bindParam(':Mode', $mode);
+        $query->bindParam(':ILT', $ILT);
+        
 
+        // Ausführung & Rückmeldung
         if ($query->execute()) {
             $this->popupTitle = "Registrierung erfolgreich";
-            $this->alert = "Viel Spaß mit StudyCal!";
+            $this->alert = "Einfügen erfolgreich!";
         } else {
             $this->popupTitle = "Fehler";
             $this->alert = "Fehler beim Einfügen: " . implode(", ", $query->errorInfo());
