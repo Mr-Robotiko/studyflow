@@ -9,7 +9,7 @@ require_once "system/user-classes/user.php";
 require_once "system/database-classes/database.php";
 require_once "system/login-classes/login-class.php";
 
-define('SESSION_TIMEOUT', 600); // 10 Minuten Timeout
+define('SESSION_TIMEOUT', 600); // 10 Minuten
 
 $popupTitle = '';
 $alert = '';

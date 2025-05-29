@@ -5,14 +5,13 @@ class Login {
     private PDO $conn;
     private ?User $user = null;
     public string $alert = '';
-    public string $popupTitle = ''; // ✅ Wichtig für Popup.js
+    public string $popupTitle = '';
 
     public function __construct(PDO $conn) {
         $this->conn = $conn;
     }
 
     public function login(string $username, string $password_plain): bool {
-        // ✅ Eingabevalidierung (Regex)
         if (!preg_match('/^[a-zA-Z0-9_-]{1,50}$/', $username)) {
             $this->popupTitle = "Ungültiger Benutzername";
             $this->alert = "Nur Buchstaben, Zahlen, Unterstrich (_) und Bindestrich (-) erlaubt (max. 50 Zeichen).";
@@ -25,14 +24,15 @@ class Login {
             return false;
         }
 
-        // ✅ Loginprüfung
         $stmt = $this->conn->prepare(
-            "SELECT Username, Password, Securitypassphrase, Name, Surname, Calendarfile
+            "SELECT Username, Password, Securitypassphrase, Name, Surname
              FROM user
              WHERE Username = :username
              LIMIT 1"
         );
-        $stmt->execute(['username' => $username]);
+
+        $stmt->bindParam(':username', $username);
+        $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row && password_verify($password_plain, $row['Password'])) {
@@ -42,7 +42,6 @@ class Login {
             $this->user->setSecurityPassphrase($row['Securitypassphrase']);
             $this->user->setName($row['Name']);
             $this->user->setSurname($row['Surname']);
-            $this->user->setCalendarfile($row['Calendarfile'] ?? null);
 
             $_SESSION['eingeloggt'] = true;
             $_SESSION['user_data'] = [
@@ -50,13 +49,12 @@ class Login {
                 'name'               => $this->user->getName(),
                 'surname'            => $this->user->getSurname(),
                 'securityPassphrase' => $this->user->getSecurityPassphrase(),
-                'calendarfile'       => $this->user->getCalendarfile(),
             ];
 
             return true;
         }
 
-        $this->popupTitle = "Login fehlgeschlagen"; // ✅ ergänzt
+        $this->popupTitle = "Login fehlgeschlagen";
         $this->alert = "Benutzername oder Passwort ist falsch.";
         return false;
     }
