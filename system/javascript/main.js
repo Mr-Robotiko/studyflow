@@ -14,38 +14,43 @@ window.onclick = function(event) {
   }
 };
 
-  
-  // --- DARK MODE ---
-  
-  document.addEventListener('DOMContentLoaded', () => {
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const modeLabel = document.getElementById('mode-label');
-  
-    function updateModeLabel(isDark) {
-      if (modeLabel) {
-        modeLabel.textContent = isDark ? '🌙' : '☀️';
-      }
+// DARK MODE
+
+document.addEventListener('DOMContentLoaded', () => {
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const modeLabel = document.getElementById('mode-label');
+  const darkModeInput = document.getElementById('dark_mode_value');
+
+  function updateModeLabel(isDark) {
+    if (modeLabel) {
+      modeLabel.textContent = isDark ? '🌙' : '☀️';
     }
-  
-    const isDarkStored = localStorage.getItem('darkMode') === 'enabled';
-    if (isDarkStored) {
-      document.body.classList.add('dark-mode');
-      if (darkModeToggle) darkModeToggle.checked = true;
-      updateModeLabel(true);
-    } else {
-      updateModeLabel(false);
-    }
-  
-    if (darkModeToggle) {
-      darkModeToggle.addEventListener('change', () => {
-        const isDark = darkModeToggle.checked;
-        document.body.classList.toggle('dark-mode', isDark);
-        localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-        updateModeLabel(isDark);
-      });
-    }
-  });
-  
+  }
+
+  // Wenn localStorage nicht gesetzt ist, orientiere dich am serverseitigen Wert (aus dem <body>-Tag)
+  const isDarkStored = localStorage.getItem('darkMode');
+  const isDarkByClass = document.body.classList.contains('dark-mode');
+
+  if (isDarkStored === null) {
+    localStorage.setItem('darkMode', isDarkByClass ? 'enabled' : 'disabled');
+  }
+
+  updateModeLabel(isDarkByClass);
+  if (darkModeToggle) darkModeToggle.checked = isDarkByClass;
+  if (darkModeInput) darkModeInput.value = isDarkByClass ? 1 : 0;
+
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('change', () => {
+      const isDark = darkModeToggle.checked;
+      document.body.classList.toggle('dark-mode', isDark);
+      localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+      updateModeLabel(isDark);
+      if (darkModeInput) darkModeInput.value = isDark ? 1 : 0;
+    });
+  }
+});
+
+
   // --- EINTRAG POPUP MIT JQUERY ---
 
   $(document).ready(function () {
@@ -80,6 +85,30 @@ window.onclick = function(event) {
   }
 
   function updateSettingsHiddenFields() {
-    document.getElementById('lit_value').value = document.getElementById('study-slider').value;
-    document.getElementById('dark_mode_value').value = document.getElementById('darkModeToggle').checked ? 1 : 0;
+    const slider = document.getElementById('study-slider');
+    const darkToggle = document.getElementById('darkModeToggle');
+    const litHidden = document.getElementById('lit_value');
+    const darkHidden = document.getElementById('dark_mode_value');
+  
+    if (slider && litHidden) litHidden.value = slider.value;
+    if (darkToggle && darkHidden) {
+      const isDark = darkToggle.checked;
+      darkHidden.value = isDark ? 1 : 0;
+  
+      // 👉 Direkt die Klasse auf <body> setzen
+      document.body.classList.toggle('dark-mode', isDark);
+  
+      // 👉 localStorage aktualisieren (für künftige Sitzungen)
+      localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+  
+      // 👉 Optional: Darkmode-Label aktualisieren
+      const modeLabel = document.getElementById('mode-label');
+      if (modeLabel) modeLabel.textContent = isDark ? '🌙' : '☀️';
+    }
   }
+  
+  
+  document.getElementById('darkModeToggle').addEventListener('change', () => {
+    const modeLabel = document.getElementById('mode-label');
+    modeLabel.textContent = document.getElementById('darkModeToggle').checked ? "🌙" : "☀️";
+  });

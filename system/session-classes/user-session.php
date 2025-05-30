@@ -16,7 +16,6 @@ class UserSession {
 
         $this->user = new User();
 
-        // Neu: ID aus der Session setzen
         if (isset($userData['id'])) {
             $this->user->setId($userData['id']);
         }
@@ -26,6 +25,16 @@ class UserSession {
         $this->user->setSurname($userData['surname']);
         $this->user->setSecurityPassphrase($userData['securityPassphrase'] ?? '');
         $this->user->setCalendarfile($userData['calendarfile'] ?? null);
+
+        // 🌓 Dark Mode aus Session setzen, falls vorhanden
+        if (isset($userData['mode'])) {
+            $this->user->setDarkMode((bool)$userData['mode']);
+        }
+
+        // 🎯 Lernideal (ILT) setzen, falls vorhanden
+        if (isset($userData['ILT'])) {
+            $this->user->setLernideal((int)$userData['ILT']);
+        }
     }
 
     public function getUser(): User {

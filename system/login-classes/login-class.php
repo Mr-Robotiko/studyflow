@@ -25,7 +25,7 @@ class Login {
         }
     
         $stmt = $this->conn->prepare(
-            "SELECT UserID, Username, Password, Securitypassphrase, Name, Surname
+            "SELECT UserID, Username, Password, Securitypassphrase, Name, Surname, Mode, ILT
              FROM user
              WHERE Username = :username
              LIMIT 1"
@@ -43,6 +43,10 @@ class Login {
             $this->user->setSecurityPassphrase($row['Securitypassphrase']);
             $this->user->setName($row['Name']);
             $this->user->setSurname($row['Surname']);
+
+            // Dark mode und Lernideal aus DB setzen
+            $this->user->setDarkMode($row['Mode']);
+            $this->user->setLernideal($row['ILT'] ?? 2);  // Fallback auf 2, falls NULL
     
             $_SESSION['eingeloggt'] = true;
             $_SESSION['user_data'] = [
@@ -51,6 +55,8 @@ class Login {
                 'name'               => $this->user->getName(),
                 'surname'            => $this->user->getSurname(),
                 'securityPassphrase' => $this->user->getSecurityPassphrase(),
+                'mode'               => $this->user->getDarkMode(),
+                'lernideal'          => $this->user->getLernideal()
             ];
     
             return true;
@@ -59,5 +65,10 @@ class Login {
         $this->popupTitle = "Login fehlgeschlagen";
         $this->alert = "Benutzername oder Passwort ist falsch.";
         return false;    
+    }
+
+    // Optional: Getter für User-Objekt (z.B. im Controller)
+    public function getUser(): ?User {
+        return $this->user;
     }
 }

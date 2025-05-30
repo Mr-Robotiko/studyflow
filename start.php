@@ -40,13 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $stmt = $pdo->prepare("UPDATE user SET ILT = :ILT, Mode = :mode WHERE UserID = :userId");
-        echo $userId, "USER ID"; // Löschen
-        echo $darkMode, "DARK MODE";
-        echo $litValue, "LIT";
         $stmt->bindParam(':ILT', $litValue, PDO::PARAM_INT);
         $stmt->bindParam(':mode', $darkMode, PDO::PARAM_INT);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
+
+        $user->setDarkMode($darkMode);
+        echo $user->getDarkMode();
         // Löschen
         echo "<p style='color:green;'>Einstellungen wurden gespeichert.</p>";
     } catch (Exception $e) {
@@ -88,7 +88,7 @@ $showEntryForm = isset($_POST['show_entry_form']);
     <script src="system/javascript/inactivityTimer.js" defer></script>
     <script src="system/javascript/main.js"></script>
   </head>
-  <body>
+  <body class="<?= $user->getDarkMode() ? 'dark-mode' : '' ?>">
     <div class="body">
       <div class="head">
         <ul class="header">
@@ -151,23 +151,29 @@ $showEntryForm = isset($_POST['show_entry_form']);
           <?php endif; ?>
         </div>
       </div>
-      <div class="settings" style="display: none;">
-        <div class="lernideal">
+        <!-- Settings Form -->
+        <div class="settings" style="display: none;">
+          <div class="lernideal">
             <h2>Einstellungen</h2>
             <form method="POST" action="start.php" onsubmit="updateSettingsHiddenFields();">
               <div>
-                <!-- Dark Mode Switch -->
                 <label class="switch">
                   <input type="checkbox" id="darkModeToggle" <?= ($user->getDarkMode() ? 'checked' : '') ?> />
                   <span class="s"></span>
                 </label>
                 <span id="mode-label"><?= $user->getDarkMode() ? "🌙" : "☀️" ?></span>
 
-                <!-- Lernideal Slider -->
                 <p class="settings">Lernideal</p>
                 <div class="slidecontainer">
                   <div class="slider-container">
-                    <input type="range" min="0" max="4" value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>" step="1" class="slider" id="study-slider">
+                    <input
+                      type="range"
+                      min="0" max="4"
+                      value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>"
+                      step="1"
+                      class="slider"
+                      id="study-slider"
+                    />
                   </div>
                   <div class="slider-labels">
                     <span>30 min</span>
@@ -178,24 +184,23 @@ $showEntryForm = isset($_POST['show_entry_form']);
                   </div>
                 </div>
 
-                <!-- Hidden inputs to send values to PHP -->
+                <!-- Hidden inputs -->
                 <input type="hidden" name="lit_value" id="lit_value" value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>">
                 <input type="hidden" name="dark_mode" id="dark_mode_value" value="<?= $user->getDarkMode() ? 1 : 0 ?>">
-
                 <button type="submit" name="save_settings">Einstellungen speichern</button>
-
-                <!-- Passwort ändern -->
-                <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
-
-                <!-- Konto löschen -->
-                <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
-                  <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
-                </form>
-
-                <br /><br />
-                <button onclick="showCalendar()">Zurück zum Kalender</button>
               </div>
             </form>
+
+            <!-- Passwort ändern -->
+            <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
+
+            <!-- Konto löschen: eigenes Form -->
+            <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
+              <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
+            </form>
+
+            <br /><br />
+            <button onclick="showCalendar()">Zurück zum Kalender</button>
           </div>
         </div>
       <div class="todaytodo">
