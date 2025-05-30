@@ -41,6 +41,62 @@ $accountManager = new AccountManager($user, $pdo);
 $errors = [];
 $success = false;
 
+// -------------------- NEU: Kalenderwoche aus GET oder aktuelle ------------------
+$week = isset($_GET['week']) ? intval($_GET['week']) : intval(date('W'));
+$year = date('Y');
+
+// Start und Ende der Woche bestimmen (Montag bis Sonntag)
+$startDate = new DateTime();
+$startDate->setISODate($year, $week);
+$endDate = clone $startDate;
+$endDate->modify('+6 days');
+
+$startDateStr = $startDate->format('Y-m-d');
+$endDateStr = $endDate->format('Y-m-d');
+
+// -------------------- NEU: Einträge aus DB laden für den Zeitraum ------------------
+$stmt = $pdo->prepare("
+    SELECT 
+        entry.EntryID, 
+        event.Eventname, 
+        event.Begindate, 
+        event.Enddate, 
+        event.Note, 
+        entry.Daydate,
+        entry.Begintime AS StartTime,
+        entry.Endtime AS EndTime
+    FROM entry
+    JOIN event ON entry.EventID = event.EventID
+    WHERE entry.DayDate BETWEEN :startDate AND :endDate
+    AND event.UserID = :userId
+    ORDER BY entry.DayDate, entry.Begintime
+");
+
+$stmt->execute([':startDate' => $startDateStr, ':endDate' => $endDateStr, ':userId' => $userId]);
+
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// -------------------- NEU: Day-Objekte für jeden Tag erstellen ------------------
+$days = [];
+for ($d = strtotime($startDateStr); $d <= strtotime($endDateStr); $d = strtotime('+1 day', $d)) {
+    $date = date('Y-m-d', $d);
+    $days[$date] = new Day($date);
+}
+
+// -------------------- NEU: Entries zu den Tagen hinzufügen ------------------
+foreach ($results as $row) {
+  $entry = new Entry(
+      $row['EntryID'],
+      $row['Eventname'],  // korrekter Spaltenname
+      $row['StartTime'],
+      $row['EndTime'],
+      $row['Note']        // 'Note' statt 'Description'
+  );
+  $days[$row['Daydate']]->addEntry($entry);
+}
+
+
+// -------------------- DEIN BEHÄNDLING DER FORMULARE ---------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   
   if (isset($_POST['save_settings'])) {
@@ -58,35 +114,99 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $ideal = $litValue;
   
       echo "<p style='color:green;'>Einstellungen wurden gespeichert.</p>";
-  } catch (Exception $e) {
+    } catch (Exception $e) {
       echo "<p style='color:red;'>Fehler beim Speichern der Einstellungen: " . htmlspecialchars($e->getMessage()) . "</p>";
+    }
   }
-  
-  
+
+  if (isset($_POST['delete_account'])) {
+      try {
+          if ($accountManager->deleteAccount()) {
+              SessionManager::destroy();
+              header("Location: login.php");
+              exit;
+          } else {
+              echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
+          }
+      } catch (Exception $e) {
+          echo "<p style='color:red;'>" . htmlspecialchars($e->getMessage()) . "</p>";
+      }
+  }
+
+  if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_entry'])) {
+    header('Content-Type: application/json');
+
+    $errors = [];
+    $success = false;
+
+    $eventName = trim($_POST['klausur'] ?? '');
+    $beginDate = $_POST['anfangsdatum'] ?? '';
+    $endDate = $_POST['endungsdatum'] ?? '';
+    $note = trim($_POST['notizen'] ?? '');
+
+    if (empty($eventName)) {
+        $errors[] = "Bitte gib einen Titel für den Eintrag an.";
+    }
+    if (empty($beginDate) || empty($endDate)) {
+        $errors[] = "Bitte gib Anfangs- und Enddatum an.";
+    } elseif ($beginDate > $endDate) {
+        $errors[] = "Das Anfangsdatum darf nicht nach dem Enddatum liegen.";
     }
 
-    if (isset($_POST['save_entry'])) {
-        $calendarManager->handleEntryFormSubmission($days, $errors, $success);
-    }
-
-    if (isset($_POST['delete_account'])) {
+    if (empty($errors)) {
         try {
-            if ($accountManager->deleteAccount()) {
-                SessionManager::destroy();
-                header("Location: login.php");
-                exit;
-            } else {
-                echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
+            $stmt = $pdo->prepare("
+            INSERT INTO event (UserID, Eventname, Note, Begindate, Enddate, EventSeverity)
+            VALUES (:userId, :eventName, :note, :beginDate, :endDate, 0)
+            ");
+      
+            $stmt->execute([
+                ':userId' => $userId,
+                ':eventName' => $eventName,
+                ':note' => $note,
+                ':beginDate' => $beginDate,
+                ':endDate' => $endDate
+            ]);
+            $eventId = $pdo->lastInsertId();
+
+            $period = new DatePeriod(
+                new DateTime($beginDate),
+                new DateInterval('P1D'),
+                (new DateTime($endDate))->modify('+1 day')
+            );
+
+            $stmtEntry = $pdo->prepare("
+                INSERT INTO entry (EventID, DayDate, Begintime, Endtime)
+                VALUES (:eventId, :dayDate, '00:00:00', '23:59:59')
+            ");
+
+            foreach ($period as $dt) {
+                $dayDate = $dt->format('Y-m-d');
+                $stmtEntry->execute([
+                    ':eventId' => $eventId,
+                    ':dayDate' => $dayDate
+                ]);
             }
+
+            $success = true;
+            exit;
         } catch (Exception $e) {
-            echo "<p style='color:red;'>" . htmlspecialchars($e->getMessage()) . "</p>";
+            $errors[] = "Fehler beim Speichern des Eintrags: " . $e->getMessage();
         }
     }
+
+    // Falls Fehler aufgetreten
+    echo json_encode(['success' => false, 'errors' => $errors]);
+    exit;
 }
 
-$weekNumber = date('W');
+
+}
+
+$weekNumber = $week; // damit es in der Anzeige passt
 $showEntryForm = isset($_POST['show_entry_form']);
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
   <head>
