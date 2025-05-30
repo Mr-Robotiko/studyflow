@@ -8,11 +8,19 @@ class UserSession {
     public function __construct() {
         SessionManager::start();
         $userData = SessionManager::getUserData();
+
         if (!$userData) {
             header("Location: login.php");
             exit;
         }
+
         $this->user = new User();
+
+        // Neu: ID aus der Session setzen
+        if (isset($userData['id'])) {
+            $this->user->setId($userData['id']);
+        }
+
         $this->user->setUserName($userData['username']);
         $this->user->setName($userData['name']);
         $this->user->setSurname($userData['surname']);

@@ -16,8 +16,8 @@ class Registration {
         $passwordrep = $post["passwordrep"] ?? '';
         $securitypassphrase_plain = trim($post["securitypassphrase"] ?? '');
         $admin = 0;
-        $mode = 1;
-        $ILT = 60;
+        $mode = 0;
+        $ILT = 2;
         $DPS = 0;
 
         // Leere Felder

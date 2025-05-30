@@ -1,6 +1,7 @@
 <?php
 require_once 'system/database-classes/database.php';
     class User {
+        private $id;
         private $name;
         private $surname;
         private $institution;
@@ -9,10 +10,11 @@ require_once 'system/database-classes/database.php';
         private $userName;
         private $password;
         private $darkMode = false;
-        private $lernideal = 60;
+        private $lernideal = 2;
 
 
-        public function __construct($name = null, $surname = null, $institution = null, $Calendarfile = null, $securityPassphrase = null, $userName = null, $password = null, $darkMode = false, $lernideal = 60)  {
+        public function __construct($id = null, $name = null, $surname = null, $institution = null, $Calendarfile = null, $securityPassphrase = null, $userName = null, $password = null, $darkMode = false, $lernideal = 2) {
+            $this->setId($id);
             $this->setName($name);
             $this->setSurname($surname);
             $this->setInstitution($institution);
@@ -20,9 +22,11 @@ require_once 'system/database-classes/database.php';
             $this->setSecurityPassphrase($securityPassphrase);
             $this->setUserName($userName);
             $this->setPassword($password);
-            $this->setUserName($darkMode);
-            $this->setPassword($lernideal);
+            $this->setDarkMode($darkMode);
+            $this->setLernideal($lernideal);
         }
+        
+        
 
         public function getName() {
             return $this->name;
@@ -95,8 +99,15 @@ require_once 'system/database-classes/database.php';
         public function setLernideal($lernideal) {
             $this->lernideal = (int)$lernideal;
         }
-        
 
+        public function getId() {
+            return $this->id;
+        }
+        
+        public function setId($id) {
+            $this->id = $id;
+        }
+        
         public function __toString() {
             return "Name: {$this->name} {$this->surname}, Institution: {$this->institution}, Calendar: {$this->Calendarfile}";
         }

@@ -17,6 +17,7 @@ SessionManager::start();
 
 $userSession = new UserSession();
 $user = $userSession->getUser();
+$userId = $user->getId();
 
 try {
   $configPath = __DIR__ . "/config/configuration.csv";
@@ -32,16 +33,21 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  
   if (isset($_POST['save_settings'])) {
     $litValue = intval($_POST['lit_value']);
     $darkMode = intval($_POST['dark_mode']);
 
     try {
-        $stmt = $pdo->prepare("UPDATE usr SET ILT = :ILT, Mode = :mode WHERE id = :userId");
-        $stmt->bindParam(':lit', $litValue, PDO::PARAM_INT);
+        $stmt = $pdo->prepare("UPDATE user SET ILT = :ILT, Mode = :mode WHERE UserID = :userId");
+        echo $userId, "USER ID"; // Löschen
+        echo $darkMode, "DARK MODE";
+        echo $litValue, "LIT";
+        $stmt->bindParam(':ILT', $litValue, PDO::PARAM_INT);
         $stmt->bindParam(':mode', $darkMode, PDO::PARAM_INT);
-        $stmt->bindParam(':userId', $user->getId(), PDO::PARAM_INT);
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
+        // Löschen
         echo "<p style='color:green;'>Einstellungen wurden gespeichert.</p>";
     } catch (Exception $e) {
         echo "<p style='color:red;'>Fehler beim Speichern der Einstellungen: " . htmlspecialchars($e->getMessage()) . "</p>";
