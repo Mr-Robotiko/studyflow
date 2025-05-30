@@ -135,5 +135,19 @@ class User {
             'username' => $this->getUserName()
         ]);
     }
+
+    public function loadUserDataFromDatabase(PDO $pdo): void {
+        $stmt = $pdo->prepare("SELECT * FROM user WHERE UserID = :id");
+        $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($data) {
+            $this->darkMode = $data['Mode'];
+            $this->lernideal = $data['ILT'];
+        }
+    }
+
 }
 ?>

@@ -13,11 +13,20 @@ require_once "system/user-classes/account-manager.php";
 
 require_once "system/session-classes/user-session.php";
 
+$lernzeitMinuten = [
+  0 => "30 min",
+  1 => "45 min",
+  2 => "60 min",
+  3 => "120 min",
+  4 => "180 min",
+];
+
 SessionManager::start();
 
 $userSession = new UserSession();
 $user = $userSession->getUser();
 $userId = $user->getId();
+$ideal = $user->getLernideal();
 
 try {
   $configPath = __DIR__ . "/config/configuration.csv";
@@ -39,19 +48,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $darkMode = intval($_POST['dark_mode']);
 
     try {
-        $stmt = $pdo->prepare("UPDATE user SET ILT = :ILT, Mode = :mode WHERE UserID = :userId");
-        $stmt->bindParam(':ILT', $litValue, PDO::PARAM_INT);
-        $stmt->bindParam(':mode', $darkMode, PDO::PARAM_INT);
-        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $user->setDarkMode($darkMode);
-        echo $user->getDarkMode();
-        // Löschen
-        echo "<p style='color:green;'>Einstellungen wurden gespeichert.</p>";
-    } catch (Exception $e) {
-        echo "<p style='color:red;'>Fehler beim Speichern der Einstellungen: " . htmlspecialchars($e->getMessage()) . "</p>";
-    }
+      $stmt = $pdo->prepare("UPDATE user SET ILT = :ILT, Mode = :mode WHERE UserID = :userId");
+      $stmt->bindParam(':ILT', $litValue, PDO::PARAM_INT);
+      $stmt->bindParam(':mode', $darkMode, PDO::PARAM_INT);
+      $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+      $stmt->execute();
+  
+      $user->loadUserDataFromDatabase($pdo);
+      $ideal = $litValue;
+  
+      echo "<p style='color:green;'>Einstellungen wurden gespeichert.</p>";
+  } catch (Exception $e) {
+      echo "<p style='color:red;'>Fehler beim Speichern der Einstellungen: " . htmlspecialchars($e->getMessage()) . "</p>";
+  }
+  
+  
     }
 
     if (isset($_POST['save_entry'])) {
@@ -183,7 +194,7 @@ $showEntryForm = isset($_POST['show_entry_form']);
                     <span>180 min</span>
                   </div>
                 </div>
-
+                <p id="selected-duration-label">Lernzeit: <span id="selected-duration"><?= $lernzeitMinuten[$ideal] ?></span></p>
                 <!-- Hidden inputs -->
                 <input type="hidden" name="lit_value" id="lit_value" value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>">
                 <input type="hidden" name="dark_mode" id="dark_mode_value" value="<?= $user->getDarkMode() ? 1 : 0 ?>">
@@ -191,16 +202,19 @@ $showEntryForm = isset($_POST['show_entry_form']);
               </div>
             </form>
 
-            <!-- Passwort ändern -->
-            <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
+            <!-- Buttons -->
+            <div>
+              <!-- Passwort ändern -->
+              <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
 
-            <!-- Konto löschen: eigenes Form -->
-            <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
-              <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
-            </form>
+              <!-- Konto löschen: eigenes Form -->
+              <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
+                <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
+              </form>
 
-            <br /><br />
-            <button onclick="showCalendar()">Zurück zum Kalender</button>
+              <br /><br />
+              <button onclick="showCalendar()">Zurück zum Kalender</button>
+            </div>
           </div>
         </div>
       <div class="todaytodo">

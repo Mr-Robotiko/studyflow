@@ -112,3 +112,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeLabel = document.getElementById('mode-label');
     modeLabel.textContent = document.getElementById('darkModeToggle').checked ? "🌙" : "☀️";
   });
+
+// Fit slider value
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const slider = document.getElementById('study-slider');
+    const hiddenLitValue = document.getElementById('lit_value');
+  
+    if (slider && hiddenLitValue) {
+      slider.addEventListener('input', () => {
+        hiddenLitValue.value = slider.value;
+      });
+    }
+  });
+
+  // Update selected ILT: 
+  slider.addEventListener('input', () => {
+    hiddenLitValue.value = slider.value;
+  
+    const labels = ['30 min', '45 min', '60 min', '120 min', '180 min'];
+    document.getElementById('selected-duration').textContent = labels[slider.value] ?? '';
+  });
+  
+  

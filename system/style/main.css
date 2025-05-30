@@ -46,6 +46,12 @@ body {
   padding: 10px;
 }
 
+.slider-labels span{
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
 /* header */
 
 .head {
@@ -333,9 +339,11 @@ input:checked + .s:before {
 }
 
 .slider-container {
-  position: relative;
-  width: 80%;
-  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+  width: 100%;
 }
 
 .slider {
@@ -360,9 +368,10 @@ input:checked + .s:before {
 
 .slider-labels {
   display: flex;
-  justify-content: space-between;
-  padding: 8px 2px 0;
-  font-size: 14px;
+  justify-content: center;
+  width: 100%;
+  margin: 10px;
+  font-size: 0.9rem;
   color: #333;
 }
 
@@ -596,9 +605,11 @@ body.dark-mode {
 
 /* SLIDER UND LABELS */
 body.dark-mode .slider-container {
-  position: relative;
-  width: 80%;
-  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+  width: 100%;
 }
 
 /* Beispiel: Ziel-Element hat diese Eigenschaften */
@@ -608,7 +619,6 @@ body.dark-mode .slider-container {
   border-radius: 4px;
 }
 
-/* Dein span soll dazu passen */
 .dark-mode .slider span {
   font-size: 14px;
   padding: 4px 8px;
@@ -644,6 +654,20 @@ body.dark-mode .slider::-webkit-slider-thumb:hover {
   transform: scale(1.1);
 }
 
+p#selected-duration-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  margin-top: 10px;
+  background-color: #f2f2f2;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 25%;
+  display: inline-block;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+
 body.dark-mode .slider::-moz-range-thumb {
   width: 24px;
   height: 24px;
@@ -655,13 +679,19 @@ body.dark-mode .slider::-moz-range-thumb {
 
 body.dark-mode .slider-labels {
   display: flex;
-  justify-content: space-between;
-  padding: 8px 2px 0;
-  font-size: 14px;
+  justify-content: center;
+  width: 100%;
+  margin: 10px;
+  font-size: 0.9rem;
   color: #cdbdf7;
   text-shadow: 0 0 3px rgba(168, 139, 235, 0.4);
 }
 
+body.dark-mode .slider-labels span{
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
 
 .dark-mode button,
 .dark-mode .button {
