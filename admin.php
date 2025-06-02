@@ -37,15 +37,15 @@ try {
 
     if (isset($_POST['toggle_admin'], $_POST['username'])) {
         $username = $_POST['username'];
-        $stmt = $conn->prepare("SELECT is_admin FROM user WHERE Username = ?");
+        $stmt = $conn->prepare("SELECT Admin FROM user WHERE Username = ?");
         $stmt->execute([$username]);
         $current = $stmt->fetchColumn();
         $new = $current ? 0 : 1;
-        $stmt = $conn->prepare("UPDATE user SET is_admin = ? WHERE Username = ?");
+        $stmt = $conn->prepare("UPDATE user SET Admin = ? WHERE Username = ?");
         $stmt->execute([$new, $username]);
     }
 
-    $stmt = $conn->query("SELECT Username, Name, Surname, is_admin FROM user");
+    $stmt = $conn->query("SELECT UserID, Username, Name, Surname, Admin FROM user");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
@@ -53,7 +53,7 @@ try {
     $alert = "Fehler: " . $e->getMessage();
 }
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -71,6 +71,7 @@ try {
 <table>
     <thead>
         <tr>
+            <th>User ID</th>
             <th>Name</th>
             <th>Vorname</th>
             <th>Benutzername</th>
@@ -83,6 +84,7 @@ try {
         <?php if (!empty($users)): ?>
             <?php foreach ($users as $user): ?>
                 <tr>
+                    <td><?= htmlspecialchars($user['UserID']) ?></td>
                     <td><?= htmlspecialchars($user['Name']) ?></td>
                     <td><?= htmlspecialchars($user['Surname']) ?></td>
                     <td><?= htmlspecialchars($user['Username']) ?></td>
@@ -93,19 +95,19 @@ try {
                             <button type="submit" name="change_password">Ändern</button>
                         </form>
                     </td>
-                    <td><?= $user['is_admin'] ? 'Admin' : '—' ?></td>
+                    <td><?= $user['Admin'] ? 'Admin' : '—' ?></td>
                     <td>
                         <form method="post">
                             <input type="hidden" name="username" value="<?= htmlspecialchars($user['Username']) ?>">
                             <button type="submit" name="toggle_admin">
-                                <?= $user['is_admin'] ? 'Admin entfernen' : 'Zum Admin machen' ?>
+                                <?= $user['Admin'] ? 'Admin entfernen' : 'Zum Admin machen' ?>
                             </button>
                         </form>
                     </td>
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="6">Keine Benutzer gefunden.</td></tr>
+            <tr><td colspan="7">Keine Benutzer gefunden.</td></tr>
         <?php endif; ?>
     </tbody>
 </table>
