@@ -46,7 +46,7 @@ body {
   padding: 10px;
 }
 
-.slider-labels span{
+.slider-labels span {
   display: flex;
   width: 100%;
   justify-content: center;
@@ -58,7 +58,8 @@ body {
   grid-area: header;
 }
 
-.header, .nav {
+.header,
+.nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -225,37 +226,13 @@ h2 {
 }
 
 input {
-  background-color: var(--gray-light); 
+  background-color: var(--gray-light);
   border-radius: 20px;
 }
 
 .notes {
   width: 300pxs;
   height: 300px;
-}
-
-
-/* Today / To Do Bereich */
-
-.todaytodo {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.anstehend,
-.todo {
-  background-color: #ffffff;
-  padding: 15px;
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-}
-
-.anstehend h1,
-.todo h1 {
-  background-color: transparent;
-  color: #2B2EE5;
-  margin-bottom: 10px;
 }
 
 /* stuff */
@@ -280,7 +257,8 @@ h1 {
   padding: 20px;
 }
 
-.Mods, .lernideal {
+.Mods,
+.lernideal {
   background-color: var(--gray-medium);
   border-radius: var(--border-radius);
   padding: 15px;
@@ -390,6 +368,7 @@ input:checked + .s:before {
   text-align: center;
   padding: 30px;
 }
+
 .title {
   font-size: 2.8rem;
   font-weight: 700;
@@ -397,12 +376,14 @@ input:checked + .s:before {
   color: var(--text-color);
   margin-bottom: 40px;
 }
+
 .buttons {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
 }
+
 .btn {
   background-color: var(--primary-color);
   color: var(--text-color);
@@ -415,6 +396,7 @@ input:checked + .s:before {
   font-weight: bold;
   letter-spacing: 1px;
 }
+
 .btn:hover {
   background-color: var(--primary-hover);
   transform: translateY(-2px);
@@ -444,6 +426,7 @@ input:checked + .s:before {
   color: white;
   transform: scale(1.1);
 }
+
 /* Footer */
 
 .footer {
@@ -458,47 +441,38 @@ input:checked + .s:before {
   padding: 1rem;
 }
 
-/* === Erweiterung für Entry-Popup === */
+/* ─── Overlay-Grundstruktur ─────────────────────────────────── */
 .popup-overlay {
-  display: none; 
   position: fixed;
   top: 0; left: 0;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  display: flex;              
-  justify-content: center;     
-  align-items: center;        
+
+  /* Flex-Centering */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-
 .popup-content {
-  background: white;
-  padding: 30px;
+  background: var(--white);
+  padding: 30px 25px;
   border-radius: var(--border-radius);
   width: 90%;
   max-width: 500px;
   box-shadow: var(--shadow);
   position: relative;
+
+  /* Damit die Inhalte innen einheitlich aussehen */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-#entryPopupOverlay input,
-#entryPopupOverlay textarea {
-  width: 100%;
-  margin-bottom: 1rem;
-  padding: 10px;
-  font-size: 1rem;
-  border-radius: var(--border-radius);
-  border: 1px solid var(--gray-dark);
-}
-
-#entryPopupOverlay textarea {
-  resize: vertical;
-  height: 100px;
-}
-
-#closeEntryPopup {
+/* Schließ-Button (X) ganz oben rechts */
+.popup-content > button[id^="close"] {
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -509,6 +483,134 @@ input:checked + .s:before {
   color: var(--text-color);
 }
 
+/* Überschrift im Popup */
+.popup-content h2 {
+  margin-top: 0;       /* Kein Abstand über der Überschrift */
+  margin-bottom: 10px; /* Etwas Luft nach unten */
+  font-size: 1.8rem;
+  color: var(--cyan-bright);
+  text-align: center;
+}
+
+/* Gemeinsames Grid für Formularfelder (falls gebraucht) */
+.popup-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 15px; /* 10px vertikal, 15px horizontal */
+  margin-bottom: 15px;
+}
+
+/* Labels in Popups */
+.popup-form-label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+  color: var(--gray-muted);
+}
+
+/* Einheitliche Inputs/Textareas */
+.popup-form-input,
+.popup-form-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--gray-dark);
+  border-radius: var(--border-radius);
+  background-color: var(--gray-light);
+  font-family: var(--font-family);
+  font-size: 1rem;
+  color: var(--text-color);
+  resize: vertical; /* Nur Textarea (merkt man in HTML) */
+}
+
+/* Einheitliches Aussehen für den Speichern-/Hinzufügen-Button */
+.popup-submit-button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 10px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover-Effekt für Popup-Buttons */
+.popup-submit-button:hover {
+  background-color: var(--primary-hover);
+  color: white;
+}
+
+/* Fehlermeldungen (z. B. rote Liste) */
+.popup-error-list {
+  margin: 0;
+  padding-left: 20px;
+  color: red;
+}
+
+/* Erfolgstext in Popups */
+.popup-success-text {
+  color: green;
+}
+
+/* Spezifische Breitenanpassung für größere Textareas */
+.popup-form-textarea {
+  min-height: 100px;
+}
+
+.span-two {
+  grid-column: 1 / -1;
+} 
+
+
+
+/* Today / To Do Bereich */
+
+.todaytodo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.anstehend,
+.todo {
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.anstehend h1,
+.todo h1 {
+  background-color: transparent;
+  color: #2B2EE5;
+  margin-bottom: 10px;
+}
+
+.todo-wrapper {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 20px 30px;
+  margin: 30px 0;
+  margin-top: 10px;
+  max-height: 400px;       
+  overflow-y: auto;      
+}
+
+/* Hier wird der Abstand zwischen den einzelnen Einträgen vergrößert */
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  margin-top: 12px;  /* Abstand nach oben */
+}
+
+/* Optional: letzten Abstand entfernen */
+.todo-item:last-child {
+  margin-bottom: 0;
+}
+
 /* Dark Mode */
 
 body.dark-mode {
@@ -516,19 +618,24 @@ body.dark-mode {
   color: white;
 }
 
-body.dark-mode .header li, body.dark-mode .nav li {
+body.dark-mode .header li,
+body.dark-mode .nav li {
   color: white;
 }
 
-body.dark-mode .kalender, body.dark-mode .todaytodo, body.dark-mode .settings {
+body.dark-mode .kalender,
+body.dark-mode .todaytodo,
+body.dark-mode .settings {
   color: white;
 }
 
-body.dark-mode .anstehend, body.dark-mode .todo {
+body.dark-mode .anstehend,
+body.dark-mode .todo {
   background-color: #3a3a3a;
 }
 
-body.dark-mode .anstehend h1, body.dark-mode .todo h1 {
+body.dark-mode .anstehend h1,
+body.dark-mode .todo h1 {
   color: white;
 }
 
@@ -545,7 +652,8 @@ body.dark-mode .arrow:hover {
   color: var(--cyan-soft);
 }
 
-body.dark-mode .lernideal, body.dark-mode .lernideal p {
+body.dark-mode .lernideal,
+body.dark-mode .lernideal p {
   background-color: #2c2c2c;
   color: white;
 }
@@ -584,6 +692,20 @@ body.dark-mode .termin {
   color: #d0c4ff;
 }
 
+/* Dark Mode für To-Do-Liste */
+body.dark-mode .todo-wrapper {
+  background-color: #2c2c2c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .todo-item {
+  color: #f0f0f0;
+}
+
+body.dark-mode .todo-item input[type="checkbox"] {
+  filter: invert(1);
+}
+
 /* Dark Mode Styles */
 body.dark-mode {
   background-color: #1e1e1e;
@@ -598,7 +720,7 @@ body.dark-mode {
 
 .dark-mode h1,
 .dark-mode h2,
-.dark-mode label
+.dark-mode label,
 .dark-mode #subtitle {
   color: #ffffff;
 }
@@ -667,7 +789,6 @@ p#selected-duration-label {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-
 body.dark-mode .slider::-moz-range-thumb {
   width: 24px;
   height: 24px;
@@ -687,7 +808,7 @@ body.dark-mode .slider-labels {
   text-shadow: 0 0 3px rgba(168, 139, 235, 0.4);
 }
 
-body.dark-mode .slider-labels span{
+body.dark-mode .slider-labels span {
   display: flex;
   width: 100%;
   justify-content: center;
@@ -727,6 +848,7 @@ body.dark-mode .slider-labels span{
 .switch input:checked + .s {
   background-color: #4ade80; /* Grün für aktiv */
 }
+
 .switch input:not(:checked) + .s {
   background-color: #a0aec0; /* Blau-Grau für inaktiv */
 }
@@ -739,7 +861,7 @@ body.dark-mode .slider-labels span{
   transform: translateX(0);
 }
 
-a{
+a {
   text-decoration: none;
   color: #333;
 }
