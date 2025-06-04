@@ -525,7 +525,7 @@ $showEntryForm = isset($_POST['show_entry_form']);
     }
   </style>
 
-  <!-- Overlay für Entry-Popup mit PHP-Formular -->
+  <!-- 1) ENTRY-POPUP Overlay (muss exakt so stehen!) -->
 <div id="entryPopupOverlay" class="popup-overlay" style="display: none;">
   <div class="popup-content">
     <button id="closeEntryPopup">&times;</button>
@@ -544,9 +544,11 @@ $showEntryForm = isset($_POST['show_entry_form']);
       </ul>
     <?php endif; ?>
 
+    <!-- 2) ENTRY-Formular mit Grid: Start und End nebeneinander -->
     <form id="entryForm" method="post" action="start.php">
       <div class="popup-form-grid">
-        <div class="form-section">
+        <!-- Klausur (ganze Breite) -->
+        <div class="form-section span-two">
           <label for="klausur" class="popup-form-label">Klausur</label>
           <input
             type="text"
@@ -557,6 +559,8 @@ $showEntryForm = isset($_POST['show_entry_form']);
             required
           />
         </div>
+
+        <!-- Anfangsdatum (links) -->
         <div class="form-section">
           <label for="anfangsdatum" class="popup-form-label">Anfangsdatum</label>
           <input
@@ -567,10 +571,11 @@ $showEntryForm = isset($_POST['show_entry_form']);
             value="<?= htmlspecialchars($_POST['anfangsdatum'] ?? '') ?>"
             required
           />
+        </div>
 
-          <label for="endungsdatum" class="popup-form-label" style="margin-top:10px;">
-            Enddatum
-          </label>
+        <!-- Enddatum (rechts) -->
+        <div class="form-section">
+          <label for="endungsdatum" class="popup-form-label">Enddatum</label>
           <input
             type="date"
             id="endungsdatum"
@@ -580,7 +585,9 @@ $showEntryForm = isset($_POST['show_entry_form']);
             required
           />
         </div>
-        <div class="form-section">
+
+        <!-- Notizen (ganze Breite) -->
+        <div class="form-section span-two">
           <label for="notizen" class="popup-form-label">Notizen</label>
           <textarea
             id="notizen"
@@ -591,7 +598,10 @@ $showEntryForm = isset($_POST['show_entry_form']);
         </div>
       </div>
 
-      <button type="submit" name="save_entry" class="popup-submit-button">Speichern</button>
+      <!-- Submit (name="save_entry" muss unbedingt da stehen!) -->
+      <button type="submit" name="save_entry" class="popup-submit-button">
+        Speichern
+      </button>
     </form>
   </div>
 </div>
