@@ -11,7 +11,7 @@ try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $stmt = $conn->query("SELECT Username, Name, Surname, is_admin FROM user");
+    $stmt = $conn->query("SELECT Username, Name, Surname, Admin FROM user");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode($users, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
