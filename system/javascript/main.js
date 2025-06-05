@@ -117,37 +117,57 @@ $(document).ready(function () {
 });
 
 // --- SETTINGS FORM ---
+// Zeigt nur das Settings-Form, blendet Kalender + Today/To-Do aus
 function showSettings(event) {
   if (event) event.preventDefault();
-  document.querySelector('.kalender').style.display = 'none';
-  document.querySelector('.settings').style.display = 'block';
+  const kalender = document.querySelector('.kalender');
+  const todaytodo = document.querySelector('.todaytodo');
+  const settings = document.querySelector('.settings');
+
+  if (kalender)    kalender.style.display = 'none';
+  if (todaytodo)   todaytodo.style.display = 'none';
+  if (settings)    settings.style.display = 'block';
 }
 
+// Zeigt wieder Kalender + Today/To-Do, blendet Settings aus
 function showCalendar() {
-  document.querySelector('.settings').style.display = 'none';
-  document.querySelector('.kalender').style.display = 'block';
+  const kalender = document.querySelector('.kalender');
+  const todaytodo = document.querySelector('.todaytodo');
+  const settings = document.querySelector('.settings');
+
+  if (settings)    settings.style.display = 'none';
+  if (kalender)    kalender.style.display = 'block';
+  if (todaytodo)   todaytodo.style.display = 'block';
 }
 
+// Aktualisiert versteckte Felder, wenn Settings-Form abgesendet wird
 function updateSettingsHiddenFields() {
   const slider = document.getElementById('study-slider');
   const darkToggle = document.getElementById('darkModeToggle');
   const litHidden = document.getElementById('lit_value');
   const darkHidden = document.getElementById('dark_mode_value');
 
-  if (slider && litHidden) litHidden.value = slider.value;
+  if (slider && litHidden) {
+    litHidden.value = slider.value;
+  }
   if (darkToggle && darkHidden) {
     const isDark = darkToggle.checked;
     darkHidden.value = isDark ? 1 : 0;
+
     document.body.classList.toggle('dark-mode', isDark);
     localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+
     const modeLabel = document.getElementById('mode-label');
     if (modeLabel) modeLabel.textContent = isDark ? '🌙' : '☀️';
   }
 }
 
-document.getElementById('darkModeToggle').addEventListener('change', () => {
+// Aktualisiert das Mode-Label beim Toggle-Ändern
+document.getElementById('darkModeToggle')?.addEventListener('change', () => {
   const modeLabel = document.getElementById('mode-label');
-  modeLabel.textContent = document.getElementById('darkModeToggle').checked ? "🌙" : "☀️";
+  if (modeLabel) {
+    modeLabel.textContent = document.getElementById('darkModeToggle').checked ? "🌙" : "☀️";
+  }
 });
 
 // --- SLIDER VALUE ---

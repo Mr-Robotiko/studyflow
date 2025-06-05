@@ -117,6 +117,7 @@ try {
   die("Fehler bei der Datenbankverbindung: " . htmlspecialchars($e->getMessage()));
 }
 
+// User-Daten aus der Datenbank frisch laden (inklusive Mode)
 $user->loadUserDataFromDatabase($pdo);
 
 $accountManager = new AccountManager($user, $pdo);
@@ -343,7 +344,7 @@ $showEntryForm = isset($_POST['show_entry_form']);
   <link rel="stylesheet" type="text/css" href="system/style/main.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="system/javascript/inactivityTimer.js" defer></script>
-  <script src="system/javascript/main.js"></script>
+  <script src="system/javascript/main.js" defer></script>
 </head>
 <body class="<?= $user->getDarkMode() ? 'dark-mode' : '' ?>">
   <div class="body">
@@ -387,6 +388,7 @@ $showEntryForm = isset($_POST['show_entry_form']);
         <?php require_once "entry.php"; ?>
       </div>
     <?php else: ?>
+      <!-- Hauptbereich: Kalender + Today/To-Do -->
       <div class="kalender">
         <h2>Kalender</h2>
         <div class="kalender-grid">
@@ -406,62 +408,6 @@ $showEntryForm = isset($_POST['show_entry_form']);
               </div>
             <?php endforeach; ?>
           <?php endif; ?>
-        </div>
-      </div>
-
-      <!-- Settings Form -->
-      <div class="settings" style="display: none;">
-        <div class="lernideal">
-          <h2>Einstellungen</h2>
-          <form method="POST" action="start.php" onsubmit="updateSettingsHiddenFields();">
-            <div>
-              <label class="switch">
-                <input type="checkbox" id="darkModeToggle" <?= ($user->getDarkMode() ? 'checked' : '') ?> />
-                <span class="s"></span>
-              </label>
-              <span id="mode-label"><?= $user->getDarkMode() ? "🌙" : "☀️" ?></span>
-
-              <p class="settings">Lernideal</p>
-              <div class="slidecontainer">
-                <div class="slider-container">
-                  <input
-                    type="range"
-                    min="0" max="4"
-                    value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>"
-                    step="1"
-                    class="slider"
-                    id="study-slider"
-                  />
-                </div>
-                <div class="slider-labels">
-                  <span>30 min</span>
-                  <span>45 min</span>
-                  <span>60 min</span>
-                  <span>120 min</span>
-                  <span>180 min</span>
-                </div>
-              </div>
-              <p id="selected-duration-label">Lernzeit: <span id="selected-duration"><?= $lernzeitMinuten[$ideal] ?></span></p>
-              <!-- Hidden inputs -->
-              <input type="hidden" name="lit_value" id="lit_value" value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>">
-              <input type="hidden" name="dark_mode" id="dark_mode_value" value="<?= $user->getDarkMode() ? 1 : 0 ?>">
-              <button type="submit" name="save_settings">Einstellungen speichern</button>
-            </div>
-          </form>
-
-          <!-- Buttons -->
-          <div>
-            <!-- Passwort ändern -->
-            <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
-
-            <!-- Konto löschen: eigenes Form -->
-            <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
-              <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
-            </form>
-
-            <br /><br />
-            <button onclick="showCalendar()">Zurück zum Kalender</button>
-          </div>
         </div>
       </div>
 
@@ -510,6 +456,65 @@ $showEntryForm = isset($_POST['show_entry_form']);
           </div>
         </div>
       </div>
+
+      <!-- Settings Form (anfangs versteckt) -->
+      <div class="settings", style="display: none;">
+        <div class="lernideal">
+          <h2>Einstellungen</h2>
+          <form method="POST" action="start.php" onsubmit="updateSettingsHiddenFields();">
+            <div>
+              <label class="switch">
+                <input type="checkbox" id="darkModeToggle" <?= ($user->getDarkMode() ? 'checked' : '') ?> />
+                <span class="s"></span>
+              </label>
+              <span id="mode-label"><?= $user->getDarkMode() ? "🌙" : "☀️" ?></span>
+
+              <p class="settings">Lernideal</p>
+              <div class="slidecontainer">
+                <div class="slider-container">
+                  <input
+                    type="range"
+                    min="0" max="4"
+                    value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>"
+                    step="1"
+                    class="slider"
+                    id="study-slider"
+                  />
+                </div>
+                <div class="slider-labels">
+                  <span>30 min</span>
+                  <span>45 min</span>
+                  <span>60 min</span>
+                  <span>120 min</span>
+                  <span>180 min</span>
+                </div>
+              </div>
+              <p id="selected-duration-label">Lernzeit: <span id="selected-duration"><?= $lernzeitMinuten[$ideal] ?></span></p>
+              <!-- Hidden inputs -->
+              <input type="hidden" name="lit_value" id="lit_value" value="<?= htmlspecialchars($user->getLernideal() ?? 2) ?>">
+              <input type="hidden" name="dark_mode" id="dark_mode_value" value="<?= $user->getDarkMode() ? 1 : 0 ?>">
+              <button type="submit" name="save_settings">Einstellungen speichern</button>
+            </div>
+          </form>
+
+          <!-- Buttons -->
+          <div>
+            <!-- Passwort ändern -->
+            <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
+
+            <!-- Konto löschen: eigenes Form -->
+            <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
+              <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
+            </form>
+
+            <!-- Adminbereich-Button (noch ohne Funktion) -->
+            <button id="adminbereich-button">Adminbereich</button>
+
+            <br /><br />
+            <button onclick="showCalendar()">Zurück zum Kalender</button>
+          </div>
+        </div>
+      </div>
     <?php endif; ?>
   </div>
 
@@ -526,129 +531,126 @@ $showEntryForm = isset($_POST['show_entry_form']);
   </style>
 
   <!-- 1) ENTRY-POPUP Overlay (muss exakt so stehen!) -->
-<div id="entryPopupOverlay" class="popup-overlay" style="display: none;">
-  <div class="popup-content">
-    <button id="closeEntryPopup">&times;</button>
+  <div id="entryPopupOverlay" class="popup-overlay" style="display: none;">
+    <div class="popup-content">
+      <button id="closeEntryPopup">&times;</button>
 
-    <h2>Neuer Eintrag</h2>
+      <h2>Neuer Eintrag</h2>
 
-    <?php if ($success): ?>
-      <p class="popup-success-text">Eintrag erfolgreich gespeichert!</p>
-    <?php endif; ?>
+      <?php if ($success): ?>
+        <p class="popup-success-text">Eintrag erfolgreich gespeichert!</p>
+      <?php endif; ?>
 
-    <?php if (!empty($errors)): ?>
-      <ul class="popup-error-list">
-        <?php foreach ($errors as $error): ?>
-          <li><?= htmlspecialchars($error) ?></li>
-        <?php endforeach; ?>
-      </ul>
-    <?php endif; ?>
+      <?php if (!empty($errors)): ?>
+        <ul class="popup-error-list">
+          <?php foreach ($errors as $error): ?>
+            <li><?= htmlspecialchars($error) ?></li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
 
-    <!-- 2) ENTRY-Formular mit Grid: Start und End nebeneinander -->
-    <form id="entryForm" method="post" action="start.php">
-      <div class="popup-form-grid">
-        <!-- Klausur (ganze Breite) -->
-        <div class="form-section span-two">
-          <label for="klausur" class="popup-form-label">Klausur</label>
-          <input
-            type="text"
-            id="klausur"
-            name="klausur"
-            class="popup-form-input"
-            value="<?= htmlspecialchars($_POST['klausur'] ?? '') ?>"
-            required
-          />
+      <!-- 2) ENTRY-Formular mit Grid: Start und End nebeneinander -->
+      <form id="entryForm" method="post" action="start.php">
+        <div class="popup-form-grid">
+          <!-- Klausur (ganze Breite) -->
+          <div class="form-section span-two">
+            <label for="klausur" class="popup-form-label">Klausur</label>
+            <input
+              type="text"
+              id="klausur"
+              name="klausur"
+              class="popup-form-input"
+              value="<?= htmlspecialchars($_POST['klausur'] ?? '') ?>"
+              required
+            />
+          </div>
+
+          <!-- Anfangsdatum (links) -->
+          <div class="form-section">
+            <label for="anfangsdatum" class="popup-form-label">Anfangsdatum</label>
+            <input
+              type="date"
+              id="anfangsdatum"
+              name="anfangsdatum"
+              class="popup-form-input"
+              value="<?= htmlspecialchars($_POST['anfangsdatum'] ?? '') ?>"
+              required
+            />
+          </div>
+
+          <!-- Enddatum (rechts) -->
+          <div class="form-section">
+            <label for="endungsdatum" class="popup-form-label">Enddatum</label>
+            <input
+              type="date"
+              id="endungsdatum"
+              name="endungsdatum"
+              class="popup-form-input"
+              value="<?= htmlspecialchars($_POST['endungsdatum'] ?? '') ?>"
+              required
+            />
+          </div>
+
+          <!-- Notizen (ganze Breite) -->
+          <div class="form-section span-two">
+            <label for="notizen" class="popup-form-label">Notizen</label>
+            <textarea
+              id="notizen"
+              name="notizen"
+              class="popup-form-textarea"
+              maxlength="1000"
+            ><?= htmlspecialchars($_POST['notizen'] ?? '') ?></textarea>
+          </div>
         </div>
 
-        <!-- Anfangsdatum (links) -->
-        <div class="form-section">
-          <label for="anfangsdatum" class="popup-form-label">Anfangsdatum</label>
-          <input
-            type="date"
-            id="anfangsdatum"
-            name="anfangsdatum"
-            class="popup-form-input"
-            value="<?= htmlspecialchars($_POST['anfangsdatum'] ?? '') ?>"
-            required
-          />
-        </div>
-
-        <!-- Enddatum (rechts) -->
-        <div class="form-section">
-          <label for="endungsdatum" class="popup-form-label">Enddatum</label>
-          <input
-            type="date"
-            id="endungsdatum"
-            name="endungsdatum"
-            class="popup-form-input"
-            value="<?= htmlspecialchars($_POST['endungsdatum'] ?? '') ?>"
-            required
-          />
-        </div>
-
-        <!-- Notizen (ganze Breite) -->
-        <div class="form-section span-two">
-          <label for="notizen" class="popup-form-label">Notizen</label>
-          <textarea
-            id="notizen"
-            name="notizen"
-            class="popup-form-textarea"
-            maxlength="1000"
-          ><?= htmlspecialchars($_POST['notizen'] ?? '') ?></textarea>
-        </div>
-      </div>
-
-      <!-- Submit (name="save_entry" muss unbedingt da stehen!) -->
-      <button type="submit" name="save_entry" class="popup-submit-button">
-        Speichern
-      </button>
-    </form>
+        <!-- Submit (name="save_entry" muss unbedingt da stehen!) -->
+        <button type="submit" name="save_entry" class="popup-submit-button">
+          Speichern
+        </button>
+      </form>
+    </div>
   </div>
-</div>
 
+  <!-- Overlay für To-Do-Popup  -->
+  <div id="todoPopupOverlay" class="popup-overlay" style="display: none;">
+    <div class="popup-content">
+      <button id="closeTodoPopup">&times;</button>
 
- <!-- Overlay für To-Do-Popup  -->
-<div id="todoPopupOverlay" class="popup-overlay" style="display: none;">
-  <div class="popup-content">
-    <button id="closeTodoPopup">&times;</button>
+      <h2>Neues To-Do</h2>
 
-    <h2>Neues To-Do</h2>
+      <form id="todoForm" method="post" action="start.php">
+        <!-- VERSTECKTES FELD zum Erkennen des Formular-Absendens -->
+        <input type="hidden" name="save_todo" value="1" />
 
-    <form id="todoForm" method="post" action="start.php">
-      <!-- VERSTECKTES FELD zum Erkennen des Formular-Absendens -->
-      <input type="hidden" name="save_todo" value="1" />
-
-      <div class="popup-form-grid">
-        <div class="form-section">
-          <label for="todoText" class="popup-form-label">Aufgabe</label>
-          <input
-            type="text"
-            id="todoText"
-            name="todoText"
-            class="popup-form-input"
-            required
-          />
+        <div class="popup-form-grid">
+          <div class="form-section">
+            <label for="todoText" class="popup-form-label">Aufgabe</label>
+            <input
+              type="text"
+              id="todoText"
+              name="todoText"
+              class="popup-form-input"
+              required
+            />
+          </div>
+          <div class="form-section">
+            <label for="todoEnddate" class="popup-form-label">Fälligkeitsdatum</label>
+            <input
+              type="date"
+              id="todoEnddate"
+              name="todoEnddate"
+              class="popup-form-input"
+              required
+            />
+          </div>
         </div>
-        <div class="form-section">
-          <label for="todoEnddate" class="popup-form-label">Fälligkeitsdatum</label>
-          <input
-            type="date"
-            id="todoEnddate"
-            name="todoEnddate"
-            class="popup-form-input"
-            required
-          />
-        </div>
-      </div>
 
-      <button type="submit" class="popup-submit-button">Hinzufügen</button>
-    </form>
+        <button type="submit" class="popup-submit-button">Hinzufügen</button>
+      </form>
 
-    <!-- Falls du clientseitig Fehlermeldungen anzeigen willst: -->
-    <div id="todoErrors" class="popup-error-list"></div>
+      <!-- Falls du clientseitig Fehlermeldungen anzeigen willst: -->
+      <div id="todoErrors" class="popup-error-list"></div>
+    </div>
   </div>
-</div>
-
-
 </body>
 </html>
