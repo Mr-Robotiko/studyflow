@@ -184,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // ---------------- To-Dos & Kalenderdaten laden ----------------
 $todos = $todoHandler->getTodos();
+$today = date('Y-m-d');
 
 $week = isset($_GET['week']) ? intval($_GET['week']) : intval(date('W'));
 $year = date('Y');
@@ -281,9 +282,24 @@ $lernzeitMinuten = [
       <div class="todaytodo">
         <div class="anstehend">
           <h1>Today</h1>
-          <p>Content wird nicht eingedeutscht, Alexa!</p>
+          <?php
+          $today = date('Y-m-d');
+
+          // --- Heutige Kalendereinträge anzeigen ---
+          if (isset($days[$today]) && count($days[$today]->getEntries()) > 0) {
+              foreach ($days[$today]->getEntries() as $entry): ?>
+                <ul class="heute-entry">
+                  <li class="heute-entry">
+                    <?= nl2br(htmlspecialchars($entry->getDescription())) ?>
+                  </li>
+                </ul>
+              <?php endforeach;
+          } else {
+              echo "<p>Keine Termine für heute.</p>";
+          }
+          ?>
         </div>
-        <!-- Fehlermeldungen To-Do -->
+                <!-- Fehlermeldungen To-Do -->
         <?php if (!empty($errorsTodo)): ?>
           <div style="color: red; margin: 10px 0;">
             <?php foreach ($errorsTodo as $err): ?>
@@ -322,6 +338,7 @@ $lernzeitMinuten = [
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <!-- Settings Form (anfangs versteckt) -->

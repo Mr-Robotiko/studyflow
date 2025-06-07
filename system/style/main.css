@@ -586,6 +586,12 @@ input:checked + .s:before {
   margin-bottom: 10px;
 }
 
+.anstehend ul li{
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
 .todo-wrapper {
   background-color: white;
   border-radius: var(--border-radius);
@@ -688,6 +694,7 @@ body.dark-mode .popup-content {
 }
 
 body.dark-mode .termin {
+  margin: 10px 0;
   background-color: #3a3a3a;
   color: #d0c4ff;
 }
