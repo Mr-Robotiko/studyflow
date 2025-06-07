@@ -239,10 +239,18 @@ $lernzeitMinuten = [
         </li>
       </ul>
       <ul class="nav">
-        <li><span class="arrow left"></span></li>
-        <li><p>Kalenderwoche <?php echo $weekNumber ?></p></li>
-        <li><span class="arrow right"></span></li>
-        <li><p>Schön, dich zu sehen, <?php echo $user->getUserName() ?></p></li>
+        <li>
+          <a href="?week=<?= max(1, $weekNumber - 1) ?>" title="Vorherige Woche">
+            <span class="arrow left"></span>
+          </a>
+        </li>
+        <li><p>Kalenderwoche <?= $weekNumber ?></p></li>
+        <li>
+          <a href="?week=<?= min(53, $weekNumber + 1) ?>" title="Nächste Woche">
+            <span class="arrow right"></span>
+          </a>
+        </li>
+        <li><p>Schön, dich zu sehen, <?= htmlspecialchars($user->getUserName()) ?></p></li>
         <li class="dropdown">
           <button id="openEntryPopup">Neuer Eintrag</button>
           <div class="dropdown-content" id="dropdown-menu">
@@ -250,6 +258,7 @@ $lernzeitMinuten = [
           </div>
         </li>
       </ul>
+
     </div>
 
     <?php if ($showEntryForm): ?>
