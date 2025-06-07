@@ -1,338 +1,208 @@
 <?php
-// Fehleranzeigen aktivieren (Debugging)
+// Fehleranzeigen aktivieren
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// ---------------------------------------------------------
-// 1) AJAX‐Handler: To-Do löschen, wenn delete_todo=1 im POST
-// ---------------------------------------------------------
+// ------------------ AJAX: To-Do als erledigt markieren ------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_todo'])) {
     header('Content-Type: application/json; charset=utf-8');
 
-    // Pfade von start.php aus:
     require_once __DIR__ . '/system/session-classes/session-manager.php';
     require_once __DIR__ . '/system/session-classes/user-session.php';
     require_once __DIR__ . '/system/user-classes/user.php';
     require_once __DIR__ . '/system/database-classes/database.php';
+    require_once __DIR__ . '/system/handler/todo-handler.php';
 
     SessionManager::start();
     $userSession = new UserSession();
     $user = $userSession->getUser();
+
     if (!$user) {
         http_response_code(401);
         echo json_encode(['success' => false, 'error' => 'Nicht angemeldet']);
         exit;
     }
+
     $userId = $user->getId();
 
-    // Verbindung zur Datenbank
     try {
-        $configPath = __DIR__ . '/config/configuration.csv';
-        $database = new Database($configPath);
+        $database = new Database(__DIR__ . '/config/configuration.csv');
         $pdo = $database->getConnection();
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'DB-Verbindungsfehler: ' . $e->getMessage()]);
-        exit;
-    }
+        $todoHandler = new TodoHandler($pdo, $userId);
 
-    // TID holen und validieren
-    if (!isset($_POST['TID'])) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'TID fehlt']);
-        exit;
-    }
-    $tid = intval($_POST['TID']);
-    if ($tid <= 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Ungültige TID']);
-        exit;
-    }
-
-    // Prüfen, ob dieses To-Do zum angemeldeten Benutzer gehört
-    try {
-        $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM todo WHERE TID = :tid AND UserID = :uid");
-        $stmtCheck->execute([':tid' => $tid, ':uid' => $userId]);
-        if ((int)$stmtCheck->fetchColumn() === 0) {
-            http_response_code(404);
-            echo json_encode(['success' => false, 'error' => 'Kein To-Do gefunden oder kein Zugriff']);
+        $tid = intval($_POST['TID'] ?? 0);
+        if ($tid <= 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Ungültige TID']);
             exit;
         }
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'Prüfungsfehler: ' . $e->getMessage()]);
-        exit;
-    }
 
-    // Checked = 1 setzen
-    try {
-        $stmt = $pdo->prepare("UPDATE todo SET Checked = 1 WHERE TID = :tid AND UserID = :uid");
-        $stmt->execute([':tid' => $tid, ':uid' => $userId]);
-        echo json_encode(['success' => true]);
-        exit;
+        $result = $todoHandler->markAsDone($tid);
+        echo json_encode($result);
     } catch (Exception $e) {
         http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'Fehler beim Update: ' . $e->getMessage()]);
-        exit;
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+    exit;
 }
 
-// —————————————————————————————————————————
-// 2) Ab hier folgt der bisherige „normale“ Inhalt von start.php
-// —————————————————————————————————————————
-
-// Fehleranzeigen weiterhin an
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+// ------------------ Normale Verarbeitung ------------------
 require_once __DIR__ . "/system/session-classes/session-manager.php";
 require_once __DIR__ . "/system/user-classes/user.php";
 require_once __DIR__ . "/system/database-classes/database.php";
-require_once __DIR__ . "/system/calendar-classes/day.php";
-require_once __DIR__ . "/system/calendar-classes/entry.php";
 require_once __DIR__ . "/system/user-classes/account-manager.php";
 require_once __DIR__ . "/system/session-classes/user-session.php";
-
-$lernzeitMinuten = [
-  0 => "30 min",
-  1 => "45 min",
-  2 => "60 min",
-  3 => "120 min",
-  4 => "180 min",
-];
+require_once __DIR__ . "/system/calendar-classes/day.php";
+require_once __DIR__ . "/system/calendar-classes/entry.php";
+require_once __DIR__ . "/system/handler/calendar-handler.php";
+require_once __DIR__ . "/system/handler/todo-handler.php";
 
 SessionManager::start();
 $userSession = new UserSession();
 $user = $userSession->getUser();
 $userId = $user->getId();
-$ideal = $user->getLernideal();
 
-try {
-  $configPath = __DIR__ . "/config/configuration.csv";
-  $database = new Database($configPath);
-  $pdo = $database->getConnection();
-} catch (Exception $e) {
-  die("Fehler bei der Datenbankverbindung: " . htmlspecialchars($e->getMessage()));
-}
+$database = new Database(__DIR__ . "/config/configuration.csv");
+$pdo = $database->getConnection();
 
-// User-Daten aus der Datenbank frisch laden (inklusive Mode)
+// Userdaten aktualisieren
 $user->loadUserDataFromDatabase($pdo);
-
 $accountManager = new AccountManager($user, $pdo);
 
-$errors = [];
-$success = false;
+$todoHandler = new TodoHandler($pdo, $userId);
+$calendarHandler = new CalendarHandler($pdo, $userId);
 
-// -------------------- NEU: To-Dos initialisieren ------------------
 $errorsTodo = [];
 $todoSaved = false;
 
-// -------------------- NEU: Verarbeitung des To-Do-Formulars ------------------
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_todo'])) {
-  $todoText    = trim($_POST['todoText']    ?? '');
-  $todoEnddate = trim($_POST['todoEnddate'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // ---------------- To-Do speichern ----------------
+    if (isset($_POST['save_todo'])) {
+        $todoText = trim($_POST['todoText'] ?? '');
+        $todoEnddate = trim($_POST['todoEnddate'] ?? '');
 
-  if ($todoText === '') {
-    $errorsTodo[] = "Bitte gib eine Bezeichnung für das To-Do an.";
-  }
-  if ($todoEnddate === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $todoEnddate)) {
-    $errorsTodo[] = "Bitte gib ein gültiges Fälligkeitsdatum (JJJJ-MM-TT) an.";
-  }
+        if ($todoText === '') $errorsTodo[] = "Bitte gib eine Bezeichnung für das To-Do an.";
+        if ($todoEnddate === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $todoEnddate)) {
+            $errorsTodo[] = "Bitte gib ein gültiges Fälligkeitsdatum (JJJJ-MM-TT) an.";
+        }
 
-  if (empty($errorsTodo)) {
-    try {
-      // Tabelle todo hat nur: TID, UserID, TName, TEnddate, Checked
-      $stmt = $pdo->prepare("
-        INSERT INTO todo (UserID, TName, TEnddate, Checked)
-        VALUES (:userId, :tname, :tenddate, 0)
-      ");
-      $stmt->execute([
-        ':userId'   => $userId,
-        ':tname'    => $todoText,
-        ':tenddate' => $todoEnddate
-      ]);
-      $todoSaved = true;
-    } catch (Exception $e) {
-      $errorsTodo[] = "Fehler beim Speichern des To-Dos: " . htmlspecialchars($e->getMessage());
+        if (empty($errorsTodo)) {
+            $result = $todoHandler->saveNewTodo($todoText, $todoEnddate);
+            if ($result['success']) {
+                $todoSaved = true;
+            } else {
+                $errorsTodo[] = $result['error'] ?? 'Unbekannter Fehler';
+            }
+        }
     }
-  }
+
+    // ---------------- Einstellungen speichern ----------------
+    if (isset($_POST['save_settings'])) {
+        $litValue = intval($_POST['lit_value']);
+        $darkMode = intval($_POST['dark_mode']);
+        try {
+            $stmt = $pdo->prepare("UPDATE user SET ILT = :ILT, Mode = :mode WHERE UserID = :userId");
+            $stmt->execute([':ILT' => $litValue, ':mode' => $darkMode, ':userId' => $userId]);
+            $user->loadUserDataFromDatabase($pdo);
+        } catch (Exception $e) {
+            echo "<p style='color:red;'>Fehler beim Speichern: " . htmlspecialchars($e->getMessage()) . "</p>";
+        }
+    }
+
+    // ---------------- Konto löschen ----------------
+    if (isset($_POST['delete_account'])) {
+        try {
+            if ($accountManager->deleteAccount()) {
+                SessionManager::destroy();
+                header("Location: login.php");
+                exit;
+            } else {
+                echo "<p style='color:red;'>Konto konnte nicht gelöscht werden.</p>";
+            }
+        } catch (Exception $e) {
+            echo "<p style='color:red;'>" . htmlspecialchars($e->getMessage()) . "</p>";
+        }
+    }
+
+    // ---------------- Eintrag speichern ----------------
+    if (isset($_POST['save_entry'])) {
+        header('Content-Type: application/json');
+
+        $eventName = trim($_POST['klausur'] ?? '');
+        $beginDate = $_POST['anfangsdatum'] ?? '';
+        $endDate = $_POST['endungsdatum'] ?? '';
+        $note = trim($_POST['notizen'] ?? '');
+
+        $errors = [];
+
+        if ($eventName === '') $errors[] = "Titel fehlt.";
+        if ($beginDate === '' || $endDate === '') {
+            $errors[] = "Bitte Datum angeben.";
+        } elseif ($beginDate > $endDate) {
+            $errors[] = "Anfangsdatum liegt nach Enddatum.";
+        }
+
+        if (empty($errors)) {
+            try {
+                $stmt = $pdo->prepare("
+                    INSERT INTO event (UserID, Eventname, Note, Begindate, Enddate, EventSeverity)
+                    VALUES (:userId, :eventName, :note, :beginDate, :endDate, 0)
+                ");
+                $stmt->execute([
+                    ':userId'    => $userId,
+                    ':eventName' => $eventName,
+                    ':note'      => $note,
+                    ':beginDate' => $beginDate,
+                    ':endDate'   => $endDate
+                ]);
+                $eventId = $pdo->lastInsertId();
+
+                $period = new DatePeriod(
+                    new DateTime($beginDate),
+                    new DateInterval('P1D'),
+                    (new DateTime($endDate))->modify('+1 day')
+                );
+
+                $stmtEntry = $pdo->prepare("
+                    INSERT INTO entry (EventID, DayDate, Begintime, Endtime)
+                    VALUES (:eventId, :dayDate, '00:00:00', '23:59:59')
+                ");
+                foreach ($period as $dt) {
+                    $stmtEntry->execute([':eventId' => $eventId, ':dayDate' => $dt->format('Y-m-d')]);
+                }
+
+                echo json_encode(['success' => true]);
+                exit;
+            } catch (Exception $e) {
+                $errors[] = $e->getMessage();
+            }
+        }
+
+        echo json_encode(['success' => false, 'errors' => $errors]);
+        exit;
+    }
 }
 
-// -------------------- NEU: Alle offenen To-Dos laden ------------------
-$todos = [];
+// ---------------- To-Dos & Kalenderdaten laden ----------------
+$todos = $todoHandler->getTodos();
 
-try {
-  $stmtTodo = $pdo->prepare("
-    SELECT TID, TName, TEnddate
-    FROM todo
-    WHERE UserID = :userId AND Checked = 0
-    ORDER BY TEnddate ASC
-  ");
-  $stmtTodo->execute([':userId' => $userId]);
-  $todos = $stmtTodo->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $e) {
-  // Ignoriere, falls Ladevorgang fehlschlägt
-}
-
-// -------------------- NEU: Kalenderwoche aus GET oder aktuelle ------------------
 $week = isset($_GET['week']) ? intval($_GET['week']) : intval(date('W'));
 $year = date('Y');
 
-// Start und Ende der Woche bestimmen (Montag bis Sonntag)
-$startDate = new DateTime();
-$startDate->setISODate($year, $week);
-$endDate = clone $startDate;
-$endDate->modify('+6 days');
-
-$startDateStr = $startDate->format('Y-m-d');
-$endDateStr = $endDate->format('Y-m-d');
-
-// -------------------- NEU: Einträge aus DB laden für den Zeitraum ------------------
-$stmt = $pdo->prepare("
-  SELECT 
-    entry.EntryID, 
-    event.Eventname, 
-    event.Begindate, 
-    event.Enddate, 
-    event.Note, 
-    entry.Daydate,
-    entry.Begintime AS StartTime,
-    entry.Endtime AS EndTime
-  FROM entry
-  JOIN event ON entry.EventID = event.EventID
-  WHERE entry.DayDate BETWEEN :startDate AND :endDate
-    AND event.UserID = :userId
-  ORDER BY entry.DayDate, entry.Begintime
-");
-$stmt->execute([':startDate' => $startDateStr, ':endDate' => $endDateStr, ':userId' => $userId]);
-$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// -------------------- NEU: Day-Objekte für jeden Tag erstellen ------------------
-$days = [];
-for ($d = strtotime($startDateStr); $d <= strtotime($endDateStr); $d = strtotime('+1 day', $d)) {
-  $date = date('Y-m-d', $d);
-  $days[$date] = new Day($date);
-}
-
-// -------------------- NEU: Entries zu den Tagen hinzufügen ------------------
-foreach ($results as $row) {
-  $entry = new Entry(
-    $row['EntryID'],
-    $row['Eventname'],
-    $row['StartTime'],
-    $row['EndTime'],
-    $row['Note']
-  );
-  $days[$row['Daydate']]->addEntry($entry);
-}
-
-// -------------------- DEIN BEHÄNDLING DER FORMULARE ---------------------
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-  if (isset($_POST['save_settings'])) {
-    $litValue = intval($_POST['lit_value']);
-    $darkMode = intval($_POST['dark_mode']);
-
-    try {
-      $stmt = $pdo->prepare("UPDATE user SET ILT = :ILT, Mode = :mode WHERE UserID = :userId");
-      $stmt->bindParam(':ILT', $litValue, PDO::PARAM_INT);
-      $stmt->bindParam(':mode', $darkMode, PDO::PARAM_INT);
-      $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-      $stmt->execute();
-
-      $user->loadUserDataFromDatabase($pdo);
-      $ideal = $litValue;
-
-      echo "<p style='color:green;'>Einstellungen wurden gespeichert.</p>";
-    } catch (Exception $e) {
-      echo "<p style='color:red;'>Fehler beim Speichern der Einstellungen: " . htmlspecialchars($e->getMessage()) . "</p>";
-    }
-  }
-
-  if (isset($_POST['delete_account'])) {
-    try {
-      if ($accountManager->deleteAccount()) {
-        SessionManager::destroy();
-        header("Location: login.php");
-        exit;
-      } else {
-        echo "<p style='color:red;'>Löschen fehlgeschlagen. Bitte versuche es erneut.</p>";
-      }
-    } catch (Exception $e) {
-      echo "<p style='color:red;'>" . htmlspecialchars($e->getMessage()) . "</p>";
-    }
-  }
-
-  if (isset($_POST['save_entry'])) {
-    header('Content-Type: application/json');
-
-    $errors = [];
-    $success = false;
-
-    $eventName = trim($_POST['klausur'] ?? '');
-    $beginDate = $_POST['anfangsdatum'] ?? '';
-    $endDate = $_POST['endungsdatum'] ?? '';
-    $note = trim($_POST['notizen'] ?? '');
-
-    if (empty($eventName)) {
-      $errors[] = "Bitte gib einen Titel für den Eintrag an.";
-    }
-    if (empty($beginDate) || empty($endDate)) {
-      $errors[] = "Bitte gib Anfangs- und Enddatum an.";
-    } elseif ($beginDate > $endDate) {
-      $errors[] = "Das Anfangsdatum darf nicht nach dem Enddatum liegen.";
-    }
-
-    if (empty($errors)) {
-      try {
-        $stmt = $pdo->prepare("
-          INSERT INTO event (UserID, Eventname, Note, Begindate, Enddate, EventSeverity)
-          VALUES (:userId, :eventName, :note, :beginDate, :endDate, 0)
-        ");
-        $stmt->execute([
-          ':userId'    => $userId,
-          ':eventName' => $eventName,
-          ':note'      => $note,
-          ':beginDate' => $beginDate,
-          ':endDate'   => $endDate
-        ]);
-        $eventId = $pdo->lastInsertId();
-
-        $period = new DatePeriod(
-          new DateTime($beginDate),
-          new DateInterval('P1D'),
-          (new DateTime($endDate))->modify('+1 day')
-        );
-
-        $stmtEntry = $pdo->prepare("
-          INSERT INTO entry (EventID, DayDate, Begintime, Endtime)
-          VALUES (:eventId, :dayDate, '00:00:00', '23:59:59')
-        ");
-        foreach ($period as $dt) {
-          $dayDate = $dt->format('Y-m-d');
-          $stmtEntry->execute([
-            ':eventId' => $eventId,
-            ':dayDate' => $dayDate
-          ]);
-        }
-
-        $success = true;
-        exit;
-      } catch (Exception $e) {
-        $errors[] = "Fehler beim Speichern des Eintrags: " . $e->getMessage();
-      }
-    }
-
-    echo json_encode(['success' => false, 'errors' => $errors]);
-    exit;
-  }
-}
-
-$weekNumber = $week; // damit es in der Anzeige passt
+$days = $calendarHandler->getWeekEntries($week, $year);
+$weekNumber = $week;
 $showEntryForm = isset($_POST['show_entry_form']);
+$ideal = $user->getLernideal();
+$lernzeitMinuten = [
+    0 => "30 min",
+    1 => "45 min",
+    2 => "60 min",
+    3 => "120 min",
+    4 => "180 min",
+];
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">
@@ -397,10 +267,9 @@ $showEntryForm = isset($_POST['show_entry_form']);
           <?php else: ?>
             <?php foreach ($days as $date => $day): /** @var Day $day **/ ?>
               <div class="kalender-tag">
-                <h3><?= htmlspecialchars($date) ?></h3>
+                <h3><?= htmlspecialchars(date("D", strtotime($date))) ?></h3>
                 <?php foreach ($day->getEntries() as $entry): /** @var Entry $entry **/ ?>
                   <div class="termin">
-                    <strong><?= htmlspecialchars($entry->getTitle()) ?></strong><br />
                     <?= nl2br(htmlspecialchars($entry->getDescription())) ?><br />
                     <small><?= htmlspecialchars($entry->getStartTime()) ?> – <?= htmlspecialchars($entry->getEndTime()) ?></small>
                   </div>

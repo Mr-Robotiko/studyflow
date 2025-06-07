@@ -190,7 +190,7 @@ h2 {
 
 .kalender-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 Spalten für 5 Tage */
+  grid-template-columns: repeat(7, 1fr); /* 5 Spalten für 5 Tage */
   gap: 1rem;
   margin-top: 1rem;
 }
