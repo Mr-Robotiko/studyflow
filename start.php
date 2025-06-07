@@ -171,15 +171,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 foreach ($period as $dt) {
                     $stmtEntry->execute([':eventId' => $eventId, ':dayDate' => $dt->format('Y-m-d')]);
                 }
-
-                echo json_encode(['success' => true]);
+                header('Location: start.php');
                 exit;
             } catch (Exception $e) {
                 $errors[] = $e->getMessage();
             }
         }
-
-        echo json_encode(['success' => false, 'errors' => $errors]);
+        header('Location: start.php');
         exit;
     }
 }
