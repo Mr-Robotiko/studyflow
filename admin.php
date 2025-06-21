@@ -1,9 +1,21 @@
 <?php
-session_start();
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+require_once 'system/session-classes/session-manager.php';
+require_once 'system/session-classes/user-session.php';
+require_once 'system/database-classes/database.php';
 
+SessionManager::start();
+$userSession = new UserSession();
+$user = $userSession->getUser();
+$database = new Database(__DIR__ . "/config/configuration.csv");
+$pdo = $database->getConnection();
+
+$stmt = $pdo->prepare("SELECT admin FROM user WHERE UserID = :userId");
+$stmt->execute([':userId' => $user->getId()]);
+$isAdmin = $stmt->fetchColumn();
+
+if ($isAdmin != 1) {
+    die("Kein Zugriff!");
+}
 $popupTitle = "";
 $alert = "";
 
@@ -115,6 +127,7 @@ try {
 <div style="text-align:center;">
     <button class="export-btn" onclick="exportJSON()">📁 Alle Benutzer als JSON exportieren</button>
 </div>
+<a href="start.php" class="zurueck-button"><i class="fas fa-arrow-left"></i>Zurück</a>
 
 <script>
 function exportJSON() {

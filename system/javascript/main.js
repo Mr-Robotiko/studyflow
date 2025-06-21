@@ -183,3 +183,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Admin Prüfung
+
+document.getElementById('adminbereich-button').addEventListener('click', function() {
+    const isAdmin = this.getAttribute('data-admin');
+    if (isAdmin === '1') {
+        window.location.href = 'admin.php';
+    } else {
+        alert('Zugriff verweigert: Kein Admin-Recht.');
+    }
+});

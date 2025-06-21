@@ -69,6 +69,9 @@ $pdo = $database->getConnection();
 // Userdaten aktualisieren
 $user->loadUserDataFromDatabase($pdo);
 $accountManager = new AccountManager($user, $pdo);
+$stmt = $pdo->prepare("SELECT admin FROM user WHERE UserID = :userId");
+$stmt->execute([':userId' => $userId]);
+$isAdmin = $stmt->fetchColumn();
 
 $todoHandler = new TodoHandler($pdo, $userId);
 $calendarHandler = new CalendarHandler($pdo, $userId);
@@ -401,7 +404,7 @@ $lernzeitMinuten = [
             </form>
 
             <!-- Adminbereich-Button (noch ohne Funktion) -->
-            <button id="adminbereich-button">Adminbereich</button>
+            <button id="adminbereich-button" data-admin="<?= $isAdmin ?>">Adminbereich</button>
 
             <br /><br />
             <button onclick="showCalendar()">Zurück zum Kalender</button>
