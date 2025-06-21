@@ -395,9 +395,6 @@ $lernzeitMinuten = [
 
           <!-- Buttons -->
           <div>
-            <!-- Passwort ändern -->
-            <button id="password_aendern"><a href="password.php">Passwort ändern</a></button>
-
             <!-- Konto löschen: eigenes Form -->
             <form method="POST" onsubmit="return confirm('Bist du sicher, dass du dein Konto löschen willst?');">
               <button type="submit" name="delete_account" id="konto-loeschen">Konto löschen</button>
