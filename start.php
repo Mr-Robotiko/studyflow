@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // ---------------- Logout-Timer speichern ----------------
 if (isset($_POST['save_logout_timer'])) {
-    $newTimer = intval($_POST['logout_timer'] ?? 900);
+    $newTimer = intval($_POST['logout_timer'] ?? 600);
     try {
         $stmt = $pdo->prepare("UPDATE user SET AutoLogoutTimer = :timer WHERE UserID = :userId");
         $stmt->execute([':timer' => $newTimer, ':userId' => $userId]);
@@ -437,7 +437,7 @@ $lernzeitMinuten = [
               <?php
               $currentTimer = $user->getAutoLogoutTimer(); 
               $options = [
-                  3 => "5 Minuten",
+                  300 => "5 Minuten",
                   600 => "10 Minuten",
                   900 => "15 Minuten",
                   1200 => "20 Minuten",
