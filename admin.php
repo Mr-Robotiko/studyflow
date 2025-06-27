@@ -6,16 +6,25 @@ require_once 'system/database-classes/database.php';
 SessionManager::start();
 $userSession = new UserSession();
 $user = $userSession->getUser();
+
+// Kein gültiger Benutzer? Weiterleitung zur Login-Seite
+if (!$user || !method_exists($user, 'getId')) {
+    header("Location: login.php");
+    exit;
+}
+
 $database = new Database(__DIR__ . "/config/configuration.csv");
 $pdo = $database->getConnection();
 
 $stmt = $pdo->prepare("SELECT admin FROM user WHERE UserID = :userId");
 $stmt->execute([':userId' => $user->getId()]);
-$isAdmin = $stmt->fetchColumn();
+$isAdmin = (int)$stmt->fetchColumn();
 
-if ($isAdmin != 1) {
-    die("Kein Zugriff!");
+//  Kein Admin? Zugriff verweigert
+if ($isAdmin !== 1) {
+    exit("Kein Zugriff!");
 }
+
 $popupTitle = "";
 $alert = "";
 
