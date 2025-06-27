@@ -74,6 +74,7 @@ try {
     <link rel="stylesheet" href="system/style/popup.css"/>
     <link rel="stylesheet" href="system/style/admin.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="system/javascript/inactivityTimer.js" defer></script>
     <script src="system/javascript/popup.js"></script>
 </head>
 <body>
