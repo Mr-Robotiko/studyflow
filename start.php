@@ -185,6 +185,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// ---------------- Logout-Timer speichern ----------------
+if (isset($_POST['save_logout_timer'])) {
+    $newTimer = intval($_POST['logout_timer'] ?? 900);
+    try {
+        $stmt = $pdo->prepare("UPDATE user SET AutoLogoutTimer = :timer WHERE UserID = :userId");
+        $stmt->execute([':timer' => $newTimer, ':userId' => $userId]);
+        $user->loadUserDataFromDatabase($pdo);
+    } catch (Exception $e) {
+        echo "<p style='color:red;'>Fehler beim Speichern des Timers: " . htmlspecialchars($e->getMessage()) . "</p>";
+    }
+}
+
 // ---------------- To-Dos & Kalenderdaten laden ----------------
 $todos = $todoHandler->getTodos();
 $today = date('Y-m-d');
@@ -216,6 +228,9 @@ $lernzeitMinuten = [
   <link rel="stylesheet" type="text/css" href="system/style/main.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="system/javascript/inactivityTimer.js" defer></script>
+  <script>
+    const sessionTimeout = <?= json_encode($user->getAutoLogoutTimer() ?? 600); ?>;
+  </script>
   <script src="system/javascript/main.js" defer></script>
 </head>
 <body class="<?= $user->getDarkMode() ? 'dark-mode' : '' ?>">
@@ -391,6 +406,27 @@ $lernzeitMinuten = [
               <input type="hidden" name="dark_mode" id="dark_mode_value" value="<?= $user->getDarkMode() ? 1 : 0 ?>">
               <button type="submit" name="save_settings">Einstellungen speichern</button>
             </div>
+          </form>
+          <form method="POST" action="start.php">
+            <label for="logout_timer">Automatischer Logout nach Inaktivität:</label>
+            <select name="logout_timer" id="logout_timer">
+              <?php
+              $currentTimer = $user->getAutoLogoutTimer(); 
+              $options = [
+                  300 => "5 Minuten",
+                  600 => "10 Minuten",
+                  900 => "15 Minuten",
+                  1200 => "20 Minuten",
+                  1800 => "30 Minuten",
+                  3600 => "60 Minuten"
+              ];
+              foreach ($options as $value => $label) {
+                  $selected = ($value == $currentTimer) ? 'selected' : '';
+                  echo "<option value=\"$value\" $selected>$label</option>";
+              }
+              ?>
+            </select>
+            <button type="submit" name="save_logout_timer">Speichern</button>
           </form>
 
           <!-- Buttons -->

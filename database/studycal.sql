@@ -81,7 +81,8 @@ CREATE TABLE `user` (
   `Admin` tinyint(1) NOT NULL DEFAULT 0,
   `DPS` tinyint(1) NOT NULL DEFAULT 0,
   `Mode` tinyint(1) NOT NULL DEFAULT 1,
-  `ILT` varchar(100) NOT NULL
+  `ILT` varchar(100) NOT NULL,
+  `AutoLogoutTimer` int(11) NOT NULL DEFAULT 600
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

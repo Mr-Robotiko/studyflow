@@ -2,6 +2,7 @@
 require_once 'system/session-classes/session-manager.php';
 require_once 'system/session-classes/user-session.php';
 require_once 'system/database-classes/database.php';
+require_once __DIR__ . "/system/user-classes/user.php";
 
 SessionManager::start();
 $userSession = new UserSession();
@@ -84,6 +85,9 @@ try {
     <link rel="stylesheet" href="system/style/admin.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="system/javascript/inactivityTimer.js" defer></script>
+    <script>
+        const sessionTimeout = <?= json_encode($user->getAutoLogoutTimer() ?? 600); ?>;
+    </script>
     <script src="system/javascript/popup.js"></script>
 </head>
 <body>
@@ -104,25 +108,25 @@ try {
     </thead>
     <tbody>
         <?php if (!empty($users)): ?>
-            <?php foreach ($users as $user): ?>
+            <?php foreach ($users as $accounts): ?>
                 <tr>
-                    <td><?= htmlspecialchars($user['UserID']) ?></td>
-                    <td><?= htmlspecialchars($user['Name']) ?></td>
-                    <td><?= htmlspecialchars($user['Surname']) ?></td>
-                    <td><?= htmlspecialchars($user['Username']) ?></td>
+                    <td><?= htmlspecialchars($accounts['UserID']) ?></td>
+                    <td><?= htmlspecialchars($accounts['Name']) ?></td>
+                    <td><?= htmlspecialchars($accounts['Surname']) ?></td>
+                    <td><?= htmlspecialchars($accounts['Username']) ?></td>
                     <td>
                         <form method="post">
-                            <input type="hidden" name="username" value="<?= htmlspecialchars($user['Username']) ?>">
+                            <input type="hidden" name="username" value="<?= htmlspecialchars($accounts['Username']) ?>">
                             <input type="text" name="new_password" placeholder="Neues Passwort" required>
                             <button type="submit" name="change_password">Ändern</button>
                         </form>
                     </td>
-                    <td><?= $user['Admin'] ? 'Admin' : '—' ?></td>
+                    <td><?= $accounts['Admin'] ? 'Admin' : '—' ?></td>
                     <td>
                         <form method="post">
-                            <input type="hidden" name="username" value="<?= htmlspecialchars($user['Username']) ?>">
+                            <input type="hidden" name="username" value="<?= htmlspecialchars($accounts['Username']) ?>">
                             <button type="submit" name="toggle_admin">
-                                <?= $user['Admin'] ? 'Admin entfernen' : 'Zum Admin machen' ?>
+                                <?= $accounts['Admin'] ? 'Admin entfernen' : 'Zum Admin machen' ?>
                             </button>
                         </form>
                     </td>

@@ -1,4 +1,3 @@
-const sessionTimeout = 600; // 10 Minuten Timeout
 let inactivityTimer;
 
 // Funktion zur Umleitung nach Inaktivität
@@ -17,7 +16,7 @@ function resetInactivityTimer() {
 
 // Event Listener für Benutzeraktivität
 window.onload = function() {
-  // Setzt den Timer bei jeder Benutzeraktion zurück (Klick, Tastatureingabe etc.)
+  // Setzt den Timer bei jeder Benutzeraktion zurück
   document.body.addEventListener('mousemove', resetInactivityTimer);
   document.body.addEventListener('keydown', resetInactivityTimer);
 

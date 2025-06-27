@@ -149,5 +149,16 @@ class User {
         }
     }
 
+    public function getAutoLogoutTimer(): int {
+        $db = new Database("config/configuration.csv");
+        $pdo = $db->getConnection();
+
+        $stmt = $pdo->prepare("SELECT AutoLogoutTimer FROM user WHERE UserID = :id");
+        $stmt->execute(['id' => $this->id]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? (int)$result['AutoLogoutTimer'] : 600;
+    }
 }
+
 ?>
