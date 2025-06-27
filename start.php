@@ -430,7 +430,7 @@ $lernzeitMinuten = [
 
       <h2>Neuer Eintrag</h2>
 
-      <?php if ($success): ?>
+      <?php if (isset($success) && $success): ?>
         <p class="popup-success-text">Eintrag erfolgreich gespeichert!</p>
       <?php endif; ?>
 
