@@ -19,9 +19,9 @@ if ($userData) {
     if (file_exists($calendarPath)) {
         $json = file_get_contents($calendarPath);
 
-        // 📥 Speichern in DB
+        // Speichern in DB
         if ($user->saveCalendarfileToDatabase($json)) {
-            // 🧹 Löschen der lokalen Datei
+            //Löschen der lokalen Datei
             unlink($calendarPath);
         }
     }

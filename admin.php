@@ -8,6 +8,25 @@ SessionManager::start();
 $userSession = new UserSession();
 $user = $userSession->getUser();
 
+if (!$user) {
+    header('Location: login.php');
+    exit;
+}
+
+// Logout-Timer prüfen bei JEDEM Request
+$timeoutLimit = $user->getAutoLogoutTimer() ?? 600; // Std. Timeout in Sekunden wenn nicht gesetzt
+if (isset($_SESSION['last_activity'])) {
+    $inactive = time() - $_SESSION['last_activity'];
+    if ($inactive > $timeoutLimit) {
+        SessionManager::destroy();
+        header('Location: login.php?timeout=1');
+        exit;
+    }
+}
+
+// Session ist aktiv, also Update der last_activity
+$_SESSION['last_activity'] = time();
+
 // Kein gültiger Benutzer? Weiterleitung zur Login-Seite
 if (!$user || !method_exists($user, 'getId')) {
     header("Location: login.php");

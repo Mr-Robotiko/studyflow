@@ -1,4 +1,34 @@
 <?php
+
+require_once __DIR__ . '/system/session-classes/session-manager.php';
+require_once __DIR__ . '/system/session-classes/user-session.php';
+require_once __DIR__ . '/system/user-classes/user.php';
+require_once __DIR__ . '/system/database-classes/database.php';
+require_once __DIR__ . '/system/handler/todo-handler.php';
+
+SessionManager::start();
+$userSession = new UserSession();
+$user = $userSession->getUser();
+
+if (!$user) {
+    header('Location: login.php');
+    exit;
+}
+
+// Logout-Timer prüfen bei JEDEM Request
+$timeoutLimit = $user->getAutoLogoutTimer() ?? 600; // Std. Timeout in Sekunden wenn nicht gesetzt
+if (isset($_SESSION['last_activity'])) {
+    $inactive = time() - $_SESSION['last_activity'];
+    if ($inactive > $timeoutLimit) {
+        SessionManager::destroy();
+        header('Location: login.php?timeout=1');
+        exit;
+    }
+}
+
+// Session ist aktiv, also Update der last_activity
+$_SESSION['last_activity'] = time();
+
 // Fehleranzeigen aktivieren
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -7,12 +37,6 @@ error_reporting(E_ALL);
 // ------------------ AJAX: To-Do als erledigt markieren ------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_todo'])) {
     header('Content-Type: application/json; charset=utf-8');
-
-    require_once __DIR__ . '/system/session-classes/session-manager.php';
-    require_once __DIR__ . '/system/session-classes/user-session.php';
-    require_once __DIR__ . '/system/user-classes/user.php';
-    require_once __DIR__ . '/system/database-classes/database.php';
-    require_once __DIR__ . '/system/handler/todo-handler.php';
 
     SessionManager::start();
     $userSession = new UserSession();
@@ -413,7 +437,7 @@ $lernzeitMinuten = [
               <?php
               $currentTimer = $user->getAutoLogoutTimer(); 
               $options = [
-                  300 => "5 Minuten",
+                  3 => "5 Minuten",
                   600 => "10 Minuten",
                   900 => "15 Minuten",
                   1200 => "20 Minuten",
