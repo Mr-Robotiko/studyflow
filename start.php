@@ -203,61 +203,67 @@ if (isset($_POST['save_entry'])) {
 
             $defaultStart = new DateTime("08:00:00"); // Standardstartzeit, falls kein bestehender Eintrag
 
-            foreach ($period as $dt) {
-                $dayDate = $dt->format('Y-m-d');
+          foreach ($period as $dt) {
+              $dayDate = $dt->format('Y-m-d');
 
-                // Prüfe, ob bereits ein Eintrag für diesen Tag existiert
-                $stmtCheck = $pdo->prepare("
-                    SELECT EntryID, Begintime FROM entry WHERE EventID = :eventId AND DayDate = :dayDate
-                ");
-                $stmtCheck->execute([
-                    ':eventId' => $eventId,
-                    ':dayDate' => $dayDate
-                ]);
+              // Hole ILT in Minuten aus deinem User-Objekt (mapping von 0–4 zu 30–180min)
+              $iltMap = [0 => 30, 1 => 45, 2 => 60, 3 => 120, 4 => 180];
+              $durationMinutes = $iltMap[$user->getLernideal()] ?? 90; // fallback 90min
 
-                $existingEntry = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+              // Prüfe, ob bereits Einträge für diesen Tag existieren und ermittle die späteste Endzeit
+              $stmtCheck = $pdo->prepare("
+                  SELECT MAX(Endtime) as lastEndtime FROM entry
+                  WHERE DayDate = :dayDate
+              ");
+              $stmtCheck->execute([
+                  ':dayDate' => $dayDate
+              ]);
 
-                // Hole ILT in Minuten aus deinem User-Objekt (mapping von 0–4 zu 30–180min)
-                $iltMap = [0 => 30, 1 => 60, 2 => 90, 3 => 120, 4 => 180];
-                $durationMinutes = $iltMap[$user->getLernideal()] ?? 90; // fallback 90min
+              $result = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
-                if ($existingEntry) {
-                    // 📝 Update bestehenden Eintrag
+              if ($result && $result['lastEndtime']) {
+                  // Starte nach dem letzten Eintrag
+                  $beginTime = new DateTime($result['lastEndtime']);
+                  $beginTime->modify('+1 second');       
+              } else {
+                  // Starte um 08:00
+                  $beginTime = new DateTime("08:00:00");
+              }
 
-                    $beginTime = new DateTime($existingEntry['Begintime']);
-                    $endTime = clone $beginTime;
-                    $endTime->modify("+{$durationMinutes} minutes");
+              $endTime = clone $beginTime;
+              $endTime->modify("+{$durationMinutes} minutes");
 
-                    $stmtUpdate = $pdo->prepare("
-                        UPDATE entry SET Begintime = :beginTime, Endtime = :endTime
-                        WHERE EntryID = :entryId
-                    ");
-                    $stmtUpdate->execute([
-                        ':beginTime' => $beginTime->format('H:i:s'),
-                        ':endTime'   => $endTime->format('H:i:s'),
-                        ':entryId'   => $existingEntry['EntryID']
-                    ]);
+              // Kürze Block, falls er über Mitternacht hinausgeht
+              $midnight = clone $beginTime;
+              $midnight->setTime(23, 59, 59);
 
-                } else {
-                    // ➕ Insert neuen Eintrag
+              if ($endTime > $midnight) {
+                  // Kürze Dauer, sodass Block um 23:59:59 endet
+                  $endTime = clone $midnight;
+                  
+                  // Optional: Prüfe Mindestdauer (z.B. mind. 10min), sonst überspringen
+                  $interval = $beginTime->diff($endTime);
+                  $minutesAvailable = ($interval->h * 60) + $interval->i;
 
-                    $beginTime = clone $defaultStart;
-                    $endTime = clone $beginTime;
-                    $endTime->modify("+{$durationMinutes} minutes");
+                  if ($minutesAvailable < 10) {
+                      // Falls Restzeit zu kurz, überspringe diesen Tag
+                      continue;
+                  }
+              }
 
-                    $stmtInsert = $pdo->prepare("
-                        INSERT INTO entry (EventID, DayDate, Begintime, Endtime)
-                        VALUES (:eventId, :dayDate, :beginTime, :endTime)
-                    ");
-                    $stmtInsert->execute([
-                        ':eventId'   => $eventId,
-                        ':dayDate'   => $dayDate,
-                        ':beginTime' => $beginTime->format('H:i:s'),
-                        ':endTime'   => $endTime->format('H:i:s')
-                    ]);
-                }
-            }
 
+              // ➕ Insert neuen Eintrag
+              $stmtInsert = $pdo->prepare("
+                  INSERT INTO entry (EventID, DayDate, Begintime, Endtime)
+                  VALUES (:eventId, :dayDate, :beginTime, :endTime)
+              ");
+              $stmtInsert->execute([
+                  ':eventId'   => $eventId,
+                  ':dayDate'   => $dayDate,
+                  ':beginTime' => $beginTime->format('H:i:s'),
+                  ':endTime'   => $endTime->format('H:i:s')
+              ]);
+          }
 
             header('Location: start.php');
             exit;
