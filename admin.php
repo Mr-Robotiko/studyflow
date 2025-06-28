@@ -14,7 +14,7 @@ if (!$user) {
 }
 
 // Logout-Timer prüfen bei JEDEM Request
-$timeoutLimit = $user->getAutoLogoutTimer() ?? 600; // Std. Timeout in Sekunden wenn nicht gesetzt
+$timeoutLimit = $user->getAutoLogoutTimer() ?? 600;
 if (isset($_SESSION['last_activity'])) {
     $inactive = time() - $_SESSION['last_activity'];
     if ($inactive > $timeoutLimit) {
@@ -23,40 +23,31 @@ if (isset($_SESSION['last_activity'])) {
         exit;
     }
 }
-
-// Session ist aktiv, also Update der last_activity
 $_SESSION['last_activity'] = time();
 
-// Kein gültiger Benutzer? Weiterleitung zur Login-Seite
 if (!$user || !method_exists($user, 'getId')) {
     header("Location: login.php");
     exit;
 }
 
-$database = new Database(__DIR__ . "/config/configuration.csv");
-$pdo = $database->getConnection();
-
-$stmt = $pdo->prepare("SELECT admin FROM user WHERE UserID = :userId");
-$stmt->execute([':userId' => $user->getId()]);
-$isAdmin = (int)$stmt->fetchColumn();
-
-//  Kein Admin? Zugriff verweigert
-if ($isAdmin !== 1) {
-    exit("Kein Zugriff!");
-}
-
-$popupTitle = "";
-$alert = "";
-
-$host = "localhost";
-$dbname = "studycal";
-$databaseUser = "Admin";
-$pass = "rH!>|r'h6.XXlN.=2}A_#u[gxvhU3q;";
-
 try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $databaseUser, $pass);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Verbindung über Konfigurationsdatei herstellen
+    $database = new Database("config/configuration.csv");
+    $pdo = $database->getConnection();
 
+    // Adminstatus prüfen
+    $stmt = $pdo->prepare("SELECT admin FROM user WHERE UserID = :userId");
+    $stmt->execute([':userId' => $user->getId()]);
+    $isAdmin = (int)$stmt->fetchColumn();
+
+    if ($isAdmin !== 1) {
+        exit("Kein Zugriff!");
+    }
+
+    $popupTitle = "";
+    $alert = "";
+
+    // Regex-Templates für Eingaben
     if (isset($_POST['change_password'], $_POST['username'], $_POST['new_password'])) {
         $username = $_POST['username'];
         $newPassword = $_POST['new_password'];
@@ -66,7 +57,7 @@ try {
             $alert = "Passwort muss 5–50 Zeichen lang sein und darf nur Buchstaben, Zahlen, _ und - enthalten.";
         } else {
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("UPDATE user SET Password = :password WHERE Username = :username");
+            $stmt = $pdo->prepare("UPDATE user SET Password = :password WHERE Username = :username");
             $stmt->execute([
                 ':password' => $hashed,
                 ':username' => $username
@@ -76,24 +67,27 @@ try {
         }
     }
 
+    // Setzen des Adminstatuses
     if (isset($_POST['toggle_admin'], $_POST['username'])) {
         $username = $_POST['username'];
-        $stmt = $conn->prepare("SELECT Admin FROM user WHERE Username = ?");
+        $stmt = $pdo->prepare("SELECT Admin FROM user WHERE Username = ?");
         $stmt->execute([$username]);
         $current = $stmt->fetchColumn();
         $new = $current ? 0 : 1;
-        $stmt = $conn->prepare("UPDATE user SET Admin = ? WHERE Username = ?");
+        $stmt = $pdo->prepare("UPDATE user SET Admin = ? WHERE Username = ?");
         $stmt->execute([$new, $username]);
     }
 
-    $stmt = $conn->query("SELECT UserID, Username, Name, Surname, Admin FROM user");
+    // Alle User nehmen für die JSON exporte
+    $stmt = $pdo->query("SELECT UserID, Username, Name, Surname, Admin FROM user");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-} catch (PDOException $e) {
+} catch (Exception $e) {
     $popupTitle = "Verbindungsfehler";
     $alert = "Fehler: " . $e->getMessage();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">
