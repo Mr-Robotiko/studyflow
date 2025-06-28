@@ -1,8 +1,5 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+// Zerstört Session vom jeweiligen User
 require_once "system/session-classes/session-manager.php";
 require_once "system/user-classes/user.php";
 
@@ -14,20 +11,9 @@ if ($userData) {
     $user = new User();
     $user->setUserName($username);
 
-    $calendarPath = __DIR__ . "/data/calendar_{$username}.json";
-
-    if (file_exists($calendarPath)) {
-        $json = file_get_contents($calendarPath);
-
-        // Speichern in DB
-        if ($user->saveCalendarfileToDatabase($json)) {
-            //Löschen der lokalen Datei
-            unlink($calendarPath);
-        }
-    }
-
     SessionManager::destroy();
 }
 
+// Redirection zur Login.php
 header("Location: login.php");
 exit;
