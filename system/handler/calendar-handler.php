@@ -11,6 +11,7 @@ class CalendarHandler {
         $this->userId = $userId;
     }
 
+    // Rückgabe aller Wocheneinträge
     public function getWeekEntries(int $week, int $year): array {
         $startDate = new DateTime();
         $startDate->setISODate($year, $week);

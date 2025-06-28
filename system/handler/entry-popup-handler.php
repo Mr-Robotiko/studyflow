@@ -9,6 +9,7 @@ $success = $_SESSION['entry_success'] ?? false;
 $errors  = $_SESSION['entry_errors']  ?? [];
 unset($_SESSION['entry_success'], $_SESSION['entry_errors']);
 
+// Handling des Eintragforms
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_entry'])) {
     $title       = trim($_POST['klausur'] ?? '');
     $description = trim($_POST['notizen'] ?? '');
@@ -16,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_entry'])) {
     $endDate     = $_POST['endungsdatum'] ?? '';
     $errors = [];
 
+    // Abfangen von fehlerhafter Eingaben
     if ($title === '') {
         $errors[] = 'Bitte gib einen Titel (Klausur) ein.';
     }
@@ -29,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_entry'])) {
         $errors[] = 'Das Anfangsdatum darf nicht nach dem Enddatum liegen.';
     }
 
+    // Setzen der Einträge in den jeweiligen Tag
     if (empty($errors)) {
         $entry = new Entry($title, $description, $startDate, $endDate);
         $days = $_SESSION['days'] ?? [];

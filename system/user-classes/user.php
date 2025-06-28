@@ -159,6 +159,12 @@ class User {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ? (int)$result['AutoLogoutTimer'] : 600;
     }
+
+    public function getLernidealMinutes(): int {
+        $mapping = [0 => 30, 1 => 60, 2 => 90, 3 => 120, 4 => 180];
+        return $mapping[$this->lernideal] ?? 90; // Default = 90min
+    }
+
 }
 
 ?>

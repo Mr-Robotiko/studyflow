@@ -10,6 +10,7 @@ class PasswordReset {
         $this->pdo = $db->getConnection();
     }
 
+    // Setzt das Passwort zurück auf Basis der Sicherheitsfrage
     public function reset($username, $securitypassphrase, $newPassword, $confirmPassword) {
         $username = trim($username);
         $securitypassphrase = trim($securitypassphrase);
@@ -32,6 +33,7 @@ class PasswordReset {
             return "Die Passwörter stimmen nicht überein.";
         }
     
+        // Ruft die Sicherheitsfrage aus der DB ab
         $stmt = $this->pdo->prepare("SELECT Securitypassphrase FROM user WHERE Username = :username");
         $stmt->execute(['username' => $username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -44,6 +46,7 @@ class PasswordReset {
             return "Sicherheitsantwort ist falsch.";
         }
     
+        // Überschreibt das Passwort bei erfolgreicher Validierung
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
         $update = $this->pdo->prepare("UPDATE user SET Password = :password WHERE Username = :username");
     

@@ -8,6 +8,7 @@ class TodoHandler {
         $this->userId = $userId;
     }
 
+    // Setzen der jeweiligen ToDos as fertig -> gelöscht
     public function markAsDone(int $tid): array {
         try {
             $stmtCheck = $this->pdo->prepare("SELECT COUNT(*) FROM todo WHERE TID = :tid AND UserID = :uid");
@@ -24,6 +25,7 @@ class TodoHandler {
         }
     }
 
+    // Speichern eines neuen Todos in die DB
     public function saveNewTodo(string $text, string $enddate): array {
         try {
             $stmt = $this->pdo->prepare("
@@ -41,6 +43,7 @@ class TodoHandler {
         }
     }
 
+    // Rückgabe der jewiligen Todos eines Users
     public function getTodos(): array {
         try {
             $stmt = $this->pdo->prepare("

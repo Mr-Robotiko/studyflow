@@ -2,6 +2,7 @@
 class SessionManager {
     private const SESSION_TIMEOUT = 600;
 
+    // Starten einer Session mit den jeweiligen Parameters
     public static function start(): void {
         if (session_status() === PHP_SESSION_NONE) {
             session_set_cookie_params([
@@ -30,11 +31,13 @@ class SessionManager {
         $_SESSION['LAST_ACTIVITY'] = time();
     }
 
+    // Redirection zur Login Seite bei abgelaufender Session
     private static function redirectToLogin(): void {
         header('Location: login.php');
         exit;
     }
 
+    // Zerstörung der Session bei Ablauf
     public static function destroy(): void {
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {

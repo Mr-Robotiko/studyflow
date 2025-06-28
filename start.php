@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/system/session-classes/session-manager.php';
 require_once __DIR__ . '/system/session-classes/user-session.php';
 require_once __DIR__ . '/system/user-classes/user.php';
@@ -87,6 +86,7 @@ $userSession = new UserSession();
 $user = $userSession->getUser();
 $userId = $user->getId();
 
+
 $database = new Database(__DIR__ . "/config/configuration.csv");
 $pdo = $database->getConnection();
 
@@ -153,60 +153,122 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // ---------------- Eintrag speichern ----------------
-    if (isset($_POST['save_entry'])) {
-        header('Content-Type: application/json');
+if (isset($_POST['save_entry'])) {
+    header('Content-Type: application/json');
 
-        $eventName = trim($_POST['klausur'] ?? '');
-        $beginDate = $_POST['anfangsdatum'] ?? '';
-        $endDate = $_POST['endungsdatum'] ?? '';
-        $note = trim($_POST['notizen'] ?? '');
+    $eventName = trim($_POST['klausur'] ?? '');
+    $beginDate = $_POST['anfangsdatum'] ?? '';
+    $endDate = $_POST['endungsdatum'] ?? '';
+    $note = trim($_POST['notizen'] ?? '');
 
-        $errors = [];
+    $errors = [];
 
-        if ($eventName === '') $errors[] = "Titel fehlt.";
-        if ($beginDate === '' || $endDate === '') {
-            $errors[] = "Bitte Datum angeben.";
-        } elseif ($beginDate > $endDate) {
-            $errors[] = "Anfangsdatum liegt nach Enddatum.";
-        }
-
-        if (empty($errors)) {
-            try {
-                $stmt = $pdo->prepare("
-                    INSERT INTO event (UserID, Eventname, Note, Begindate, Enddate, EventSeverity)
-                    VALUES (:userId, :eventName, :note, :beginDate, :endDate, 0)
-                ");
-                $stmt->execute([
-                    ':userId'    => $userId,
-                    ':eventName' => $eventName,
-                    ':note'      => $note,
-                    ':beginDate' => $beginDate,
-                    ':endDate'   => $endDate
-                ]);
-                $eventId = $pdo->lastInsertId();
-
-                $period = new DatePeriod(
-                    new DateTime($beginDate),
-                    new DateInterval('P1D'),
-                    (new DateTime($endDate))->modify('+1 day')
-                );
-
-                $stmtEntry = $pdo->prepare("
-                    INSERT INTO entry (EventID, DayDate, Begintime, Endtime)
-                    VALUES (:eventId, :dayDate, '00:00:00', '23:59:59')
-                ");
-                foreach ($period as $dt) {
-                    $stmtEntry->execute([':eventId' => $eventId, ':dayDate' => $dt->format('Y-m-d')]);
-                }
-                header('Location: start.php');
-                exit;
-            } catch (Exception $e) {
-                $errors[] = $e->getMessage();
-            }
-        }
-        header('Location: start.php');
-        exit;
+    if ($eventName === '') $errors[] = "Titel fehlt.";
+    if ($beginDate === '' || $endDate === '') {
+        $errors[] = "Bitte Datum angeben.";
+    } elseif ($beginDate > $endDate) {
+        $errors[] = "Anfangsdatum liegt nach Enddatum.";
     }
+
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO event (UserID, Eventname, Note, Begindate, Enddate, EventSeverity)
+                VALUES (:userId, :eventName, :note, :beginDate, :endDate, 0)
+            ");
+            $stmt->execute([
+                ':userId'    => $userId,
+                ':eventName' => $eventName,
+                ':note'      => $note,
+                ':beginDate' => $beginDate,
+                ':endDate'   => $endDate
+            ]);
+            $eventId = $pdo->lastInsertId();
+
+            $period = new DatePeriod(
+                new DateTime($beginDate),
+                new DateInterval('P1D'),
+                (new DateTime($endDate))->modify('+1 day')
+            );
+
+            // Lade User ILT
+            $user = new User($userId);
+            $user->loadUserDataFromDatabase($pdo);
+            $durationMinutes = $user->getLernidealMinutes();
+
+            $stmtEntry = $pdo->prepare("
+                INSERT INTO entry (EventID, DayDate, Begintime, Endtime)
+                VALUES (:eventId, :dayDate, :beginTime, :endTime)
+            ");
+
+            $defaultStart = new DateTime("08:00:00"); // Standardstartzeit, falls kein bestehender Eintrag
+
+            foreach ($period as $dt) {
+                $dayDate = $dt->format('Y-m-d');
+
+                // Prüfe, ob bereits ein Eintrag für diesen Tag existiert
+                $stmtCheck = $pdo->prepare("
+                    SELECT EntryID, Begintime FROM entry WHERE EventID = :eventId AND DayDate = :dayDate
+                ");
+                $stmtCheck->execute([
+                    ':eventId' => $eventId,
+                    ':dayDate' => $dayDate
+                ]);
+
+                $existingEntry = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+                // Hole ILT in Minuten aus deinem User-Objekt (mapping von 0–4 zu 30–180min)
+                $iltMap = [0 => 30, 1 => 60, 2 => 90, 3 => 120, 4 => 180];
+                $durationMinutes = $iltMap[$user->getLernideal()] ?? 90; // fallback 90min
+
+                if ($existingEntry) {
+                    // 📝 Update bestehenden Eintrag
+
+                    $beginTime = new DateTime($existingEntry['Begintime']);
+                    $endTime = clone $beginTime;
+                    $endTime->modify("+{$durationMinutes} minutes");
+
+                    $stmtUpdate = $pdo->prepare("
+                        UPDATE entry SET Begintime = :beginTime, Endtime = :endTime
+                        WHERE EntryID = :entryId
+                    ");
+                    $stmtUpdate->execute([
+                        ':beginTime' => $beginTime->format('H:i:s'),
+                        ':endTime'   => $endTime->format('H:i:s'),
+                        ':entryId'   => $existingEntry['EntryID']
+                    ]);
+
+                } else {
+                    // ➕ Insert neuen Eintrag
+
+                    $beginTime = clone $defaultStart;
+                    $endTime = clone $beginTime;
+                    $endTime->modify("+{$durationMinutes} minutes");
+
+                    $stmtInsert = $pdo->prepare("
+                        INSERT INTO entry (EventID, DayDate, Begintime, Endtime)
+                        VALUES (:eventId, :dayDate, :beginTime, :endTime)
+                    ");
+                    $stmtInsert->execute([
+                        ':eventId'   => $eventId,
+                        ':dayDate'   => $dayDate,
+                        ':beginTime' => $beginTime->format('H:i:s'),
+                        ':endTime'   => $endTime->format('H:i:s')
+                    ]);
+                }
+            }
+
+
+            header('Location: start.php');
+            exit;
+        } catch (Exception $e) {
+            $errors[] = $e->getMessage();
+        }
+    }
+    header('Location: start.php');
+    exit;
+}
+
 }
 
 // ---------------- Logout-Timer speichern ----------------

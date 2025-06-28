@@ -11,6 +11,7 @@ class Login {
         $this->conn = $conn;
     }
 
+    // Regex-Templates für Serverseitges Prüfen der Eingaben
     public function login(string $username, string $password_plain): bool {
         if (!preg_match('/^[a-zA-Z0-9_-]{1,50}$/', $username)) {
             $this->popupTitle = "Ungültiger Benutzername";
@@ -35,6 +36,7 @@ class Login {
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
     
+        // Verifizierung des Hashes und setzen der User-Daten
         if ($row && password_verify($password_plain, $row['Password'])) {
             $this->user = new User();
             $this->user->setId($row['UserID']);
@@ -48,6 +50,7 @@ class Login {
             $this->user->setDarkMode($row['Mode']);
             $this->user->setLernideal($row['ILT'] ?? 2);  // Fallback auf 2, falls NULL
     
+            // Session-ID den jeweiligen User initialisieren
             $_SESSION['eingeloggt'] = true;
             $_SESSION['user_data'] = [
                 'id'                 => $this->user->getId(),

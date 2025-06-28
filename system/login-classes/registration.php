@@ -8,6 +8,7 @@ class Registration {
         $this->conn = $conn;
     }
 
+    // Setzt Defaultwerte für die Erstellung eines neuen Nutzers
     public function handleRegistration(array $post) {
         $username = trim($post["username"] ?? '');
         $name = trim($post["name"] ?? '');

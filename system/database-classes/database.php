@@ -8,6 +8,7 @@ class Database {
             throw new Exception("Zugangsdaten-Datei nicht gefunden.");
         }
 
+        // Aufbauen einer DB-Verbindung mit der gegebenen Konfigurationsdatei
         $csv = array_map('str_getcsv', file($configPath));
         $headers = array_map('trim', $csv[0]);
         $values = array_map('trim', $csv[1]);
@@ -24,6 +25,7 @@ class Database {
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
+    // Rückgabe der Verbindung
     public function getConnection() {
         return $this->pdo;
     }
