@@ -9,6 +9,7 @@ $securitypassphrase = "";
 try {
     $resetHandler = new PasswordReset("config/configuration.csv");
 
+    // Übernahme der Feldereingaben
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $username = $_POST['username'] ?? '';
         $securitypassphrase = $_POST['securitypassphrase'] ?? '';
@@ -27,6 +28,7 @@ try {
         } else {
             $alert = $result;
 
+            // Prüfung, ob alle Felder ausgefüllt wurden
             if ($result === "Bitte alle Felder ausfüllen.") {
                 $popupTitle = "Fehlende Angaben";
             } elseif ($result === "Die Passwörter stimmen nicht überein.") {
