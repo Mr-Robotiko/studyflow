@@ -14,12 +14,14 @@ try {
     $db = new Database("config/configuration.csv");
     $conn = $db->getConnection();
 
+    // Übernahme der Feldereinträge
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $username = trim($_POST["username"] ?? '');
         $password = $_POST["password"] ?? '';
 
         $login = new Login($conn);
 
+        // Prüfung auf Fehleingaben
         if (empty($username) && empty($password)) {
             $popupTitle = "Fehlende Eingabe";
             $alert = "Bitte Benutzername und Passwort eingeben.";
