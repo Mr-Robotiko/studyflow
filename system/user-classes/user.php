@@ -116,13 +116,49 @@ class User {
         if (!$username) {
             throw new Exception("Benutzername fehlt");
         }
-        
+
         $db = new Database("config/configuration.csv");
         $pdo = $db->getConnection();
-    
+
+        // Abfgrage der UserID anhand des Nutzernamens
+        $stmt = $pdo->prepare("SELECT UserID FROM user WHERE username = :username");
+        $stmt->execute(['username' => $username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            throw new Exception("Benutzer nicht gefunden");
+        }
+
+        $userID = $user['UserID'];
+
+        // EventIDs des Nutzers abfragen
+        $stmt = $pdo->prepare("SELECT EventID FROM event WHERE UserID = :userID");
+        $stmt->execute(['userID' => $userID]);
+        $eventIDs = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // Lösche der EventIDs von jedem Event
+        if (!empty($eventIDs)) {
+            $inQuery = implode(',', array_fill(0, count($eventIDs), '?'));
+
+            $stmt = $pdo->prepare("DELETE FROM entry WHERE EventID IN ($inQuery)");
+            $stmt->execute($eventIDs);
+        }
+
+        // Löschen der Events
+        $stmt = $pdo->prepare("DELETE FROM event WHERE UserID = :userID");
+        $stmt->execute(['userID' => $userID]);
+
+
+        // Löschen der ToDos
+        $stmt = $pdo->prepare("DELETE FROM todo WHERE UserID = :userID");
+        $stmt->execute(['userID' => $userID]);
+
+        // Löschen des Benutzers
         $stmt = $pdo->prepare("DELETE FROM user WHERE username = :username");
         return $stmt->execute(['username' => $username]);
     }
+
+
 
     public function saveSettingsToDatabase(): bool {
         $db = new Database("config/configuration.csv");
