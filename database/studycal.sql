@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Erstellungszeit: 28. Mai 2025 um 21:17
+-- Erstellungszeit: 30. Jun 2025 um 14:43
 -- Server-Version: 10.4.28-MariaDB
 -- PHP-Version: 8.2.4
 
@@ -86,6 +86,13 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Daten für Tabelle `user`
+--
+
+INSERT INTO `user` (`UserID`, `Username`, `Name`, `Surname`, `Securitypassphrase`, `Password`, `Admin`, `DPS`, `Mode`, `ILT`, `AutoLogoutTimer`) VALUES
+(1, 'admin', 'Nutzer', 'Admin', '$2y$10$3wJwfVf7BNrpiTWDmctn.e8zXJsWoLho64hFINiCTkDeExs/cgfkO', '$2y$10$KEjmIGaqMItbU8ijwBcvoOn6lVA9tXK6zCuxS3ouh04N8bx0b01TC', 1, 0, 0, '2', 600);
+
+--
 -- Indizes der exportierten Tabellen
 --
 
@@ -143,7 +150,7 @@ ALTER TABLE `todo`
 -- AUTO_INCREMENT für Tabelle `user`
 --
 ALTER TABLE `user`
-  MODIFY `UserID` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `UserID` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints der exportierten Tabellen

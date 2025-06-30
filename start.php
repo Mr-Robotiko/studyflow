@@ -339,7 +339,7 @@ $lernzeitMinuten = [
         </li>
         <li class="dropdown">
           <a href="#" onclick="toggleDropdown(event, 'dropdown-profilbild')">
-            <img src="images/rusty.jpg" alt="Profilbild" class="profil-img" />
+            <img src="images/dragon.png" alt="Profilbild" class="profil-img" />
           </a>
           <div class="dropdown-content" id="dropdown-profilbild">
             <a href="#" onclick="showSettings(event)">Einstellungen</a>
